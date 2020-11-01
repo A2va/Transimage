@@ -1,0 +1,3 @@
+[submodule "transimage/translator"]
+	path = transimage/translator
+	url = https://github.com/A2va/ImageTranslator
