@@ -1,3 +1,7 @@
+#VS Code
+.vscode
+
+*.bat
 #Icons
 /icons
 # Byte-compiled / optimized / DLL files
