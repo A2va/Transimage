@@ -1,4 +1,5 @@
 import wx
+from transimage.canvas import DisplayCanvas
 
 class Transimage(wx.Frame):
 	def __init__(self,parent):
@@ -25,11 +26,12 @@ class Transimage(wx.Frame):
 
 		imageSizer= wx.BoxSizer(wx.HORIZONTAL)
 
-		self.imagePanel=wx.Panel(self,wx.ID_ANY,wx.DefaultPosition,wx.DefaultSize,wx.TAB_TRAVERSAL)
-		self.imagePanel.SetForegroundColour("#00ff00")
-		self.imagePanel.SetBackgroundColour("#00ff00")
+		#self.imagePanel=wx.Panel(self,wx.ID_ANY,wx.DefaultPosition,wx.DefaultSize,wx.TAB_TRAVERSAL)
+		self.imageCanvas=DisplayCanvas(self,id=wx.ID_ANY,size=wx.DefaultSize,ProjectionFun=None,BackgroundColor='#00ff00')
+		self.imageCanvas.SetForegroundColour("#00ff00")
+		self.imageCanvas.SetBackgroundColour("#00ff00")
 
-		imageSizer.Add(self.imagePanel,3,wx.EXPAND)
+		imageSizer.Add(self.imageCanvas,3,wx.EXPAND)
 		mainSizer.Add(imageSizer,3,wx.EXPAND,1)
 
 		editSizer=wx.BoxSizer(wx.VERTICAL)
