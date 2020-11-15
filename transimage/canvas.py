@@ -72,9 +72,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         #                               Alignment = "left",
         #                               Font=Font)
 
-        self.add_text('This is a test',(10,10),10,10)
-
-        self.add_text('This is a test 222',(10,50),10,10)
         self.Show()
         self.ZoomToBB()
         self.delta = 1.2
@@ -104,6 +101,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.AddObject(text)
 
         self.text.append(text)
+        self.Draw(True)
 
     def update_image(self,image):
         #For PIL Image
@@ -117,7 +115,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         height, width = image.shape[:2]
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         self.bmp = wx.Bitmap.FromBuffer(width, height, image)
-        self.AddScaledBitmap(self.bmp,(10,10),width,'cc')
+        self.AddScaledBitmap(self.bmp,(10,10),width,'tl')
 
         self.Draw(True)
         self.ZoomToBB()
