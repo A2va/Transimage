@@ -116,7 +116,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         # self.AddScaledBitmap(self.img,(10,10),image.size[1],'cc')
         height, width = image.shape[:2]
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        self.bmp = wx.BitmapFromBuffer(width, height, image)
+        self.bmp = wx.Bitmap.FromBuffer(width, height, image)
         self.AddScaledBitmap(self.bmp,(10,10),width,'cc')
 
         self.Draw(True)
