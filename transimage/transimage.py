@@ -1,9 +1,35 @@
 import wx
+import wx.lib.newevent
 import urllib
 import numpy as np
 import cv2
+import threading
+import multiprocessing
+import concurrent
 from transimage.canvas import DisplayCanvas
 from transimage.translator.image_translator import ImageTranslator
+
+EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
+
+class ImageProcess(threading.Thread):
+    def __init__(self,notify_window,img, ocr, translator, src_lang, dest_lang,process=True):
+        super(ImageProcess, self).__init__()
+        self.notify_window = notify_window
+        self.process=process
+        self.img=img
+        self.ocr=ocr
+        self.translator=translator
+        self.src_lang=src_lang
+        self.dest_lang=dest_lang
+        self.image_translator=ImageTranslator(self.img,self.ocr,self.translator,self.src_lang, self.dest_lang)
+    def run(self):
+        if self.process ==True:
+            self.image_translator.processing()
+        else:
+            self.image_translator.translate()
+
+        evt = EvtImageProcess(data=self.image_translator)
+        wx.PostEvent(self.notify_window, evt)
 
 class Transimage(wx.Frame):
     def __init__(self,parent):
@@ -45,17 +71,19 @@ class Transimage(wx.Frame):
 
         mainSizer.Add(editSizer,1,0,5)
 
+        self.Bind(EVT_IMAGE_PROCESS, self.end_image_process)
+
         self.SetSizer(mainSizer)
         self.Layout()
 
         self.Centre(wx.BOTH)
 
+    def end_image_process(self,event):
+        self.translator=event.data
 
     def open_image(self,event):
-        self.translator = ImageTranslator('icons/example.png', 'tesseract', 'deepl', 'eng', 'fra')
-        self.translator.processing()
-        self.imageCanvas.update_image(self.translator.img_out)
-        self.imageCanvas.add_text("This a test",(0,0),20,50)
+        self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', 'eng', 'fra')
+        self.processImage.start()
 
     def reformat_input(self, image):
         """
