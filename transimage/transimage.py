@@ -4,7 +4,8 @@ import urllib
 import numpy as np
 import cv2
 import threading
-import multiprocessing
+import time
+import pathos.multiprocessing as p_multiprocessing
 import concurrent
 from transimage.canvas import DisplayCanvas
 from transimage.translator.image_translator import ImageTranslator
@@ -12,10 +13,10 @@ from transimage.translator.image_translator import ImageTranslator
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
 class ImageProcess(threading.Thread):
-    def __init__(self,notify_window,img, ocr, translator, src_lang, dest_lang,process=True):
+    def __init__(self,notify_window,img, ocr, translator, src_lang, dest_lang,mode_process=True):
         super(ImageProcess, self).__init__()
         self.notify_window = notify_window
-        self.process=process
+        self.mode_process=mode_process
         self.img=img
         self.ocr=ocr
         self.translator=translator
@@ -23,13 +24,30 @@ class ImageProcess(threading.Thread):
         self.dest_lang=dest_lang
         self.image_translator=ImageTranslator(self.img,self.ocr,self.translator,self.src_lang, self.dest_lang)
     def run(self):
-        if self.process ==True:
-            self.image_translator.processing()
+        self.process=p_multiprocessing.ProcessingPool()
+        if self.mode_process ==True:
+            results = self.process.map(ImageProcess.worker_process,[self.image_translator])
         else:
-            self.image_translator.translate()
+            results = self.process.map(ImageProcess.worker_translate,[self.image_translator])
 
+        self.image_translator=results[0]
         evt = EvtImageProcess(data=self.image_translator)
         wx.PostEvent(self.notify_window, evt)
+
+    def abort(self):
+        if self.process !=None:
+            self.process.terminate()
+            self.image_translator=None
+
+    @staticmethod
+    def worker_process(image_translator):
+        image_translator.processing()
+        return image_translator
+
+    @staticmethod
+    def worker_translate(image_translator):
+        image_translator.translate()
+        return image_translator
 
 class Transimage(wx.Frame):
     def __init__(self,parent):
@@ -48,6 +66,9 @@ class Transimage(wx.Frame):
 
         self.tool1=self.toolBar.AddTool(wx.ID_ANY,"Tool",wx.Bitmap("icons/ocr.png"),wx.NullBitmap,wx.ITEM_CHECK,wx.EmptyString,wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.open_image,self.tool1)
+
+        self.tool2=self.toolBar.AddTool(wx.ID_ANY,"Tool",wx.Bitmap("icons/ocr.png"),wx.NullBitmap,wx.ITEM_CHECK,wx.EmptyString,wx.EmptyString,None)
+        self.Bind(wx.EVT_TOOL,self.stop_process,self.tool2)
 
         self.toolBar.Realize()
 
@@ -78,8 +99,12 @@ class Transimage(wx.Frame):
 
         self.Centre(wx.BOTH)
 
+    def stop_process(self,event):
+        self.processImage.abort()
+
     def end_image_process(self,event):
         self.translator=event.data
+        print(self.translator)
 
     def open_image(self,event):
         self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', 'eng', 'fra')
