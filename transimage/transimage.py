@@ -24,18 +24,22 @@ class ImageProcess(threading.Thread):
         self.dest_lang=dest_lang
         self.image_translator=ImageTranslator(self.img,self.ocr,self.translator,self.src_lang, self.dest_lang)
     def run(self):
+        self.stop=True
         self.process=p_multiprocessing.ProcessingPool()
         if self.mode_process ==True:
-            results = self.process.map(ImageProcess.worker_process,[self.image_translator])
+            results = self.process.amap(ImageProcess.worker_process,[self.image_translator])
         else:
-            results = self.process.map(ImageProcess.worker_translate,[self.image_translator])
-
-        self.image_translator=results[0]
-        evt = EvtImageProcess(data=self.image_translator)
-        wx.PostEvent(self.notify_window, evt)
+            results = self.process.amap(ImageProcess.worker_translate,[self.image_translator])
+        while not results.ready() and self.stop==True:
+                time.sleep(2)
+        if self.stop==False:
+            self.image_translator=results.get()
+            evt = EvtImageProcess(data=self.image_translator)
+            wx.PostEvent(self.notify_window, evt)
 
     def abort(self):
         if self.process !=None:
+            self.stop=True
             self.process.terminate()
             self.image_translator=None
 
@@ -78,7 +82,6 @@ class Transimage(wx.Frame):
 
         imageSizer= wx.BoxSizer(wx.HORIZONTAL)
 
-        #self.imagePanel=wx.Panel(self,wx.ID_ANY,wx.DefaultPosition,wx.DefaultSize,wx.TAB_TRAVERSAL)
         self.imageCanvas=DisplayCanvas(self,id=wx.ID_ANY,size=wx.DefaultSize,ProjectionFun=None,BackgroundColor='#00ff00')
         self.imageCanvas.SetForegroundColour("#00ff00")
         self.imageCanvas.SetBackgroundColour("#00ff00")
