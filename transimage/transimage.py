@@ -24,7 +24,7 @@ class ImageProcess(threading.Thread):
         self.dest_lang=dest_lang
         self.image_translator=ImageTranslator(self.img,self.ocr,self.translator,self.src_lang, self.dest_lang)
     def run(self):
-        self.stop=True
+        self.stop=False
         self.process=p_multiprocessing.ProcessingPool()
         if self.mode_process ==True:
             results = self.process.amap(ImageProcess.worker_process,[self.image_translator])
@@ -34,6 +34,7 @@ class ImageProcess(threading.Thread):
                 time.sleep(2)
         if self.stop==False:
             self.image_translator=results.get()
+            self.process.close()
             evt = EvtImageProcess(data=self.image_translator)
             wx.PostEvent(self.notify_window, evt)
 
@@ -106,7 +107,10 @@ class Transimage(wx.Frame):
         self.processImage.abort()
 
     def end_image_process(self,event):
-        self.translator=event.data
+        self.translator=event.data[0]
+        self.imageCanvas.update_image(self.translator.img_out)
+        for text in self.translator.text:
+            self.imageCanvas.add_text(text['string'],(text['x'],text['y']),text['max_width'],int(text['h']*1.1))
         print(self.translator)
 
     def open_image(self,event):

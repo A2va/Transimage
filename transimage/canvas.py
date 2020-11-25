@@ -90,11 +90,11 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
                 Color = "Black",
                 BackgroundColor = None,
                 LineStyle = "Transparent",
-                Width = 50,
+                Width = width,
                 Position = 'tl',
-                LineSpacing = 0.9,
+                LineSpacing = 1,
                 Alignment = "left",
-                Font=self.Font)
+                Font=None)
         text.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.start_move)
         text.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit)
 
