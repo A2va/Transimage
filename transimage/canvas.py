@@ -101,7 +101,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         height, width = image.shape[:2]
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         self.bmp = wx.Bitmap.FromBuffer(width, height, image)
-        self.AddScaledBitmap(self.bmp,(10,10),width,'tl')
+        self.AddScaledBitmap(self.bmp,(0,0),width,'tl')
 
         self.Draw(True)
         self.ZoomToBB()
