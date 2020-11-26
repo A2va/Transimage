@@ -57,8 +57,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Bind(FloatCanvas.EVT_LEFT_UP, self.stop_move)
         self.Bind(FloatCanvas.EVT_MOTION, self.moving)
 
-    
-        self.Font = wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_ITALIC, wx.FONTWEIGHT_NORMAL, False, "Times New Roman")
+        wx.Font.AddPrivateFont('font/Cantarell.ttf')
         # self.Text = self.canvas.AddScaledTextBox(
         #                               String='This is a very very long string for test',
         #                               Point=(10,10),
@@ -94,7 +93,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
                 Position = 'tl',
                 LineSpacing = 1,
                 Alignment = "left",
-                Font=None)
+                Font=wx.Font(size, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell"))
         text.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.start_move)
         text.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit)
 
