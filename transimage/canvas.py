@@ -48,8 +48,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
     def __init__(self, *args, **kwargs):
         FloatCanvas.FloatCanvas.__init__(self, *args, **kwargs)
         self.text=[]
-        # Add the Canvas
-      
+
 
 
         #Canvas Event
@@ -58,18 +57,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Bind(FloatCanvas.EVT_MOTION, self.moving)
 
         wx.Font.AddPrivateFont('font/Cantarell.ttf')
-        # self.Text = self.canvas.AddScaledTextBox(
-        #                               String='This is a very very long string for test',
-        #                               Point=(10,10),
-        #                               Size=10,
-        #                               Color = "Black",
-        #                               BackgroundColor = None,
-        #                               LineStyle = "Transparent",
-        #                               Width = 50,
-        #                               Position = 'tl',
-        #                               LineSpacing = 0.9,
-        #                               Alignment = "left",
-        #                               Font=Font)
 
         self.Show()
         self.ZoomToBB()
@@ -174,7 +161,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         Updates the status bar with the world coordinates
         and moves the object it is clicked on
         """
-
         if self.Moving:
             dxy = event.GetPosition() - self.StartPoint
             # Draw the Moving Object:
