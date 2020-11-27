@@ -6,7 +6,6 @@ import cv2
 import threading
 import time
 import pathos.multiprocessing as p_multiprocessing
-import concurrent
 from transimage.canvas import DisplayCanvas
 from transimage.translator.image_translator import ImageTranslator
 
@@ -69,11 +68,11 @@ class Transimage(wx.Frame):
         self.toolBar.SetForegroundColour("#0000ff")
         self.toolBar.SetBackgroundColour("#0000ff")
 
-        self.tool1=self.toolBar.AddTool(wx.ID_ANY,"Tool",wx.Bitmap("icons/ocr.png"),wx.NullBitmap,wx.ITEM_CHECK,wx.EmptyString,wx.EmptyString,None)
+        self.tool1=self.toolBar.AddTool(wx.ID_ANY,"Tool",wx.Bitmap("icons/ocr.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.open_image,self.tool1)
 
-        self.tool2=self.toolBar.AddTool(wx.ID_ANY,"Tool",wx.Bitmap("icons/ocr.png"),wx.NullBitmap,wx.ITEM_CHECK,wx.EmptyString,wx.EmptyString,None)
-        self.Bind(wx.EVT_TOOL,self.stop_process,self.tool2)
+        self.tool2=self.toolBar.AddTool(wx.ID_ANY,"Tool",wx.Bitmap("icons/ocr.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.Bind(wx.EVT_TOOL,self.translate,self.tool2)
 
         self.toolBar.Realize()
 
@@ -103,6 +102,32 @@ class Transimage(wx.Frame):
 
         self.Centre(wx.BOTH)
 
+    def translate(self,event):
+        self.translator.text.clear()
+        for text in self.imageCanvas.text:
+            text.CalcBoundingBox()
+            pos=text.XY
+            x=pos[0]
+            y=pos[1]
+            w=text.BoxWidth
+            h=text.BoxHeight
+            self.translator.text.append(
+                {
+                'x': x,
+                'y': y,
+                'w': w,
+                'h': h,
+                'paragraph_w': None,
+                'paragraph_h': None,
+                'string': text.String,
+                'image': None,
+                'max_width': w,
+                'font_zize': text.Size
+                }
+
+            )
+
+
     def stop_process(self,event):
         self.processImage.abort()
 
@@ -110,33 +135,12 @@ class Transimage(wx.Frame):
         self.translator=event.data[0]
         self.imageCanvas.update_image(self.translator.img_out)
         for text in self.translator.text:
-            self.imageCanvas.add_text(text['string'],(text['x'],text['y']),text['max_width'],int(text['h']*1.1))
+            self.imageCanvas.add_text(text['string'],(text['x'],text['y']),text['max_width'],text['font_zize'])
         print(self.translator)
 
     def open_image(self,event):
-        self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', 'eng', 'fra')
-        self.processImage.start()
-
-    def reformat_input(self, image):
-        """
-        Reformat the input image
-        """
-        if type(image) == str:
-            # URL
-            if image.startswith('http://') or image.startswith('https://'):
-                # Read bytes from url
-                image = urllib.request.urlopen(image).read()
-
-            nparr = np.frombuffer(image, np.uint8)              # Bytes
-            img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        elif type(image) == np.ndarray:                         # OpenCV image
-            if len(image.shape) == 2:
-                img = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-            elif len(image.shape) == 3 and image.shape[2] == 3:
-                img = image
-            elif len(image.shape) == 3 and image.shape[2] == 4:
-                img = image[:, :, :3]
-                img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        return img
+        # self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', 'eng', 'fra')
+        # self.processImage.start()
+        self.imageCanvas.update_image(cv2.imread('icons/example.png'))
+        self.imageCanvas.add_text('lam curious about area-filling text rendering options ',(6,-3),522,41)
 
