@@ -86,7 +86,10 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
         self.AddObject(text)
 
-        self.text.append(text)
+        self.text.append( {
+                'original_text':string,
+                'text_object':text
+            })
         self.Draw(True)
 
     def update_image(self,image):

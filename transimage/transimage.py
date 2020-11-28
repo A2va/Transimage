@@ -105,12 +105,19 @@ class Transimage(wx.Frame):
     def translate(self,event):
         self.translator.text.clear()
         for text in self.imageCanvas.text:
-            text.CalcBoundingBox()
-            pos=text.XY
+            text_object=text['text_object']
+            text_object.CalcBoundingBox()
+            pos=text_object.XY
             x=pos[0]
             y=pos[1]
-            w=text.BoxWidth
-            h=text.BoxHeight
+            w=text_object.BoxWidth
+            h=text_object.BoxHeight
+
+
+            string=text['original_text']
+            if text_object.String != string:
+                string=self.translator.run_translator(text_object.String)
+                
             self.translator.text.append(
                 {
                 'x': x,
@@ -119,7 +126,8 @@ class Transimage(wx.Frame):
                 'h': h,
                 'paragraph_w': None,
                 'paragraph_h': None,
-                'string': text.String,
+                'string':text_object.String,
+                'translated_string': string,
                 'image': None,
                 'max_width': w,
                 'font_zize': text.Size
