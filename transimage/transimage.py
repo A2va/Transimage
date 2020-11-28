@@ -130,25 +130,28 @@ class Transimage(wx.Frame):
                 'translated_string': string,
                 'image': None,
                 'max_width': w,
-                'font_zize': text.Size
-                }
-
-            )
-
+                'font_size': text_object.Size
+                })
+        self.processImage.image_translator=self.translator
+        self.processImage.mode_process=False
+        self.processImage.start()
 
     def stop_process(self,event):
         self.processImage.abort()
 
     def end_image_process(self,event):
         self.translator=event.data[0]
-        self.imageCanvas.update_image(self.translator.img_out)
-        for text in self.translator.text:
-            self.imageCanvas.add_text(text['string'],(text['x'],text['y']),text['max_width'],text['font_zize'])
-        print(self.translator)
-
+        if self.processImage.mode_process==True:
+            self.imageCanvas.update_image(self.translator.img_out)
+            for text in self.translator.text:
+                self.imageCanvas.add_text(text['string'],(text['x'],text['y']),text['max_width'],text['font_zize'])
+        else:
+            pass
+            
     def open_image(self,event):
-        # self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', 'eng', 'fra')
-        # self.processImage.start()
-        self.imageCanvas.update_image(cv2.imread('icons/example.png'))
-        self.imageCanvas.add_text('lam curious about area-filling text rendering options ',(6,-3),522,41)
+        
+        self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'google', 'eng', 'fra')
+        self.processImage.start()
+        # self.imageCanvas.update_image(cv2.imread('icons/example.png'))
+        # self.imageCanvas.add_text('lam curious about area-filling text rendering options ',(6,-3),522,41)
 
