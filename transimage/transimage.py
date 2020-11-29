@@ -117,7 +117,8 @@ class Transimage(wx.Frame):
             string=text['original_text']
             if text_object.String != string:
                 string=self.translator.run_translator(text_object.String)
-                
+            else:
+                string=text['original_translated']
             self.translator.text.append(
                 {
                 'x': x,
@@ -144,7 +145,7 @@ class Transimage(wx.Frame):
         if self.processImage.mode_process==True:
             self.imageCanvas.update_image(self.translator.img_out)
             for text in self.translator.text:
-                self.imageCanvas.add_text(text['string'],(text['x'],text['y']),text['max_width'],text['font_zize'])
+                self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],text['y']),text['max_width'],text['font_zize'])
         else:
             pass
             

@@ -68,7 +68,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.RemoveObject(text)
         self.Draw(True)
 
-    def add_text(self,string,pos,width,size):
+    def add_text(self,string,translated_string,pos,width,size):
         text=self.AddScaledTextBox(
                 String=string,
                 Point=pos,
@@ -88,6 +88,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
         self.text.append( {
                 'original_text':string,
+                'original_translated':translated_string,
                 'text_object':text
             })
         self.Draw(True)
