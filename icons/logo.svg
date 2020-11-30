@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 24 24"
+   fill="white"
+   width="36px"
+   height="36px"
+   version="1.1"
+   id="svg6"
+   sodipodi:docname="logo.svg"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   inkscape:export-filename="D:\GitHub\Transimage_2\icons\logo.png"
+   inkscape:export-xdpi="94.931297"
+   inkscape:export-ydpi="94.931297">
+  <metadata
+     id="metadata12">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs10" />
+  <sodipodi:namedview
+     pagecolor="#a3a3a3"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     id="namedview8"
+     showgrid="false"
+     inkscape:zoom="23.611112"
+     inkscape:cx="8.650676"
+     inkscape:cy="17.984628"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6"
+     inkscape:document-rotation="0" />
+  <path
+     d="M0 0h24v24H0z"
+     fill="none"
+     id="path2" />
+  <path
+     d="m 8.3950589,9.4444706 -1.016,-1.004 0.012,-0.012 c 0.696,-0.776 1.192,-1.668 1.484,-2.612 h 1.1720001 v -0.8 H 7.2470589 v -0.8 h -0.8 v 0.8 h -2.8 v 0.796 h 4.468 c -0.268,0.772 -0.692,1.504 -1.268,2.144 -0.372,-0.412 -0.68,-0.864 -0.924,-1.34 h -0.8 c 0.292,0.652 0.692,1.268 1.192,1.824 l -2.036,2.0080004 0.568,0.568 2,-2.0000004 1.244,1.2440004 z m 2.2520001,-2.028 H 9.8470589 l -1.8,4.8000004 h 0.8 l 0.448,-1.2 h 1.9000001 l 0.452,1.2 h 0.8 z m -1.0480001,2.8000004 0.6480001,-1.7320004 0.648,1.7320004 z"
+     id="path4"
+     style="stroke-width:1.33333333;stroke-miterlimit:4;stroke-dasharray:none" />
+  <rect
+     style="fill:none;stroke:#ffffff;stroke-width:1.33333333;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     id="rect831"
+     width="21.063528"
+     height="19.934118"
+     x="1.637647"
+     y="2.315294"
+     rx="2.7388229"
+     ry="3.2188249" />
+  <path
+     style="fill:none;stroke:#ffffff;stroke-width:1.33333333;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     d="m 4.2917646,19.567058 5.3364701,-4.743529 3.4447063,1.92 2.908235,-3.36 3.84,6.211764 z"
+     id="path835"
+     sodipodi:nodetypes="cccccc"
+     inkscape:export-filename="D:\GitHub\Transimage_2\icons\path835.png"
+     inkscape:export-xdpi="94.931297"
+     inkscape:export-ydpi="94.931297" />
+  <rect
+     style="fill:none;stroke:#ffffff;stroke-width:1.33333333;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     id="rect837"
+     width="3.8964696"
+     height="3.6988235"
+     x="16.32"
+     y="6.2964706"
+     rx="1.5105878"
+     ry="1.2423533" />
+</svg>
