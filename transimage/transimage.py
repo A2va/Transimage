@@ -53,6 +53,41 @@ class ImageProcess(threading.Thread):
         image_translator.translate()
         return image_translator
 
+class ProgressingDialog (wx.Dialog):
+
+    def __init__( self, parent ):
+        wx.Dialog.__init__ (self,parent,id=wx.ID_ANY, title="Progressing", pos=wx.DefaultPosition,size=wx.Size(200,120),style=wx.DEFAULT_DIALOG_STYLE)
+
+        self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
+
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+
+        textSizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.fixedText = wx.StaticText(self,wx.ID_ANY,"MyLabel",wx.DefaultPosition,wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.fixedText.Wrap(-1)
+
+        textSizer.Add(self.fixedText,1,wx.ALIGN_CENTER,5)
+
+        self.timeText = wx.StaticText(self, wx.ID_ANY, "MyLabel", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.timeText.Wrap(-1)
+
+        textSizer.Add(self.timeText,1,wx.ALIGN_CENTER|wx.ALL,5)
+
+        mainSizer.Add(textSizer,1,wx.ALIGN_CENTER|wx.EXPAND,5)
+
+        buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.cancelButton = wx.Button(self,wx.ID_CANCEL,"Cancel",wx.DefaultPosition,wx.DefaultSize,0)
+        buttonSizer.Add(self.cancelButton,1,wx.ALIGN_CENTER|wx.ALL,5)
+
+        mainSizer.Add( buttonSizer, 1, wx.ALIGN_CENTER, 5 )
+
+        self.SetSizer(mainSizer)
+        self.Layout()
+
+        self.Centre(wx.BOTH)
+
 class Transimage(wx.Frame):
     def __init__(self,parent):
         wx.Frame.__init__(self,parent,id=wx.ID_ANY,title="Transimage",pos=wx.DefaultPosition,size=wx.Size(1000,500),style=wx.DEFAULT_FRAME_STYLE)
