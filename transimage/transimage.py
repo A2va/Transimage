@@ -68,11 +68,21 @@ class Transimage(wx.Frame):
         self.toolBar.SetForegroundColour("#0000ff")
         self.toolBar.SetBackgroundColour("#0000ff")
 
-        self.tool1=self.toolBar.AddTool(wx.ID_ANY,"Tool",wx.Bitmap("icons/ocr.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
-        self.Bind(wx.EVT_TOOL,self.open_image,self.tool1)
+        self.logo=self.toolBar.AddTool(wx.ID_ANY,"Logo",wx.Bitmap("icons/logo.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.Bind(wx.EVT_TOOL,self.context_menu,self.logo)
 
-        self.tool2=self.toolBar.AddTool(wx.ID_ANY,"Tool",wx.Bitmap("icons/ocr.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
-        self.Bind(wx.EVT_TOOL,self.translate,self.tool2)
+        self.open=self.toolBar.AddTool(wx.ID_ANY,"Open File",wx.Bitmap("icons/open_file.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.Bind(wx.EVT_TOOL,self.open_menu,self.open)
+
+        self.save=self.toolBar.AddTool(wx.ID_ANY,"SAve",wx.Bitmap("icons/save.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.Bind(wx.EVT_TOOL,self.save_menu,self.save)
+
+        self.about=self.toolBar.AddTool(wx.ID_ANY,"About",wx.Bitmap("icons/info.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.Bind(wx.EVT_TOOL,self.about_menu,self.about)
+
+        self.help=self.toolBar.AddTool(wx.ID_ANY,"Help",wx.Bitmap("icons/help.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.Bind(wx.EVT_TOOL,self.help_menu,self.help)
+
 
         self.toolBar.Realize()
 
@@ -95,12 +105,33 @@ class Transimage(wx.Frame):
 
         mainSizer.Add(editSizer,1,0,5)
 
-        self.Bind(EVT_IMAGE_PROCESS, self.end_image_process)
+        self.Bind(EVT_IMAGE_PROCESS, self.callback_image_process)
 
         self.SetSizer(mainSizer)
         self.Layout()
 
         self.Centre(wx.BOTH)
+
+    def help_menu(self,event):
+        event.Skip()
+        print('help_menu')
+
+    def about_menu(self,event):
+        event.Skip()
+        print('about_menu')
+
+    def context_menu(self,event):
+        event.Skip()
+        print('context_menu')
+
+    def save_menu(self,event):
+        event.Skip()
+        print('save_menu')
+
+    def open_menu(self,event):
+        print('open_menu')
+        # self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'google', 'eng', 'fra')
+        # self.processImage.start()
 
     def translate(self,event):
         self.translator.text.clear()
@@ -137,10 +168,7 @@ class Transimage(wx.Frame):
         self.processImage.mode_process=False
         self.processImage.start()
 
-    def stop_process(self,event):
-        self.processImage.abort()
-
-    def end_image_process(self,event):
+    def callback_image_process(self,event):
         self.translator=event.data[0]
         if self.processImage.mode_process==True:
             self.imageCanvas.update_image(self.translator.img_out)
@@ -149,10 +177,3 @@ class Transimage(wx.Frame):
         else:
             pass
             
-    def open_image(self,event):
-        
-        self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'google', 'eng', 'fra')
-        self.processImage.start()
-        # self.imageCanvas.update_image(cv2.imread('icons/example.png'))
-        # self.imageCanvas.add_text('lam curious about area-filling text rendering options ',(6,-3),522,41)
-
