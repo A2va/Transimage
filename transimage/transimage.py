@@ -175,9 +175,9 @@ class Transimage(wx.Frame):
         self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', 'eng', 'fra')
         self.processImage.start()
 
-        # self.progressDialog = ProgressingDialog(self)
-        # if self.progressDialog.ShowModal()==wx.ID_CANCEL:
-        #     self.processImage.abort()
+        self.progressDialog = ProgressingDialog(self)
+        if self.progressDialog.ShowModal()==wx.ID_CANCEL:
+            self.processImage.abort()
 
     def translate(self,event):
         self.translator.text.clear()
@@ -218,6 +218,7 @@ class Transimage(wx.Frame):
         self.processImage.abort()
 
     def callback_image_process(self,event):
+        self.progressDialog.Destroy()
         self.translator=event.data[0]
         if self.processImage.mode_process==True:
             self.imageCanvas.update_image(self.translator.img_out)
