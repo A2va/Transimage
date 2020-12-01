@@ -22,9 +22,9 @@ class ImageProcess(threading.Thread):
         self.src_lang=src_lang
         self.dest_lang=dest_lang
         self.image_translator=ImageTranslator(self.img,self.ocr,self.translator,self.src_lang, self.dest_lang)
+        self.process=p_multiprocessing.ProcessingPool()
     def run(self):
         self.stop=False
-        self.process=p_multiprocessing.ProcessingPool()
         if self.mode_process ==True:
             results = self.process.amap(ImageProcess.worker_process,[self.image_translator])
         else:
@@ -40,7 +40,7 @@ class ImageProcess(threading.Thread):
     def abort(self):
         if self.process !=None:
             self.stop=True
-            self.process.terminate()
+            # self.process.terminate()
             self.image_translator=None
 
     @staticmethod
@@ -214,11 +214,8 @@ class Transimage(wx.Frame):
         self.processImage.mode_process=False
         self.processImage.start()
 
-    def stop_process(self,event):
-        self.processImage.abort()
-
     def callback_image_process(self,event):
-        self.progressDialog.Destroy()
+        self.progressDialog.Close()
         self.translator=event.data[0]
         if self.processImage.mode_process==True:
             self.imageCanvas.update_image(self.translator.img_out)
