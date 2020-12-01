@@ -53,9 +53,9 @@ class ImageProcess(threading.Thread):
         image_translator.translate()
         return image_translator
 
-class ProgressingDialog (wx.Dialog):
+class ProgressingDialog(wx.Dialog):
 
-    def __init__( self, parent ):
+    def __init__(self,parent):
         wx.Dialog.__init__ (self,parent,id=wx.ID_ANY, title="Progressing", pos=wx.DefaultPosition,size=wx.Size(200,120),style=wx.DEFAULT_DIALOG_STYLE)
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
@@ -64,17 +64,17 @@ class ProgressingDialog (wx.Dialog):
 
         textSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.fixedText = wx.StaticText(self,wx.ID_ANY,"MyLabel",wx.DefaultPosition,wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.fixedText = wx.StaticText(self,wx.ID_ANY,"Time:",wx.DefaultPosition,wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
         self.fixedText.Wrap(-1)
 
         textSizer.Add(self.fixedText,1,wx.ALIGN_CENTER,5)
 
-        self.timeText = wx.StaticText(self, wx.ID_ANY, "MyLabel", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.timeText = wx.StaticText(self, wx.ID_ANY, "0", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
         self.timeText.Wrap(-1)
 
         textSizer.Add(self.timeText,1,wx.ALIGN_CENTER|wx.ALL,5)
 
-        mainSizer.Add(textSizer,1,wx.ALIGN_CENTER|wx.EXPAND,5)
+        mainSizer.Add(textSizer,1,wx.ALIGN_CENTER,5)
 
         buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -83,10 +83,17 @@ class ProgressingDialog (wx.Dialog):
 
         mainSizer.Add( buttonSizer, 1, wx.ALIGN_CENTER, 5 )
 
+        self.timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.update_label, self.timer)
+        self.timer.Start(1000)
+
         self.SetSizer(mainSizer)
         self.Layout()
 
         self.Centre(wx.BOTH)
+
+    def update_label(self,event):
+        self.timeText.SetLabel(str(int(self.timeText.Label)+1))
 
 class Transimage(wx.Frame):
     def __init__(self,parent):
@@ -117,7 +124,6 @@ class Transimage(wx.Frame):
 
         self.help=self.toolBar.AddTool(wx.ID_ANY,"Help",wx.Bitmap("icons/help.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.help_menu,self.help)
-
 
         self.toolBar.Realize()
 
@@ -165,8 +171,13 @@ class Transimage(wx.Frame):
 
     def open_menu(self,event):
         print('open_menu')
-        # self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'google', 'eng', 'fra')
-        # self.processImage.start()
+        # self.processImage=None
+        self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', 'eng', 'fra')
+        self.processImage.start()
+
+        # self.progressDialog = ProgressingDialog(self)
+        # if self.progressDialog.ShowModal()==wx.ID_CANCEL:
+        #     self.processImage.abort()
 
     def translate(self,event):
         self.translator.text.clear()
@@ -203,6 +214,9 @@ class Transimage(wx.Frame):
         self.processImage.mode_process=False
         self.processImage.start()
 
+    def stop_process(self,event):
+        self.processImage.abort()
+
     def callback_image_process(self,event):
         self.translator=event.data[0]
         if self.processImage.mode_process==True:
@@ -211,4 +225,3 @@ class Transimage(wx.Frame):
                 self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],text['y']),text['max_width'],text['font_zize'])
         else:
             pass
-            
