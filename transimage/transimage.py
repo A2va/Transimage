@@ -25,7 +25,6 @@ class ImageProcess(threading.Thread):
         self.process=p_multiprocessing.ProcessingPool()
     def run(self):
         self.stop=False
-        self.process.restart()
         if self.mode_process ==True:
             results = self.process.amap(ImageProcess.worker_process,[self.image_translator])
         else:
@@ -43,6 +42,7 @@ class ImageProcess(threading.Thread):
             self.stop=True
             self.process.terminate()
             self.process.join()
+            self.process.restart()
             self.image_translator=None
 
     @staticmethod
