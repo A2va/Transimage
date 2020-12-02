@@ -1,7 +1,6 @@
 import wx
 import cv2
 import numpy as np
-from wx.lib.floatcanvas.FCObjects import ScaledTextBox
 from wx.lib.floatcanvas import FloatCanvas
 
 
@@ -63,6 +62,11 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.delta = 1.2
         self.MoveObject = None
         self.Moving = False
+
+    def delete_all(self):
+        self.ClearAll()
+        self.text.clear()
+        self.Draw(True)
 
     def delete_text(self,text):
         self.RemoveObject(text)

@@ -173,7 +173,6 @@ class Transimage(wx.Frame):
 
     def open_menu(self,event):
         print('open_menu')
-        # self.processImage=None
         self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', 'eng', 'fra')
         self.processImage.start()
 
@@ -218,6 +217,7 @@ class Transimage(wx.Frame):
 
     def callback_image_process(self,event):
         self.progressDialog.Close()
+        self.imageCanvas.delete_all()
         self.translator=event.data[0]
         if self.processImage.mode_process==True:
             self.imageCanvas.update_image(self.translator.img_out)
