@@ -3,44 +3,61 @@ import cv2
 import numpy as np
 from wx.lib.floatcanvas import FloatCanvas
 
+class EditDialog ( wx.Dialog ):
 
+    def __init__( self, parent ):
+        wx.Dialog.__init__ (self,parent,id=wx.ID_ANY,title="Edit",pos=wx.DefaultPosition,size=wx.Size(400,200),style=wx.DEFAULT_DIALOG_STYLE)
 
-class EditDialog(wx.Dialog):
-    def __init__(self, *args, **kwds):
-        # begin wxGlade: MyDialog.__init__
-        kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE
-        wx.Dialog.__init__(self, *args, **kwds)
-        self.SetTitle("Edit")
-        sizer_1 = wx.BoxSizer(wx.VERTICAL)
+        self.SetSizeHints(wx.DefaultSize,wx.DefaultSize)
 
-        static_text_1 = wx.StaticText(self, wx.ID_ANY, "Enter text:")
-        sizer_1.Add(static_text_1, 0, wx.ALL, 8)
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
 
-        self.text_ctrl_1 = wx.TextCtrl(self, wx.ID_ANY, "",style = wx.TE_MULTILINE)
-        sizer_1.Add(self.text_ctrl_1, 0, wx.ALL | wx.EXPAND, 8)
+        sizeSizer = wx.StaticBoxSizer(wx.StaticBox(self,wx.ID_ANY,"Size and Width" ),wx.HORIZONTAL)
 
-        sizer_1.Add((20, 20), 1, wx.EXPAND, 0)
+        self.sizeText = wx.StaticText(sizeSizer.GetStaticBox(),wx.ID_ANY, "Size",wx.DefaultPosition,wx.DefaultSize,wx.ALIGN_LEFT)
+        self.sizeText.Wrap(-1)
 
-        sizer_2 = wx.StdDialogButtonSizer()
-        sizer_1.Add(sizer_2, 0, wx.ALIGN_RIGHT | wx.ALL, 4)
+        sizeSizer.Add(self.sizeText,0,wx.ALL,5)
 
-        self.button_OK = wx.Button(self, wx.ID_OK, "")
-        self.button_OK.SetDefault()
-        sizer_2.AddButton(self.button_OK)
+        self.sizeTextCtrl = wx.TextCtrl(sizeSizer.GetStaticBox(),wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
+        sizeSizer.Add(self.sizeTextCtrl,0,wx.ALL,5)
 
-        self.button_CANCEL = wx.Button(self, wx.ID_CANCEL, "")
-        sizer_2.AddButton(self.button_CANCEL)
+        sizeSizer.Add((0,0),1,wx.EXPAND,5)
 
-        sizer_2.Realize()
+        self.widthText = wx.StaticText(sizeSizer.GetStaticBox(),wx.ID_ANY,"Width",wx.DefaultPosition,wx.DefaultSize,0)
+        self.widthText.Wrap(-1)
 
-        self.SetSizer(sizer_1)
-        sizer_1.Fit(self)
+        sizeSizer.Add(self.widthText,0,wx.ALL,5)
 
-        self.SetAffirmativeId(self.button_OK.GetId())
-        self.SetEscapeId(self.button_CANCEL.GetId())
+        self.widthTextCtrl = wx.TextCtrl(sizeSizer.GetStaticBox(),wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
+        sizeSizer.Add(self.widthTextCtrl,0,wx.ALL,5)
 
-        self.CenterOnParent()
+        mainSizer.Add(sizeSizer,1,wx.EXPAND,5)
+
+        textSizer = wx.StaticBoxSizer(wx.StaticBox(self,wx.ID_ANY,"Text" ),wx.VERTICAL)
+
+        self.textTextCtrl = wx.TextCtrl(textSizer.GetStaticBox(),wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,wx.TE_MULTILINE)
+        textSizer.Add(self.textTextCtrl,1,wx.ALL|wx.EXPAND,5)
+
+        mainSizer.Add(textSizer,2,wx.EXPAND,5)
+
+        buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.okButton = wx.Button(self,wx.ID_OK,"OK",wx.DefaultPosition,wx.DefaultSize,0)
+        buttonSizer.Add(self.okButton,1,wx.ALIGN_CENTER|wx.ALL,5)
+
+        self.cancelButton = wx.Button(self,wx.ID_CANCEL,"Cancel",wx.DefaultPosition,wx.DefaultSize,0)
+        buttonSizer.Add(self.cancelButton,1,wx.ALIGN_CENTER|wx.ALL,5)
+
+        mainSizer.Add(buttonSizer,1,wx.EXPAND,5)
+
+        self.SetSizer(mainSizer)
         self.Layout()
+
+        self.Centre(wx.BOTH)
+
+    def __del__( self ):
+        pass
 
 class DisplayCanvas(FloatCanvas.FloatCanvas):
 
@@ -115,13 +132,18 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.ZoomToBB()
 
     def edit(self,event):
-        # string=event.Words
-        # string=' '.join(string)
         string=event.String
         dlg = EditDialog(self)
-        dlg.text_ctrl_1.SetValue(string)
+        dlg.textTextCtrl.SetValue(string)
+        dlg.widthTextCtrl.SetValue(str(event.Width))
+        dlg.sizeTextCtrl.SetValue(str(event.Size))
         if dlg.ShowModal()==wx.ID_OK:
-            event.SetText(dlg.text_ctrl_1.GetValue())
+            event.SetText(dlg.textTextCtrl.GetValue())
+            try:
+                event.Size=int(dlg.sizeTextCtrl.GetValue())
+                event.Width=int(dlg.widthTextCtrl.GetValue())
+            except:
+                pass
             self.Draw(True)
 
     def zoom(self, wheel):
