@@ -15,7 +15,7 @@
    id="svg6"
    sodipodi:docname="logo.svg"
    inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
-   inkscape:export-filename="D:\GitHub\Transimage_2\icons\logo.png"
+   inkscape:export-filename="D:\GitHub\Transimage\icons\logo.png"
    inkscape:export-xdpi="94.931297"
    inkscape:export-ydpi="94.931297">
   <metadata
@@ -45,9 +45,9 @@
      inkscape:window-height="1017"
      id="namedview8"
      showgrid="false"
-     inkscape:zoom="11.805556"
-     inkscape:cx="16.211109"
-     inkscape:cy="19.79205"
+     inkscape:zoom="23.611112"
+     inkscape:cx="18.919701"
+     inkscape:cy="23.098258"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -71,7 +71,7 @@
      rx="2.7388229"
      ry="3.2188249" />
   <path
-     style="fill:none;stroke:#ffffff;stroke-width:1.33333333;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none"
+     style="fill:#ffffff;stroke:#ffffff;stroke-width:1.33333333;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
      d="m 4.2917646,19.567058 5.3364701,-4.743529 3.4447063,1.92 2.908235,-3.36 3.84,6.211764 z"
      id="path835"
      sodipodi:nodetypes="cccccc"
@@ -79,7 +79,7 @@
      inkscape:export-xdpi="94.931297"
      inkscape:export-ydpi="94.931297" />
   <rect
-     style="fill:none;stroke:#ffffff;stroke-width:1.33333333;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     style="fill:#ffffff;stroke:#ffffff;stroke-width:1.33333333;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
      id="rect837"
      width="3.8964696"
      height="3.6988235"
