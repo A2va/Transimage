@@ -1,3 +1,20 @@
+LANG={
+    'chi_sim': 'chinese (simplified)',                  #Chinese (simplified)
+    'chi_sim_vert': 'chinese vertical (simplified)',    #Chinese vertical (simplified)
+    'chi_tra':'chinese (traditional)',                  #Chinese (traditional)
+    'chi_tra_vert': 'chinese vertical (traditionnal)',  #Chinese vertical (traditional)
+    'eng': 'english',                                   #English
+    'fra': 'french',                                    #French
+    'por': 'portuguese',                                #Portuguese 
+    'spa': 'spanish',                                   #Spanish
+    'nld': 'dutch',                                     #Dutch
+    'ita': 'italian',                                   #Italian
+    'pol': 'polish',                                    #Polish
+    'rus': 'russian',                                   #Russian
+    'deu': 'german',                                    #German
+
+}
+
 ALL_LANG={
             
     #'abq':'abaza',                     #Abaza
