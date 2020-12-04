@@ -151,6 +151,7 @@ class Transimage(wx.Frame):
         self.src_langCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
         self.src_langCombo.SetForegroundColour(wx.Colour(255, 255, 0))
         self.src_langCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.src_langCombo.Bind(wx.EVT_COMBOBOX,self.update_src_lang)
 
         src_langSizer.Add(self.src_langText, 0, wx.ALL | wx.EXPAND, 0)
         src_langSizer.Add(self.src_langCombo, 0, wx.ALL | wx.EXPAND, 0)
@@ -165,6 +166,7 @@ class Transimage(wx.Frame):
         self.dest_langCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
         self.dest_langCombo.SetForegroundColour(wx.Colour(255, 255, 0))
         self.dest_langCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.dest_langCombo.Bind(wx.EVT_COMBOBOX,self.update_dest_lang)
 
         dest_langSizer.Add(self.dest_langText, 0, wx.ALL | wx.EXPAND, 0)
         dest_langSizer.Add(self.dest_langCombo, 0, wx.ALL | wx.EXPAND, 0)
@@ -204,12 +206,22 @@ class Transimage(wx.Frame):
 
     def open_menu(self,event):
         print('open_menu')
-        self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', 'eng', 'fra')
+        self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', self.src_lang, self.dest_lang)
         self.processImage.start()
 
         self.progressDialog = ProgressingDialog(self)
         if self.progressDialog.ShowModal()==wx.ID_CANCEL:
             self.processImage.abort()
+
+    def update_src_lang(self,event):
+        string=event.String
+        string = string[0].lower() + string[1:]
+        self.src_lang=LANG[string]
+
+    def update_dest_lang(self,event):
+        string=event.String
+        string = string[0].lower() + string[1:]
+        self.dest_lang=LANG[string]
 
     def translate(self,event):
         self.translator.text.clear()
