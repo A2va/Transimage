@@ -1,4 +1,5 @@
-LANG={
+
+LANG_DICT={
     'chi_sim': 'chinese (simplified)',                  #Chinese (simplified)
     'chi_sim_vert': 'chinese vertical (simplified)',    #Chinese vertical (simplified)
     'chi_tra':'chinese (traditional)',                  #Chinese (traditional)
@@ -15,7 +16,7 @@ LANG={
 
 }
 
-ALL_LANG={
+ALL_LANG_DICT={
             
     #'abq':'abaza',                     #Abaza
     #'ady':'adyghe',                    #Adyghe
@@ -158,3 +159,6 @@ ALL_LANG={
     'yid': 'yiddish',                       #Yiddish 
     'yor': 'yoruba',                        #Yoruba 
 }
+
+ALL_LANG = dict(map(reversed, ALL_LANG_DICT.items()))
+LANG = dict(map(reversed, LANG_DICT.items()))
