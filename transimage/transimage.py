@@ -237,18 +237,8 @@ class Transimage(wx.Frame):
         print('save_menu')
 
     def open_menu(self,event):
+        event.Skip()
         print('open_menu')
-        if self.src_lang ==self.dest_lang:
-            wx.MessageDialog(None, 'The source and destination lang cannot be the same', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
-        elif self.src_lang == '' or self.dest_lang=='':
-            wx.MessageDialog(None, 'The source or destination lang is empty', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
-        else:
-            self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', self.src_lang, self.dest_lang)
-            self.processImage.start()
-
-            self.progressDialog = ProgressingDialog(self)
-            if self.progressDialog.ShowModal()==wx.ID_CANCEL:
-                self.processImage.abort()
 
     def update_translator(self,event):
         string=event.String
@@ -271,6 +261,30 @@ class Transimage(wx.Frame):
         string=event.String
         string = string[0].lower() + string[1:]
         self.dest_lang=LANG[string]
+
+    def callback_image_process(self,event):
+        self.progressDialog.Close()
+        self.imageCanvas.delete_all()
+        self.translator=event.data[0]
+        if self.processImage.mode_process==True:
+            self.imageCanvas.update_image(self.translator.img_out)
+            for text in self.translator.text:
+                self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],text['y']),text['max_width'],text['font_zize'])
+        else:
+            pass
+
+    def process_image(self,image):
+            if self.src_lang ==self.dest_lang:
+                wx.MessageDialog(None, 'The source and destination lang cannot be the same', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+            elif self.src_lang == '' or self.dest_lang=='' or self.translator_engine=='' or self.ocr=='':
+                wx.MessageDialog(None, 'One on the combox are empty', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+            else:
+                self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', self.translator_engine, self.ocr, self.src_lang, self.dest_lang)
+                self.processImage.start()
+
+                self.progressDialog = ProgressingDialog(self)
+                if self.progressDialog.ShowModal()==wx.ID_CANCEL:
+                    self.processImage.abort()
 
     def translate(self,event):
         self.translator.text.clear()
@@ -306,14 +320,3 @@ class Transimage(wx.Frame):
         self.processImage.image_translator=self.translator
         self.processImage.mode_process=False
         self.processImage.start()
-
-    def callback_image_process(self,event):
-        self.progressDialog.Close()
-        self.imageCanvas.delete_all()
-        self.translator=event.data[0]
-        if self.processImage.mode_process==True:
-            self.imageCanvas.update_image(self.translator.img_out)
-            for text in self.translator.text:
-                self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],text['y']),text['max_width'],text['font_zize'])
-        else:
-            pass
