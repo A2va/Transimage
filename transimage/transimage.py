@@ -143,6 +143,7 @@ class Transimage(wx.Frame):
         editSizer=wx.BoxSizer(wx.VERTICAL)
 
         src_langSizer=wx.BoxSizer(wx.HORIZONTAL)
+
         self.src_langText = wx.StaticText(self, wx.ID_ANY, "Source Language")
         self.src_langText.SetForegroundColour(wx.Colour(0, 0, 255))
         self.src_langText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
@@ -171,8 +172,40 @@ class Transimage(wx.Frame):
         dest_langSizer.Add(self.dest_langText, 0, wx.ALL | wx.EXPAND, 0)
         dest_langSizer.Add(self.dest_langCombo, 0, wx.ALL | wx.EXPAND, 0)
 
-        editSizer.Add(src_langSizer, 1, wx.ALL, 5 )
-        editSizer.Add(dest_langSizer, 1, wx.ALL, 5 )
+        translatorSizer=wx.BoxSizer(wx.HORIZONTAL)
+
+        self.translatorText = wx.StaticText(self, wx.ID_ANY, "Translator")
+        self.translatorText.SetForegroundColour(wx.Colour(0, 0, 255))
+        self.translatorText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+
+        self.translatorCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Google","Deepl","Bing"], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.translatorCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
+        self.translatorCombo.SetForegroundColour(wx.Colour(255, 255, 0))
+        self.translatorCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.translatorCombo.Bind(wx.EVT_COMBOBOX,self.update_translator)
+
+        translatorSizer.Add(self.translatorText, 0, wx.ALL | wx.EXPAND, 0)
+        translatorSizer.Add(self.translatorCombo, 0, wx.ALL | wx.EXPAND, 0)
+
+        ocrSizer=wx.BoxSizer(wx.HORIZONTAL)
+
+        self.ocrText = wx.StaticText(self, wx.ID_ANY, "OCR")
+        self.ocrText.SetForegroundColour(wx.Colour(0, 0, 255))
+        self.ocrText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+
+        self.ocrCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Tesseract","EasyOCR"], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.ocrCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
+        self.ocrCombo.SetForegroundColour(wx.Colour(255, 255, 0))
+        self.ocrCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.ocrCombo.Bind(wx.EVT_COMBOBOX,self.update_translator)
+
+        ocrSizer.Add(self.ocrText, 0, wx.ALL | wx.EXPAND, 0)
+        ocrSizer.Add(self.ocrCombo, 0, wx.ALL | wx.EXPAND, 0)
+
+        editSizer.Add(src_langSizer,1,wx.ALL,5)
+        editSizer.Add(dest_langSizer,1,wx.ALL,5)
+        editSizer.Add(translatorSizer, 1, wx.ALL,5)
+        editSizer.Add(ocrSizer,1,wx.ALL,5)
 
         mainSizer.Add(editSizer,1,0,5)
 
@@ -216,6 +249,18 @@ class Transimage(wx.Frame):
             self.progressDialog = ProgressingDialog(self)
             if self.progressDialog.ShowModal()==wx.ID_CANCEL:
                 self.processImage.abort()
+
+    def update_translator(self,event):
+        string=event.String
+        string = string[0].lower() + string[1:]
+        self.translator_engine=string
+        print(self.translator_engine)
+
+    def update_ocr(self,event):
+        string=event.String
+        string = string[0].lower() + string[1:]
+        self.ocr=string
+        print(self.ocr)
 
     def update_src_lang(self,event):
         string=event.String
