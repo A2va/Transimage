@@ -8,6 +8,7 @@ import time
 import pathos.multiprocessing as p_multiprocessing
 from transimage.canvas import DisplayCanvas
 from transimage.translator.image_translator import ImageTranslator
+from transimage.lang import LANG
 
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
@@ -148,7 +149,7 @@ class Transimage(wx.Frame):
 
         self.src_langCombo = wx.ComboBox(self, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
         self.src_langCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
-        self.src_langCombo.SetForegroundColour(wx.Colour(255, 0, 0))
+        self.src_langCombo.SetForegroundColour(wx.Colour(255, 255, 0))
         self.src_langCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 
         src_langSizer.Add(self.src_langText, 0, wx.ALL | wx.EXPAND, 0)
@@ -162,7 +163,7 @@ class Transimage(wx.Frame):
 
         self.dest_langCombo = wx.ComboBox(self, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
         self.dest_langCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
-        self.dest_langCombo.SetForegroundColour(wx.Colour(255, 0, 0))
+        self.dest_langCombo.SetForegroundColour(wx.Colour(255, 255, 0))
         self.dest_langCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 
         dest_langSizer.Add(self.dest_langText, 0, wx.ALL | wx.EXPAND, 0)
@@ -179,6 +180,11 @@ class Transimage(wx.Frame):
         self.Layout()
 
         self.Centre(wx.BOTH)
+
+        for lang in LANG:
+            self.dest_langCombo.Append(lang.capitalize())
+            self.src_langCombo.Append(lang.capitalize())
+            #lang = lang[0].lower() + lang[1:] Lowercase
 
     def help_menu(self,event):
         event.Skip()
