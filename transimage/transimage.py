@@ -186,7 +186,6 @@ class Transimage(wx.Frame):
         for lang in LANG:
             self.dest_langCombo.Append(lang.capitalize())
             self.src_langCombo.Append(lang.capitalize())
-            #lang = lang[0].lower() + lang[1:] Lowercase
 
     def help_menu(self,event):
         event.Skip()
@@ -206,12 +205,17 @@ class Transimage(wx.Frame):
 
     def open_menu(self,event):
         print('open_menu')
-        self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', self.src_lang, self.dest_lang)
-        self.processImage.start()
+        if self.src_lang ==self.dest_lang:
+            wx.MessageDialog(None, 'The source and destination lang cannot be the same', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+        elif self.src_lang == '' or self.dest_lang=='':
+            wx.MessageDialog(None, 'The source or destination lang is empty', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+        else:
+            self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', 'tesseract', 'deepl', self.src_lang, self.dest_lang)
+            self.processImage.start()
 
-        self.progressDialog = ProgressingDialog(self)
-        if self.progressDialog.ShowModal()==wx.ID_CANCEL:
-            self.processImage.abort()
+            self.progressDialog = ProgressingDialog(self)
+            if self.progressDialog.ShowModal()==wx.ID_CANCEL:
+                self.processImage.abort()
 
     def update_src_lang(self,event):
         string=event.String
