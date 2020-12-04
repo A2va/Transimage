@@ -11,6 +11,8 @@ from transimage.translator.image_translator import ImageTranslator
 
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
+LABEL_SIZE=12
+
 class ImageProcess(threading.Thread):
     def __init__(self,notify_window,img, ocr, translator, src_lang, dest_lang,mode_process=True):
         super(ImageProcess, self).__init__()
@@ -106,9 +108,8 @@ class Transimage(wx.Frame):
         self.SetBackgroundColour("#ff0000")
 
         mainSizer= wx.BoxSizer(wx.HORIZONTAL)
-        toolBarSizer= wx.BoxSizer(wx.HORIZONTAL)
-
         self.toolBar= wx.ToolBar(self,wx.ID_ANY,wx.DefaultPosition,wx.DefaultSize,wx.TB_VERTICAL)
+        self.SetToolBar(self.toolBar)
         self.toolBar.SetForegroundColour("#0000ff")
         self.toolBar.SetBackgroundColour("#0000ff")
 
@@ -118,7 +119,7 @@ class Transimage(wx.Frame):
         self.open=self.toolBar.AddTool(wx.ID_ANY,"Open File",wx.Bitmap("icons/open_file.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.open_menu,self.open)
 
-        self.save=self.toolBar.AddTool(wx.ID_ANY,"SAve",wx.Bitmap("icons/save.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.save=self.toolBar.AddTool(wx.ID_ANY,"Save",wx.Bitmap("icons/save.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.save_menu,self.save)
 
         self.about=self.toolBar.AddTool(wx.ID_ANY,"About",wx.Bitmap("icons/info.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
@@ -128,10 +129,6 @@ class Transimage(wx.Frame):
         self.Bind(wx.EVT_TOOL,self.help_menu,self.help)
 
         self.toolBar.Realize()
-
-        toolBarSizer.Add(self.toolBar,0,wx.EXPAND,5)
-
-        mainSizer.Add(toolBarSizer,0,wx.EXPAND,5)
 
         imageSizer= wx.BoxSizer(wx.HORIZONTAL)
 
@@ -143,8 +140,36 @@ class Transimage(wx.Frame):
         mainSizer.Add(imageSizer,3,wx.EXPAND,1)
 
         editSizer=wx.BoxSizer(wx.VERTICAL)
-        self.textCrtl=wx.TextCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
-        editSizer.Add(self.textCrtl,0,wx.ALIGN_CENTER|wx.ALL,5)
+
+        src_langSizer=wx.BoxSizer(wx.HORIZONTAL)
+        self.src_langText = wx.StaticText(self, wx.ID_ANY, "Source Language")
+        self.src_langText.SetForegroundColour(wx.Colour(0, 0, 255))
+        self.src_langText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+
+        self.src_langCombo = wx.ComboBox(self, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.src_langCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
+        self.src_langCombo.SetForegroundColour(wx.Colour(255, 0, 0))
+        self.src_langCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+
+        src_langSizer.Add(self.src_langText, 0, wx.ALL | wx.EXPAND, 0)
+        src_langSizer.Add(self.src_langCombo, 0, wx.ALL | wx.EXPAND, 0)
+
+        dest_langSizer=wx.BoxSizer(wx.HORIZONTAL)
+
+        self.dest_langText = wx.StaticText(self, wx.ID_ANY, "Destination Language")
+        self.dest_langText.SetForegroundColour(wx.Colour(0, 0, 255))
+        self.dest_langText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+
+        self.dest_langCombo = wx.ComboBox(self, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.dest_langCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
+        self.dest_langCombo.SetForegroundColour(wx.Colour(255, 0, 0))
+        self.dest_langCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+
+        dest_langSizer.Add(self.dest_langText, 0, wx.ALL | wx.EXPAND, 0)
+        dest_langSizer.Add(self.dest_langCombo, 0, wx.ALL | wx.EXPAND, 0)
+
+        editSizer.Add(src_langSizer, 1, wx.ALL, 5 )
+        editSizer.Add(dest_langSizer, 1, wx.ALL, 5 )
 
         mainSizer.Add(editSizer,1,0,5)
 
