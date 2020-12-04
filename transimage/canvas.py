@@ -12,31 +12,35 @@ class EditDialog ( wx.Dialog ):
 
         mainSizer = wx.BoxSizer(wx.VERTICAL)
 
-        sizeSizer = wx.StaticBoxSizer(wx.StaticBox(self,wx.ID_ANY,"Size and Width" ),wx.HORIZONTAL)
+        sizeSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.sizeText = wx.StaticText(sizeSizer.GetStaticBox(),wx.ID_ANY, "Size",wx.DefaultPosition,wx.DefaultSize,wx.ALIGN_LEFT)
+        self.sizeText = wx.StaticText(self,wx.ID_ANY, "Size",wx.DefaultPosition,wx.DefaultSize,wx.ALIGN_LEFT)
         self.sizeText.Wrap(-1)
 
         sizeSizer.Add(self.sizeText,0,wx.ALL,5)
 
-        self.sizeTextCtrl = wx.TextCtrl(sizeSizer.GetStaticBox(),wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
+        self.sizeTextCtrl = wx.TextCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
         sizeSizer.Add(self.sizeTextCtrl,0,wx.ALL,5)
 
         sizeSizer.Add((0,0),1,wx.EXPAND,5)
 
-        self.widthText = wx.StaticText(sizeSizer.GetStaticBox(),wx.ID_ANY,"Width",wx.DefaultPosition,wx.DefaultSize,0)
+        self.widthText = wx.StaticText(self,wx.ID_ANY,"Width",wx.DefaultPosition,wx.DefaultSize,0)
         self.widthText.Wrap(-1)
 
         sizeSizer.Add(self.widthText,0,wx.ALL,5)
 
-        self.widthTextCtrl = wx.TextCtrl(sizeSizer.GetStaticBox(),wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
+        self.widthTextCtrl = wx.TextCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
         sizeSizer.Add(self.widthTextCtrl,0,wx.ALL,5)
 
         mainSizer.Add(sizeSizer,1,wx.EXPAND,5)
 
-        textSizer = wx.StaticBoxSizer(wx.StaticBox(self,wx.ID_ANY,"Text" ),wx.VERTICAL)
+        textSizer = wx.BoxSizer(wx.VERTICAL)
 
-        self.textTextCtrl = wx.TextCtrl(textSizer.GetStaticBox(),wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,wx.TE_MULTILINE)
+        self.textText = wx.StaticText(self,wx.ID_ANY,"Text",wx.DefaultPosition,wx.DefaultSize,0)
+        self.textText.Wrap(-1)
+        textSizer.Add(self.textText,0,wx.ALL,5)
+
+        self.textTextCtrl = wx.TextCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,wx.TE_MULTILINE)
         textSizer.Add(self.textTextCtrl,1,wx.ALL|wx.EXPAND,5)
 
         mainSizer.Add(textSizer,2,wx.EXPAND,5)
