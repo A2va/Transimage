@@ -4,6 +4,8 @@
 *.bat
 #Tesseract 
 /tesseract-ocr
+#Build
+/build
 
 #Icons
 /font
