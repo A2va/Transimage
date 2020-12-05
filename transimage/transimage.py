@@ -356,3 +356,7 @@ class Transimage(wx.Frame):
         self.processImage.image_translator=self.translator
         self.processImage.mode_process=False
         self.processImage.start()
+
+        self.progressDialog = ProgressingDialog(self)
+        if self.progressDialog.ShowModal()==wx.ID_CANCEL:
+            self.processImage.abort()
