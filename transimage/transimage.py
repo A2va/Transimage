@@ -203,10 +203,14 @@ class Transimage(wx.Frame):
         ocrSizer.Add(self.ocrText, 0, wx.ALL | wx.EXPAND, 0)
         ocrSizer.Add(self.ocrCombo, 0, wx.ALL | wx.EXPAND, 0)
 
+        self.processButton = wx.Button(self,wx.ID_ANY,"Run processing",wx.DefaultPosition,wx.DefaultSize,0)
+        self.processButton.Bind(wx.EVT_BUTTON,self.process_image)
+
         editSizer.Add(src_langSizer,1,wx.ALL,5)
         editSizer.Add(dest_langSizer,1,wx.ALL,5)
         editSizer.Add(translatorSizer, 1, wx.ALL,5)
         editSizer.Add(ocrSizer,1,wx.ALL,5)
+        editSizer.Add(self.processButton,1,wx.ALL,5)
 
         mainSizer.Add(editSizer,1,0,5)
 
@@ -216,6 +220,8 @@ class Transimage(wx.Frame):
         self.Layout()
 
         self.Centre(wx.BOTH)
+
+        self.image_path=''
 
         for lang in LANG:
             self.dest_langCombo.Append(lang.capitalize())
@@ -236,11 +242,17 @@ class Transimage(wx.Frame):
     def save_menu(self,event):
         event.Skip()
         print('save_menu')
+        self.translate()
 
     def open_menu(self,event):
         event.Skip()
-        print('open_menu')
-        self.process_image(1)
+        wildcard = "Open Image Files (*.jpg;*.png)|*.jpg;*.png|PNG files (*.png)|*.png"
+        with wx.FileDialog(self, "Open image file", wildcard=wildcard,
+        style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            self.image_path = fileDialog.GetPath()
+        #self.process_image(1)
 
     def update_translator(self,event):
         string=event.String
@@ -266,6 +278,7 @@ class Transimage(wx.Frame):
 
     def callback_image_process(self,event):
         self.progressDialog.Close()
+        self.processImage.abort()
         self.imageCanvas.delete_all()
         self.translator=event.data[0]
         if self.processImage.mode_process==True:
@@ -273,29 +286,39 @@ class Transimage(wx.Frame):
             for text in self.translator.text:
                 self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],text['y']),text['max_width'],text['font_zize'])
         else:
-            pass
+            wildcard = "Open Image Files (*.jpg;*.png)|*.jpg;*.png|PNG files (*.png)|*.png"
+            with wx.FileDialog(self, "Save Image file", wildcard=wildcard,
+            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+            
+                if fileDialog.ShowModal() == wx.ID_CANCEL:
+                    return 
+                out_path = fileDialog.GetPath()
+                cv2.imwrite(out_path,self.translator.img_out)
 
-    def process_image(self,image):
+    def process_image(self,event):
             if self.src_lang ==self.dest_lang:
                 wx.MessageDialog(None, 'The source and destination lang cannot be the same', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
             elif self.src_lang == '' or self.dest_lang=='' or self.translator_engine=='' or self.ocr=='':
                 wx.MessageDialog(None, 'One on the combox are empty', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+            elif self.image_path=='':
+                wx.MessageDialog(None, 'Any image are open', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
             else:
-                self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
+                img =cv2.imread(self.image_path)
+                self.processImage=ImageProcess(self,img, self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
                 self.processImage.start()
 
                 self.progressDialog = ProgressingDialog(self)
                 if self.progressDialog.ShowModal()==wx.ID_CANCEL:
                     self.processImage.abort()
 
-    def translate(self,event):
+    def translate(self):
         self.translator.text.clear()
         for text in self.imageCanvas.text:
             text_object=text['text_object']
             text_object.CalcBoundingBox()
             pos=text_object.XY
             x=pos[0]
-            y=pos[1]
+            y=abs(pos[1])
             w=text_object.BoxWidth
             h=text_object.BoxHeight
 
@@ -319,6 +342,7 @@ class Transimage(wx.Frame):
                 'max_width': w,
                 'font_size': text_object.Size
                 })
+        self.processImage=ImageProcess(self,self.translator.img_out, self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
         self.processImage.image_translator=self.translator
         self.processImage.mode_process=False
         self.processImage.start()

@@ -20,6 +20,8 @@ class EditDialog ( wx.Dialog ):
         sizeSizer.Add(self.sizeText,0,wx.ALL,5)
 
         self.sizeSpinCtrl = wx.SpinCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
+        self.sizeSpinCtrl.SetMax(100000)
+        self.sizeSpinCtrl.SetMin(1)
         sizeSizer.Add(self.sizeSpinCtrl,0,wx.ALL,5)
 
         sizeSizer.Add((0,0),1,wx.EXPAND,5)
@@ -30,6 +32,9 @@ class EditDialog ( wx.Dialog ):
         sizeSizer.Add(self.widthText,0,wx.ALL,5)
 
         self.widthSpinCtrl =wx.SpinCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
+        self.widthSpinCtrl.SetMax(100000)
+        self.widthSpinCtrl.SetMin(1)
+        #self.widthSpinCtrl= wx.TextCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
         sizeSizer.Add(self.widthSpinCtrl,0,wx.ALL,5)
 
         mainSizer.Add(sizeSizer,1,wx.EXPAND,5)
@@ -138,13 +143,14 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
     def edit(self,event):
         string=event.String
         dlg = EditDialog(self)
+
         dlg.textTextCtrl.SetValue(string)
-        dlg.widthTextCtrl.SetValue(str(event.Width))
-        dlg.sizeTextCtrl.SetValue(str(event.Size))
+        dlg.widthSpinCtrl.SetValue(event.Width)
+        dlg.sizeSpinCtrl.SetValue(event.Size)
         if dlg.ShowModal()==wx.ID_OK:
             event.SetText(dlg.textTextCtrl.GetValue())
             event.Size=dlg.sizeSpinCtrl.GetValue()
-            event.Width=int(dlg.widthSpinCtrl.GetValue())
+            event.Width=dlg.widthSpinCtrl.GetValue()
             self.Draw(True)
 
     def zoom(self, wheel):
