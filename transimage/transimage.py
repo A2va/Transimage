@@ -84,6 +84,7 @@ class ProgressingDialog(wx.Dialog):
         buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.cancelButton = wx.Button(self,wx.ID_CANCEL,"Cancel",wx.DefaultPosition,wx.DefaultSize,0)
+        self.cancelButton.Disable() 
         buttonSizer.Add(self.cancelButton,1,wx.ALIGN_CENTER|wx.ALL,5)
 
         mainSizer.Add( buttonSizer, 1, wx.ALIGN_CENTER, 5 )
@@ -178,7 +179,7 @@ class Transimage(wx.Frame):
         self.translatorText.SetForegroundColour(wx.Colour(0, 0, 255))
         self.translatorText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 
-        self.translatorCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Google","Deepl","Bing"], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.translatorCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Deepl","Bing"], style=wx.CB_DROPDOWN | wx.CB_SORT)
         self.translatorCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
         self.translatorCombo.SetForegroundColour(wx.Colour(255, 255, 0))
         self.translatorCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
@@ -197,7 +198,7 @@ class Transimage(wx.Frame):
         self.ocrCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
         self.ocrCombo.SetForegroundColour(wx.Colour(255, 255, 0))
         self.ocrCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-        self.ocrCombo.Bind(wx.EVT_COMBOBOX,self.update_translator)
+        self.ocrCombo.Bind(wx.EVT_COMBOBOX,self.update_ocr)
 
         ocrSizer.Add(self.ocrText, 0, wx.ALL | wx.EXPAND, 0)
         ocrSizer.Add(self.ocrCombo, 0, wx.ALL | wx.EXPAND, 0)
@@ -239,6 +240,7 @@ class Transimage(wx.Frame):
     def open_menu(self,event):
         event.Skip()
         print('open_menu')
+        self.process_image(1)
 
     def update_translator(self,event):
         string=event.String
@@ -279,7 +281,7 @@ class Transimage(wx.Frame):
             elif self.src_lang == '' or self.dest_lang=='' or self.translator_engine=='' or self.ocr=='':
                 wx.MessageDialog(None, 'One on the combox are empty', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
             else:
-                self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', self.translator_engine, self.ocr, self.src_lang, self.dest_lang)
+                self.processImage=ImageProcess(self,'https://i.stack.imgur.com/vrkIj.png', self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
                 self.processImage.start()
 
                 self.progressDialog = ProgressingDialog(self)
