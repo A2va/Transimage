@@ -2,6 +2,7 @@ import wx
 import cv2
 import numpy as np
 from wx.lib.floatcanvas import FloatCanvas
+from transimage.config import BACKGROUND_COLOR,TEXT_COLOR
 
 class EditDialog ( wx.Dialog ):
 
@@ -10,16 +11,22 @@ class EditDialog ( wx.Dialog ):
 
         self.SetSizeHints(wx.DefaultSize,wx.DefaultSize)
 
+        self.SetForegroundColour(BACKGROUND_COLOR)
+        self.SetBackgroundColour(BACKGROUND_COLOR)
+
         mainSizer = wx.BoxSizer(wx.VERTICAL)
 
         sizeSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.sizeText = wx.StaticText(self,wx.ID_ANY, "Size",wx.DefaultPosition,wx.DefaultSize,wx.ALIGN_LEFT)
+        self.sizeText.SetForegroundColour(TEXT_COLOR)
         self.sizeText.Wrap(-1)
 
         sizeSizer.Add(self.sizeText,0,wx.ALL,5)
 
         self.sizeSpinCtrl = wx.SpinCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
+        self.sizeSpinCtrl.SetForegroundColour(TEXT_COLOR)
+        self.sizeSpinCtrl.SetBackgroundColour(BACKGROUND_COLOR)
         self.sizeSpinCtrl.SetMax(100000)
         self.sizeSpinCtrl.SetMin(1)
         sizeSizer.Add(self.sizeSpinCtrl,0,wx.ALL,5)
@@ -27,14 +34,17 @@ class EditDialog ( wx.Dialog ):
         sizeSizer.Add((0,0),1,wx.EXPAND,5)
 
         self.widthText = wx.StaticText(self,wx.ID_ANY,"Width",wx.DefaultPosition,wx.DefaultSize,0)
+        self.widthText.SetForegroundColour(TEXT_COLOR)
         self.widthText.Wrap(-1)
 
         sizeSizer.Add(self.widthText,0,wx.ALL,5)
 
         self.widthSpinCtrl =wx.SpinCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
+        self.widthSpinCtrl.SetForegroundColour(TEXT_COLOR)
+        self.widthSpinCtrl.SetBackgroundColour(BACKGROUND_COLOR)
         self.widthSpinCtrl.SetMax(100000)
         self.widthSpinCtrl.SetMin(1)
-        #self.widthSpinCtrl= wx.TextCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,0)
+    
         sizeSizer.Add(self.widthSpinCtrl,0,wx.ALL,5)
 
         mainSizer.Add(sizeSizer,1,wx.EXPAND,5)
@@ -42,10 +52,16 @@ class EditDialog ( wx.Dialog ):
         textSizer = wx.BoxSizer(wx.VERTICAL)
 
         self.textText = wx.StaticText(self,wx.ID_ANY,"Text",wx.DefaultPosition,wx.DefaultSize,0)
+        self.textText.SetForegroundColour(TEXT_COLOR)
+
         self.textText.Wrap(-1)
+
         textSizer.Add(self.textText,0,wx.ALL,5)
 
         self.textTextCtrl = wx.TextCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,wx.TE_MULTILINE)
+        self.textTextCtrl.SetForegroundColour(TEXT_COLOR)
+        self.textTextCtrl.SetBackgroundColour(BACKGROUND_COLOR)
+
         textSizer.Add(self.textTextCtrl,1,wx.ALL|wx.EXPAND,5)
 
         mainSizer.Add(textSizer,2,wx.EXPAND,5)
@@ -53,9 +69,13 @@ class EditDialog ( wx.Dialog ):
         buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.okButton = wx.Button(self,wx.ID_OK,"OK",wx.DefaultPosition,wx.DefaultSize,0)
+        self.okButton.SetForegroundColour(TEXT_COLOR)
+        self.okButton.SetBackgroundColour(BACKGROUND_COLOR)
         buttonSizer.Add(self.okButton,1,wx.ALIGN_CENTER|wx.ALL,5)
 
         self.cancelButton = wx.Button(self,wx.ID_CANCEL,"Cancel",wx.DefaultPosition,wx.DefaultSize,0)
+        self.cancelButton.SetForegroundColour(TEXT_COLOR)
+        self.cancelButton.SetBackgroundColour(BACKGROUND_COLOR)
         buttonSizer.Add(self.cancelButton,1,wx.ALIGN_CENTER|wx.ALL,5)
 
         mainSizer.Add(buttonSizer,1,wx.EXPAND,5)
