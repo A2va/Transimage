@@ -9,7 +9,7 @@ base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 
-executables = [Executable("main.py", base=base)]
+executables = [Executable("main.py",targetName="Transimage", base=base)]
 
 setup(  name = "Transimage",
         version = "0.1",
