@@ -9,6 +9,8 @@ import pathos.multiprocessing as p_multiprocessing
 from transimage.canvas import DisplayCanvas
 from transimage.translator.image_translator import ImageTranslator
 from transimage.lang import LANG
+from transimage.config import BACKGROUND_COLOR,TEXT_COLOR, CANVAS_COLOR
+
 
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
@@ -63,6 +65,8 @@ class ProgressingDialog(wx.Dialog):
     def __init__(self,parent):
         wx.Dialog.__init__ (self,parent,id=wx.ID_ANY, title="Progressing", pos=wx.DefaultPosition,size=wx.Size(200,120),style=wx.DEFAULT_DIALOG_STYLE)
 
+        self.SetForegroundColour(BACKGROUND_COLOR)
+        self.SetBackgroundColour(BACKGROUND_COLOR)
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
 
         mainSizer = wx.BoxSizer(wx.VERTICAL)
@@ -70,12 +74,13 @@ class ProgressingDialog(wx.Dialog):
         textSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.fixedText = wx.StaticText(self,wx.ID_ANY,"Time:",wx.DefaultPosition,wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.fixedText.SetForegroundColour(TEXT_COLOR)
         self.fixedText.Wrap(-1)
 
         textSizer.Add(self.fixedText,1,wx.ALIGN_CENTER,5)
 
         self.timeText = wx.StaticText(self, wx.ID_ANY, "0", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
-        self.timeText.Wrap(-1)
+        self.timeText.SetForegroundColour(TEXT_COLOR)
 
         textSizer.Add(self.timeText,1,wx.ALIGN_CENTER|wx.ALL,5)
 
@@ -84,7 +89,9 @@ class ProgressingDialog(wx.Dialog):
         buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.cancelButton = wx.Button(self,wx.ID_CANCEL,"Cancel",wx.DefaultPosition,wx.DefaultSize,0)
-        self.cancelButton.Disable() 
+        self.cancelButton.SetForegroundColour(TEXT_COLOR)
+        self.cancelButton.SetBackgroundColour(BACKGROUND_COLOR)
+
         buttonSizer.Add(self.cancelButton,1,wx.ALIGN_CENTER|wx.ALL,5)
 
         mainSizer.Add( buttonSizer, 1, wx.ALIGN_CENTER, 5 )
@@ -104,16 +111,17 @@ class ProgressingDialog(wx.Dialog):
 class Transimage(wx.Frame):
     def __init__(self,parent):
         wx.Frame.__init__(self,parent,id=wx.ID_ANY,title="Transimage",pos=wx.DefaultPosition,size=wx.Size(1000,500),style=wx.DEFAULT_FRAME_STYLE)
+        self.locale = wx.Locale(wx.LANGUAGE_ENGLISH)
 
         self.SetSizeHints(wx.DefaultSize,wx.DefaultSize)
-        self.SetForegroundColour("#ff0000")
-        self.SetBackgroundColour("#ff0000")
+        self.SetForegroundColour(BACKGROUND_COLOR)
+        self.SetBackgroundColour(BACKGROUND_COLOR)
 
         mainSizer= wx.BoxSizer(wx.HORIZONTAL)
         self.toolBar= wx.ToolBar(self,wx.ID_ANY,wx.DefaultPosition,wx.DefaultSize,wx.TB_VERTICAL)
         self.SetToolBar(self.toolBar)
-        self.toolBar.SetForegroundColour("#0000ff")
-        self.toolBar.SetBackgroundColour("#0000ff")
+        self.toolBar.SetForegroundColour(BACKGROUND_COLOR)
+        self.toolBar.SetBackgroundColour(BACKGROUND_COLOR)
 
         self.logo=self.toolBar.AddTool(wx.ID_ANY,"Logo",wx.Bitmap("icons/logo.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.context_menu,self.logo)
@@ -134,9 +142,9 @@ class Transimage(wx.Frame):
 
         imageSizer= wx.BoxSizer(wx.HORIZONTAL)
 
-        self.imageCanvas=DisplayCanvas(self,id=wx.ID_ANY,size=wx.DefaultSize,ProjectionFun=None,BackgroundColor='#00ff00')
-        self.imageCanvas.SetForegroundColour("#00ff00")
-        self.imageCanvas.SetBackgroundColour("#00ff00")
+        self.imageCanvas=DisplayCanvas(self,id=wx.ID_ANY,size=wx.DefaultSize,ProjectionFun=None,BackgroundColor=CANVAS_COLOR)
+        self.imageCanvas.SetForegroundColour(CANVAS_COLOR)
+        self.imageCanvas.SetBackgroundColour(CANVAS_COLOR)
 
         imageSizer.Add(self.imageCanvas,3,wx.EXPAND)
         mainSizer.Add(imageSizer,3,wx.EXPAND,1)
@@ -146,12 +154,12 @@ class Transimage(wx.Frame):
         src_langSizer=wx.BoxSizer(wx.HORIZONTAL)
 
         self.src_langText = wx.StaticText(self, wx.ID_ANY, "Source Language")
-        self.src_langText.SetForegroundColour(wx.Colour(0, 0, 255))
+        self.src_langText.SetForegroundColour(TEXT_COLOR)
         self.src_langText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 
         self.src_langCombo = wx.ComboBox(self, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
-        self.src_langCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
-        self.src_langCombo.SetForegroundColour(wx.Colour(255, 255, 0))
+        self.src_langCombo.SetBackgroundColour(BACKGROUND_COLOR)
+        self.src_langCombo.SetForegroundColour(TEXT_COLOR)  #For text
         self.src_langCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         self.src_langCombo.Bind(wx.EVT_COMBOBOX,self.update_src_lang)
 
@@ -161,12 +169,12 @@ class Transimage(wx.Frame):
         dest_langSizer=wx.BoxSizer(wx.HORIZONTAL)
 
         self.dest_langText = wx.StaticText(self, wx.ID_ANY, "Destination Language")
-        self.dest_langText.SetForegroundColour(wx.Colour(0, 0, 255))
+        self.dest_langText.SetForegroundColour(TEXT_COLOR)
         self.dest_langText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 
         self.dest_langCombo = wx.ComboBox(self, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
-        self.dest_langCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
-        self.dest_langCombo.SetForegroundColour(wx.Colour(255, 255, 0))
+        self.dest_langCombo.SetBackgroundColour(BACKGROUND_COLOR)
+        self.dest_langCombo.SetForegroundColour(TEXT_COLOR) #For text
         self.dest_langCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         self.dest_langCombo.Bind(wx.EVT_COMBOBOX,self.update_dest_lang)
 
@@ -176,12 +184,12 @@ class Transimage(wx.Frame):
         translatorSizer=wx.BoxSizer(wx.HORIZONTAL)
 
         self.translatorText = wx.StaticText(self, wx.ID_ANY, "Translator")
-        self.translatorText.SetForegroundColour(wx.Colour(0, 0, 255))
+        self.translatorText.SetForegroundColour(TEXT_COLOR)
         self.translatorText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 
         self.translatorCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Deepl","Bing"], style=wx.CB_DROPDOWN | wx.CB_SORT)
-        self.translatorCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
-        self.translatorCombo.SetForegroundColour(wx.Colour(255, 255, 0))
+        self.translatorCombo.SetBackgroundColour(BACKGROUND_COLOR)
+        self.translatorCombo.SetForegroundColour(TEXT_COLOR) #For text
         self.translatorCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         self.translatorCombo.Bind(wx.EVT_COMBOBOX,self.update_translator)
 
@@ -191,12 +199,12 @@ class Transimage(wx.Frame):
         ocrSizer=wx.BoxSizer(wx.HORIZONTAL)
 
         self.ocrText = wx.StaticText(self, wx.ID_ANY, "OCR")
-        self.ocrText.SetForegroundColour(wx.Colour(0, 0, 255))
+        self.ocrText.SetForegroundColour(TEXT_COLOR)
         self.ocrText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 
         self.ocrCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Tesseract","EasyOCR"], style=wx.CB_DROPDOWN | wx.CB_SORT)
-        self.ocrCombo.SetBackgroundColour(wx.Colour(255, 0, 0))
-        self.ocrCombo.SetForegroundColour(wx.Colour(255, 255, 0))
+        self.ocrCombo.SetBackgroundColour(BACKGROUND_COLOR)
+        self.ocrCombo.SetForegroundColour(TEXT_COLOR) #For text
         self.ocrCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         self.ocrCombo.Bind(wx.EVT_COMBOBOX,self.update_ocr)
 
@@ -205,6 +213,8 @@ class Transimage(wx.Frame):
 
         self.processButton = wx.Button(self,wx.ID_ANY,"Run processing",wx.DefaultPosition,wx.DefaultSize,0)
         self.processButton.Bind(wx.EVT_BUTTON,self.process_image)
+        self.processButton.SetForegroundColour(TEXT_COLOR)
+        self.processButton.SetBackgroundColour(BACKGROUND_COLOR)
 
         editSizer.Add(src_langSizer,1,wx.ALL,5)
         editSizer.Add(dest_langSizer,1,wx.ALL,5)
@@ -237,7 +247,6 @@ class Transimage(wx.Frame):
 
     def context_menu(self,event):
         event.Skip()
-        print('context_menu')
 
     def save_menu(self,event):
         event.Skip()
@@ -252,19 +261,16 @@ class Transimage(wx.Frame):
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
             self.image_path = fileDialog.GetPath()
-        #self.process_image(1)
 
     def update_translator(self,event):
         string=event.String
         string = string[0].lower() + string[1:]
         self.translator_engine=string
-        print(self.translator_engine)
 
     def update_ocr(self,event):
         string=event.String
         string = string[0].lower() + string[1:]
         self.ocr=string
-        print(self.ocr)
 
     def update_src_lang(self,event):
         string=event.String
@@ -285,9 +291,9 @@ class Transimage(wx.Frame):
             self.imageCanvas.update_image(self.translator.img_out)
             for text in self.translator.text:
                 self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],text['y']),text['max_width'],text['font_zize'])
-        else:
-            wildcard = "Open Image Files (*.jpg;*.png)|*.jpg;*.png|PNG files (*.png)|*.png"
-            with wx.FileDialog(self, "Save Image file", wildcard=wildcard,
+        else:#Saving image
+            wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
+            with wx.FileDialog(self, "Save Image File", wildcard=wildcard,
             style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
             
                 if fileDialog.ShowModal() == wx.ID_CANCEL:
