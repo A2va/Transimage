@@ -110,7 +110,7 @@ class ProgressingDialog(wx.Dialog):
 
 class Transimage(wx.Frame):
     def __init__(self,parent):
-        wx.Frame.__init__(self,parent,id=wx.ID_ANY,title="Transimage",pos=wx.DefaultPosition,size=wx.Size(1000,500),style=wx.DEFAULT_FRAME_STYLE)
+        wx.Frame.__init__(self,parent,id=wx.ID_ANY,title="Transimage",pos=wx.DefaultPosition,size=wx.Size(1200,500),style=wx.DEFAULT_FRAME_STYLE)
         self.locale = wx.Locale(wx.LANGUAGE_ENGLISH)
 
         self.SetSizeHints(wx.DefaultSize,wx.DefaultSize)
@@ -164,6 +164,7 @@ class Transimage(wx.Frame):
         self.src_langCombo.Bind(wx.EVT_COMBOBOX,self.update_src_lang)
 
         src_langSizer.Add(self.src_langText, 0, wx.ALL | wx.EXPAND, 0)
+        src_langSizer.AddSpacer(10)
         src_langSizer.Add(self.src_langCombo, 0, wx.ALL | wx.EXPAND, 0)
 
         dest_langSizer=wx.BoxSizer(wx.HORIZONTAL)
@@ -178,8 +179,9 @@ class Transimage(wx.Frame):
         self.dest_langCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         self.dest_langCombo.Bind(wx.EVT_COMBOBOX,self.update_dest_lang)
 
-        dest_langSizer.Add(self.dest_langText, 0, wx.ALL | wx.EXPAND, 0)
-        dest_langSizer.Add(self.dest_langCombo, 0, wx.ALL | wx.EXPAND, 0)
+        dest_langSizer.Add(self.dest_langText, 0, wx.ALL, 0)
+        dest_langSizer.AddSpacer(10)
+        dest_langSizer.Add(self.dest_langCombo, 0, wx.ALL, 0)
 
         translatorSizer=wx.BoxSizer(wx.HORIZONTAL)
 
@@ -194,6 +196,7 @@ class Transimage(wx.Frame):
         self.translatorCombo.Bind(wx.EVT_COMBOBOX,self.update_translator)
 
         translatorSizer.Add(self.translatorText, 0, wx.ALL | wx.EXPAND, 0)
+        translatorSizer.AddSpacer(10)
         translatorSizer.Add(self.translatorCombo, 0, wx.ALL | wx.EXPAND, 0)
 
         ocrSizer=wx.BoxSizer(wx.HORIZONTAL)
@@ -209,6 +212,7 @@ class Transimage(wx.Frame):
         self.ocrCombo.Bind(wx.EVT_COMBOBOX,self.update_ocr)
 
         ocrSizer.Add(self.ocrText, 0, wx.ALL | wx.EXPAND, 0)
+        ocrSizer.AddSpacer(10)
         ocrSizer.Add(self.ocrCombo, 0, wx.ALL | wx.EXPAND, 0)
 
         self.processButton = wx.Button(self,wx.ID_ANY,"Run processing",wx.DefaultPosition,wx.DefaultSize,0)
@@ -220,7 +224,7 @@ class Transimage(wx.Frame):
         editSizer.Add(dest_langSizer,1,wx.ALL,5)
         editSizer.Add(translatorSizer, 1, wx.ALL,5)
         editSizer.Add(ocrSizer,1,wx.ALL,5)
-        editSizer.Add(self.processButton,1,wx.ALL,5)
+        editSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
 
         mainSizer.Add(editSizer,1,0,5)
 
