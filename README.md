@@ -8,7 +8,7 @@ Text editing is also possible but only in the original language of the image.
 I wrote this [package](https://github.com/A2va/ImageTranslator) for translating and detecting text on images
 
 
-![Interface](images/transimage_interface.PNG)
+![Interface](images/transimage_interface.png)
 
 ## Usage
 

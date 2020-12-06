@@ -31,14 +31,16 @@ class ImageProcess(threading.Thread):
     def run(self):
         self.stop=False
         if self.mode_process ==True:
-            results = self.process.amap(ImageProcess.worker_process,[self.image_translator])
+            # results = self.process.amap(ImageProcess.worker_process,[self.image_translator])
+            self.image_translator.processing()
         else:
-            results = self.process.amap(ImageProcess.worker_translate,[self.image_translator])
-        while not results.ready() and self.stop==True:
-                time.sleep(2)
+            # results = self.process.amap(ImageProcess.worker_translate,[self.image_translator])
+            self.image_translator.translate()
+        # while not results.ready() and self.stop==True:
+        #         time.sleep(2)
         if self.stop==False:
-            self.image_translator=results.get()
-            self.process.close()
+            # self.image_translator=results.get()
+            # self.process.close()
             evt = EvtImageProcess(data=self.image_translator)
             wx.PostEvent(self.notify_window, evt)
 
@@ -89,6 +91,7 @@ class ProgressingDialog(wx.Dialog):
         buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.cancelButton = wx.Button(self,wx.ID_CANCEL,"Cancel",wx.DefaultPosition,wx.DefaultSize,0)
+        self.cancelButton.Disable()
         self.cancelButton.SetForegroundColour(TEXT_COLOR)
         self.cancelButton.SetBackgroundColour(BACKGROUND_COLOR)
 
