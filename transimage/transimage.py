@@ -297,7 +297,7 @@ class Transimage(wx.Frame):
         if self.processImage.mode_process==True:
             self.imageCanvas.update_image(self.translator.img_out)
             for text in self.translator.text:
-                self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],text['y']),text['max_width'],text['font_zize'])
+                self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],text['y']),text['max_width'],text['font_size'])
         else:#Saving image
             wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
             with wx.FileDialog(self, "Save Image File", wildcard=wildcard,
