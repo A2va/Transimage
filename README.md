@@ -1,6 +1,7 @@
 # Transimage
 
-An image translator that can use 3 translators (Google, Bing and DeepL) and two OCR (Tesseract and EasyOCR). 
+An image translator that can use 3 translators (Google, Bing and DeepL) 
+and two OCR ([Tesseract](https://github.com/tesseract-ocr) and [EasyOCR](https://github.com/JaidedAI/EasyOCR)). 
 Text editing is also possible but only in the original language of the image.
 
 **At the moment the Google translator does not work because of this [issue](https://github.com/ssut/py-googletrans/issues/234).**
@@ -38,7 +39,7 @@ If I have time I will implement this
 ```
 git clone --recurse-submodules https://github.com/A2va/Transimage.git
 pip install -r requirements.txt
-pip install torch===1.7.0 torchvision===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
+pip install torch==1.7.0+cpu torchvision==0.8.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
 ```
 ### Build
 
