@@ -30,15 +30,15 @@ I wrote this [package](https://github.com/A2va/ImageTranslator) for translating 
 If I have time I will implement this
 
 * Custom font
-* Text color and detecting 
-* Inpainting and not white rectangle
+* Detecting text color
+* Inpainting and for a replace of white rectangle
 
 ## Development
 
 ```
 git clone --recurse-submodules https://github.com/A2va/Transimage.git
 pip install -r requirements.txt
-pip install torch===1.7.0 torchvision===0.8.1 torchaudio===0.7.0 -f https://download.pytorch.org/whl/torch_stable.html
+pip install torch===1.7.0 torchvision===0.8.1 -f https://download.pytorch.org/whl/torch_stable.html
 ```
 ### Build
 
