@@ -53,7 +53,7 @@ class ImageProcess(threading.Thread):
                 time.sleep(2)
         if self.stop==False:
             self.image_translator=results.get()
-            self.process.close()
+            #self.process.close()
             evt = EvtImageProcess(data=self.image_translator)
             wx.PostEvent(self.notify_window, evt)
 
@@ -104,7 +104,6 @@ class ProgressingDialog(wx.Dialog):
         buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.cancelButton = wx.Button(self,wx.ID_CANCEL,"Cancel",wx.DefaultPosition,wx.DefaultSize,0)
-        self.cancelButton.Disable()
         self.cancelButton.SetForegroundColour(TEXT_COLOR)
         self.cancelButton.SetBackgroundColour(BACKGROUND_COLOR)
 
@@ -304,12 +303,13 @@ class Transimage(wx.Frame):
 
     def callback_image_process(self,event):
         self.progressDialog.Close()
-        self.processImage.abort()
-        self.imageCanvas.delete_all()
         self.translator=event.data[0]
         if self.processImage.mode_process==True:
+            self.imageCanvas.delete_all()
             self.imageCanvas.update_image(self.translator.img_out)
             for text in self.translator.text:
+                if text['translated_string']=='':
+                    wx.MessageDialog(None, 'This translator does not work with the text on image. Change the text or translator', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
                 self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],text['y']),text['max_width'],text['font_size'])
         else:#Saving image
             wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
