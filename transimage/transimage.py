@@ -38,7 +38,7 @@ class ImageProcess(threading.Thread):
                 time.sleep(2)
         if self.stop==False:
             self.image_translator=results.get()
-            #self.process.close()
+            self.process.close()
             evt = EvtImageProcess(data=self.image_translator)
             wx.PostEvent(self.notify_window, evt)
 
@@ -206,7 +206,7 @@ class Transimage(wx.Frame):
         self.ocrText.SetForegroundColour(TEXT_COLOR)
         self.ocrText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 
-        self.ocrCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Tesseract","EasyOCR"], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.ocrCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Tesseract","Easyocr"], style=wx.CB_DROPDOWN | wx.CB_SORT)
         self.ocrCombo.SetBackgroundColour(BACKGROUND_COLOR)
         self.ocrCombo.SetForegroundColour(TEXT_COLOR) #For text
         self.ocrCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
