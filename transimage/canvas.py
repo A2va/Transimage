@@ -129,9 +129,14 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.text.clear()
         self.Draw(True)
 
-    def delete_text(self,text):
+    def delete_text(self,text,Force=True):
         self.RemoveObject(text)
-        self.Draw(True)
+        self.Draw(Force)
+
+    def delete_all_text(self):
+        for text in self.text:
+            self.delete_text(text,False)
+        self.Draw(True) 
 
     def add_text(self,string,translated_string,pos,width,size):
         text=self.AddScaledTextBox(
@@ -148,8 +153,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
                 Font=wx.Font(size, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell"))
         text.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.start_move)
         text.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit)
-
-        self.AddObject(text)
 
         self.text.append( {
                 'original_text':string,
