@@ -22,7 +22,7 @@ import threading
 import time
 import pathos.multiprocessing as p_multiprocessing
 from transimage.canvas import DisplayCanvas
-from transimage.translator.image_translator import ImageTranslator
+from image_translator.image_translator import ImageTranslator
 from transimage.lang import LANG
 from transimage.config import BACKGROUND_COLOR,TEXT_COLOR, CANVAS_COLOR
 
