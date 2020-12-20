@@ -99,9 +99,21 @@ class EditDialog ( wx.Dialog ):
         self.Layout()
 
         self.Centre(wx.BOTH)
+        
+class ContextMenu(wx.Menu):
 
-    def __del__( self ):
-        pass
+    def __init__(self, parent):
+        super(ContextMenu, self).__init__()
+
+        self.parent = parent
+
+        add_text = wx.MenuItem(self, wx.NewIdRef(), 'Add Text')
+        self.Append(add_text)
+        self.Bind(wx.EVT_MENU, self.add_text, add_text)
+
+    def add_text(self, event):
+       print('add_text')
+
 
 class DisplayCanvas(FloatCanvas.FloatCanvas):
 
@@ -115,6 +127,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Bind(wx.EVT_MOUSEWHEEL,self.zoom)
         self.Bind(FloatCanvas.EVT_LEFT_UP, self.stop_move)
         self.Bind(FloatCanvas.EVT_MOTION, self.moving)
+        self.Bind(FloatCanvas.EVT_RIGHT_DOWN,self.context_menu)
 
         wx.Font.AddPrivateFont('font/Cantarell.ttf')
 
@@ -123,6 +136,9 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.delta = 1.2
         self.MoveObject = None
         self.Moving = False
+
+    def context_menu(self,event):
+        self.PopupMenu(ContextMenu(self), event.GetPosition())
 
     def delete_all(self):
         self.ClearAll()
