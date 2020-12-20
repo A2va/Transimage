@@ -19,15 +19,18 @@ import numpy as np
 from wx.lib.floatcanvas import FloatCanvas
 from transimage.config import BACKGROUND_COLOR,TEXT_COLOR
 
-class EditDialog ( wx.Dialog ):
+wx.Font.AddPrivateFont('font/Cantarell.ttf')
 
-    def __init__( self, parent ):
+class EditDialog (wx.Dialog):
+
+    def __init__(self,parent,font):
         wx.Dialog.__init__ (self,parent,id=wx.ID_ANY,title="Edit",pos=wx.DefaultPosition,size=wx.Size(400,200),style=wx.DEFAULT_DIALOG_STYLE)
 
         self.SetSizeHints(wx.DefaultSize,wx.DefaultSize)
-
         self.SetForegroundColour(BACKGROUND_COLOR)
         self.SetBackgroundColour(BACKGROUND_COLOR)
+        self.SetMinSize(wx.Size(400,200))
+
 
         mainSizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -44,6 +47,7 @@ class EditDialog ( wx.Dialog ):
         self.sizeSpinCtrl.SetBackgroundColour(BACKGROUND_COLOR)
         self.sizeSpinCtrl.SetMax(100000)
         self.sizeSpinCtrl.SetMin(1)
+        self.sizeSpinCtrl.Bind(wx.EVT_SPINCTRL,self.set_size)
         sizeSizer.Add(self.sizeSpinCtrl,0,wx.ALL,5)
 
         sizeSizer.Add((0,0),1,wx.EXPAND,5)
@@ -73,9 +77,11 @@ class EditDialog ( wx.Dialog ):
 
         textSizer.Add(self.textText,0,wx.ALL,5)
 
+        #Change for ExpandoTextCtrl in wx.lib.expando
         self.textTextCtrl = wx.TextCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,wx.TE_MULTILINE)
         self.textTextCtrl.SetForegroundColour(TEXT_COLOR)
         self.textTextCtrl.SetBackgroundColour(BACKGROUND_COLOR)
+        self.textTextCtrl.SetFont(font)
 
         textSizer.Add(self.textTextCtrl,1,wx.ALL|wx.EXPAND,5)
 
@@ -97,9 +103,16 @@ class EditDialog ( wx.Dialog ):
 
         self.SetSizer(mainSizer)
         self.Layout()
+        self.Fit()
 
         self.Centre(wx.BOTH)
-        
+
+    def set_size(self,event):
+        # self.font=wx.Font(self.sizeSpinCtrl.GetValue(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell")
+        # self.textTextCtrl.SetFont(self.font)
+        # self.Fit()
+        event.Skip()
+
 class ContextMenu(wx.Menu):
 
     def __init__(self, parent):
@@ -121,15 +134,12 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         FloatCanvas.FloatCanvas.__init__(self, *args, **kwargs)
         self.text=[]
 
-
-
         #Canvas Event
         self.Bind(wx.EVT_MOUSEWHEEL,self.zoom)
         self.Bind(FloatCanvas.EVT_LEFT_UP, self.stop_move)
         self.Bind(FloatCanvas.EVT_MOTION, self.moving)
         self.Bind(FloatCanvas.EVT_RIGHT_DOWN,self.context_menu)
 
-        wx.Font.AddPrivateFont('font/Cantarell.ttf')
 
         self.Show()
         self.ZoomToBB()
@@ -196,9 +206,10 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
     def edit(self,event):
         string=event.String
-        dlg = EditDialog(self)
+        dlg = EditDialog(self,event.Font)
 
         dlg.textTextCtrl.SetValue(string)
+        dlg.textTextCtrl.SetFont(event.Font)
         dlg.widthSpinCtrl.SetValue(event.Width)
         dlg.sizeSpinCtrl.SetValue(event.Size)
         if dlg.ShowModal()==wx.ID_OK:
