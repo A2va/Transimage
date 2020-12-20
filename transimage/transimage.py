@@ -133,6 +133,8 @@ class Transimage(wx.Frame):
         self.SetBackgroundColour(BACKGROUND_COLOR)
 
         mainSizer= wx.BoxSizer(wx.HORIZONTAL)
+
+        # Toolbar
         self.toolBar= wx.ToolBar(self,wx.ID_ANY,wx.DefaultPosition,wx.DefaultSize,wx.TB_VERTICAL)
         self.SetToolBar(self.toolBar)
         self.toolBar.SetForegroundColour(BACKGROUND_COLOR)
@@ -156,7 +158,8 @@ class Transimage(wx.Frame):
         self.toolBar.Realize()
 
         imageSizer= wx.BoxSizer(wx.HORIZONTAL)
-
+        
+        #Image Canvas
         self.imageCanvas=DisplayCanvas(self,id=wx.ID_ANY,size=wx.DefaultSize,ProjectionFun=None,BackgroundColor=CANVAS_COLOR)
         self.imageCanvas.SetForegroundColour(CANVAS_COLOR)
         self.imageCanvas.SetBackgroundColour(CANVAS_COLOR)
@@ -164,8 +167,9 @@ class Transimage(wx.Frame):
         imageSizer.Add(self.imageCanvas,3,wx.EXPAND)
         mainSizer.Add(imageSizer,3,wx.EXPAND,1)
 
+        
         editSizer=wx.BoxSizer(wx.VERTICAL)
-
+        #Source Language
         src_langSizer=wx.BoxSizer(wx.HORIZONTAL)
 
         self.src_langText = wx.StaticText(self, wx.ID_ANY, "Source Language")
@@ -182,6 +186,7 @@ class Transimage(wx.Frame):
         src_langSizer.AddSpacer(10)
         src_langSizer.Add(self.src_langCombo, 0, wx.ALL | wx.EXPAND, 0)
 
+        #Destination Language
         dest_langSizer=wx.BoxSizer(wx.HORIZONTAL)
 
         self.dest_langText = wx.StaticText(self, wx.ID_ANY, "Destination Language")
@@ -198,6 +203,7 @@ class Transimage(wx.Frame):
         dest_langSizer.AddSpacer(10)
         dest_langSizer.Add(self.dest_langCombo, 0, wx.ALL, 0)
 
+        #Translator
         translatorSizer=wx.BoxSizer(wx.HORIZONTAL)
 
         self.translatorText = wx.StaticText(self, wx.ID_ANY, "Translator")
@@ -214,6 +220,7 @@ class Transimage(wx.Frame):
         translatorSizer.AddSpacer(10)
         translatorSizer.Add(self.translatorCombo, 0, wx.ALL | wx.EXPAND, 0)
 
+        #OCR
         ocrSizer=wx.BoxSizer(wx.HORIZONTAL)
 
         self.ocrText = wx.StaticText(self, wx.ID_ANY, "OCR")
@@ -230,16 +237,29 @@ class Transimage(wx.Frame):
         ocrSizer.AddSpacer(10)
         ocrSizer.Add(self.ocrCombo, 0, wx.ALL | wx.EXPAND, 0)
 
+        #Button
+        buttonSizer=wx.BoxSizer(wx.HORIZONTAL)
+
         self.processButton = wx.Button(self,wx.ID_ANY,"Run processing",wx.DefaultPosition,wx.DefaultSize,0)
         self.processButton.Bind(wx.EVT_BUTTON,self.process_image)
         self.processButton.SetForegroundColour(TEXT_COLOR)
         self.processButton.SetBackgroundColour(BACKGROUND_COLOR)
 
+        buttonSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
+
+        self.textButton= wx.Button(self,wx.ID_ANY,"Add text",wx.DefaultPosition,wx.DefaultSize,0)
+        self.textButton.Bind(wx.EVT_BUTTON,self.add_text)
+        self.textButton.SetForegroundColour(TEXT_COLOR)
+        self.textButton.SetBackgroundColour(BACKGROUND_COLOR)
+        
+        buttonSizer.Add(self.textButton,1,wx.ALL | wx.ALIGN_CENTER,5)
+
         editSizer.Add(src_langSizer,1,wx.ALL,5)
         editSizer.Add(dest_langSizer,1,wx.ALL,5)
         editSizer.Add(translatorSizer, 1, wx.ALL,5)
         editSizer.Add(ocrSizer,1,wx.ALL,5)
-        editSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
+        editSizer.Add(buttonSizer,1,wx.ALL,5)
+        # editSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
 
         mainSizer.Add(editSizer,1,0,5)
 
@@ -322,6 +342,9 @@ class Transimage(wx.Frame):
                 out_path = fileDialog.GetPath()
                 cv2.imwrite(out_path,self.translator.img_out)
 
+    def add_text(self,event):
+        self.imageCanvas.add_text('Text placeholder','',(0,0),50,30)
+
     def process_image(self,event):
             if self.src_lang ==self.dest_lang:
                 wx.MessageDialog(None, 'The source and destination lang cannot be the same', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
@@ -350,12 +373,14 @@ class Transimage(wx.Frame):
             w=text_object.BoxWidth
             h=text_object.BoxHeight
 
-
-            string=text['original_text']
-            if text_object.String != string:
-                string=self.translator.run_translator(text_object.String)
+            if text['original_translated']!='':
+                string=text['original_text']
+                if text_object.String != string:
+                    string=self.translator.run_translator(text_object.String)
+                else:
+                    string=text['original_translated']
             else:
-                string=text['original_translated']
+                string= self.translator.run_translator(text_object.String)
             self.translator.text.append(
                 {
                 'x': x,
