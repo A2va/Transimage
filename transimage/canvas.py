@@ -117,7 +117,7 @@ class EditDialog (wx.Dialog):
 
 class ContextMenu(wx.Menu):
 
-    def __init__(self, parent):
+    def __init__(self, parent,pos):
         super(ContextMenu, self).__init__()
 
         self.parent = parent
@@ -125,12 +125,14 @@ class ContextMenu(wx.Menu):
         add_text = wx.MenuItem(self, wx.NewIdRef(), 'Add Text')
         self.Append(add_text)
         self.Bind(wx.EVT_MENU, self.add_text, add_text)
-
+        self.pos=pos
+        
     def add_text(self, event):
        dlg = EditDialog(self.parent,self.font)
        dlg.SetTitle('Add')
        dlg.sizeSpinCtrl.SetValue(30)
        dlg.widthSpinCtrl.SetValue(50)
+
        if dlg.ShowModal()==wx.ID_OK:
             evt = EvtCanvasContextMenu(data={
                 'event_type':'add_text',
@@ -138,7 +140,7 @@ class ContextMenu(wx.Menu):
                     'width':dlg.widthSpinCtrl.GetValue(),
                     'size':dlg.sizeSpinCtrl.GetValue(),
                     'string':dlg.textTextCtrl.GetValue(),
-                    'pos':(0,0)
+                    'pos':self.pos
                 }
             })
             wx.PostEvent(self.parent, evt)
@@ -164,9 +166,9 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Moving = False
 
     def context_menu(self,event):
-        self.PopupMenu(ContextMenu(self), event.GetPosition())
+        self.PopupMenu(ContextMenu(self,event.GetPosition()), event.GetPosition())
 
-    def delete_all(self):
+    def clear(self):
         self.ClearAll()
         self.text.clear()
         self.Draw(True)
@@ -199,7 +201,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
                 Alignment = "left",
                 Font=wx.Font(size, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell"))
         text.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.start_move)
-        text.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit)
+        text.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit_text)
 
         self.text.append( {
                 'original_text':string,
@@ -225,7 +227,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Draw(True)
         self.ZoomToBB()
 
-    def edit(self,event):
+    def edit_text(self,event):
         string=event.String
         dlg = EditDialog(self,event.Font)
 
