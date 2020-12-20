@@ -21,6 +21,8 @@ from transimage.config import BACKGROUND_COLOR,TEXT_COLOR
 
 wx.Font.AddPrivateFont('font/Cantarell.ttf')
 
+EvtCanvasContextMenu, EVT_CANVAS_CONTEXT_MENU = wx.lib.newevent.NewEvent()
+
 class EditDialog (wx.Dialog):
 
     def __init__(self,parent,font):
@@ -119,14 +121,27 @@ class ContextMenu(wx.Menu):
         super(ContextMenu, self).__init__()
 
         self.parent = parent
-
+        self.font=wx.Font(30, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell")
         add_text = wx.MenuItem(self, wx.NewIdRef(), 'Add Text')
         self.Append(add_text)
         self.Bind(wx.EVT_MENU, self.add_text, add_text)
 
     def add_text(self, event):
-       print('add_text')
-
+       dlg = EditDialog(self.parent,self.font)
+       dlg.SetTitle('Add')
+       dlg.sizeSpinCtrl.SetValue(30)
+       dlg.widthSpinCtrl.SetValue(50)
+       if dlg.ShowModal()==wx.ID_OK:
+            evt = EvtCanvasContextMenu(data={
+                'event_type':'add_text',
+                'event_data':{
+                    'width':dlg.widthSpinCtrl.GetValue(),
+                    'size':dlg.sizeSpinCtrl.GetValue(),
+                    'string':dlg.textTextCtrl.GetValue(),
+                    'pos':(0,0)
+                }
+            })
+            wx.PostEvent(self.parent, evt)
 
 class DisplayCanvas(FloatCanvas.FloatCanvas):
 
@@ -139,6 +154,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Bind(FloatCanvas.EVT_LEFT_UP, self.stop_move)
         self.Bind(FloatCanvas.EVT_MOTION, self.moving)
         self.Bind(FloatCanvas.EVT_RIGHT_DOWN,self.context_menu)
+        self.Bind(EVT_CANVAS_CONTEXT_MENU, self.callback_context_menu)
 
 
         self.Show()
@@ -163,6 +179,11 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         for text in self.text:
             self.delete_text(text,False)
         self.Draw(True) 
+
+    def callback_context_menu(self,event):
+        if event.data['event_type']=='add_text':
+            data=event.data['event_data']
+            self.add_text(data['string'],'',data['pos'],data['width'],data['size'])
 
     def add_text(self,string,translated_string,pos,width,size):
         text=self.AddScaledTextBox(
@@ -209,7 +230,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         dlg = EditDialog(self,event.Font)
 
         dlg.textTextCtrl.SetValue(string)
-        dlg.textTextCtrl.SetFont(event.Font)
         dlg.widthSpinCtrl.SetValue(event.Width)
         dlg.sizeSpinCtrl.SetValue(event.Size)
         if dlg.ShowModal()==wx.ID_OK:
