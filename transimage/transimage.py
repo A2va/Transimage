@@ -44,7 +44,7 @@ def gen_settings_file():
     setting_file=open('settings.json','w')
     json.dump(setting_dict,setting_file)
     setting_file.close()
-    print(setting_dict)
+
 
 class ImageProcess(threading.Thread):
     def __init__(self,notify_window,img, ocr, translator, src_lang, dest_lang,mode_process=True):
@@ -149,6 +149,7 @@ class Transimage(wx.Frame):
         
         if not os.path.exists('settings.json'):
             open('settings.json','w+').close()
+            gen_settings_file()
 
         self.init_ui(parent)
 
