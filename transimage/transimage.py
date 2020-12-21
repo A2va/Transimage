@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import os
 import wx
 import wx.lib.newevent
-import urllib
 import numpy as np
 import cv2
 import threading
@@ -23,13 +23,28 @@ import time
 import pathos.multiprocessing as p_multiprocessing
 from transimage.canvas import DisplayCanvas
 from image_translator.image_translator import ImageTranslator
-from transimage.lang import LANG
+from transimage.lang import LANG,LANG_DICT
 from transimage.config import BACKGROUND_COLOR,TEXT_COLOR, CANVAS_COLOR
 
+import json
 
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
 LABEL_SIZE=12
+
+def gen_settings_file():
+    setting_dict={
+        'language_pack':None
+    }
+
+    for lang in LANG_DICT:
+        LANG_DICT[lang]=False
+
+    setting_dict['language_pack']=LANG_DICT
+    setting_file=open('settings.json','w')
+    json.dump(setting_dict,setting_file)
+    setting_file.close()
+    print(setting_dict)
 
 class ImageProcess(threading.Thread):
     def __init__(self,notify_window,img, ocr, translator, src_lang, dest_lang,mode_process=True):
@@ -125,6 +140,19 @@ class ProgressingDialog(wx.Dialog):
 
 class Transimage(wx.Frame):
     def __init__(self,parent):
+        
+        self.image_path=''
+        self.translator_engine='bing'
+        self.ocr='tesseract'
+        self.src_lang='eng'
+        self.dest_lang='fra'
+        
+        if not os.path.exists('settings.json'):
+            open('settings.json','w+').close()
+
+        self.init_ui(parent)
+
+    def init_ui(self,parent):
         wx.Frame.__init__(self,parent,id=wx.ID_ANY,title="Transimage",pos=wx.DefaultPosition,size=wx.Size(1200,500),style=wx.DEFAULT_FRAME_STYLE)
         self.locale = wx.Locale(wx.LANGUAGE_ENGLISH)
 
@@ -270,7 +298,6 @@ class Transimage(wx.Frame):
 
         self.Centre(wx.BOTH)
 
-        self.image_path=''
 
         for lang in LANG:
             self.dest_langCombo.Append(lang.capitalize())
