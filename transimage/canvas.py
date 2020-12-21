@@ -17,6 +17,7 @@ import wx
 import cv2
 import numpy as np
 from wx.lib.floatcanvas import FloatCanvas
+from wx.lib.floatcanvas.FCObjects import ScaledTextBox
 from transimage.config import BACKGROUND_COLOR,TEXT_COLOR
 
 wx.Font.AddPrivateFont('font/Cantarell.ttf')
@@ -117,15 +118,26 @@ class EditDialog (wx.Dialog):
 
 class ContextMenu(wx.Menu):
 
-    def __init__(self, parent,pos):
+    def __init__(self, parent,pos,type=0,text=None):
         super(ContextMenu, self).__init__()
 
         self.parent = parent
         self.font=wx.Font(30, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell")
+        self.pos=pos
+        self.text=text
+
         add_text = wx.MenuItem(self, wx.NewIdRef(), 'Add Text')
         self.Append(add_text)
         self.Bind(wx.EVT_MENU, self.add_text, add_text)
-        self.pos=pos
+
+        if type>=1:
+            edit_text = wx.MenuItem(self, wx.NewIdRef(), 'Edit Text')
+            self.Append(edit_text)
+            self.Bind(wx.EVT_MENU, self.edit_text, edit_text)
+        if type >=2:
+            delete_text = wx.MenuItem(self, wx.NewIdRef(), 'Delete Text')
+            self.Append(delete_text)
+            self.Bind(wx.EVT_MENU, self.delete_text, delete_text)
         
     def add_text(self, event):
        dlg = EditDialog(self.parent,self.font)
@@ -140,10 +152,22 @@ class ContextMenu(wx.Menu):
                     'width':dlg.widthSpinCtrl.GetValue(),
                     'size':dlg.sizeSpinCtrl.GetValue(),
                     'string':dlg.textTextCtrl.GetValue(),
-                    'pos':self.pos
+                    'pos':(0,0)
                 }
             })
             wx.PostEvent(self.parent, evt)
+    def edit_text(self,event):
+        evt = EvtCanvasContextMenu(data={
+                'event_type':'edit_text',
+                'event_data':self.text
+            })
+        wx.PostEvent(self.parent, evt)
+    def delete_text(self,event):
+        evt = EvtCanvasContextMenu(data={
+                'event_type':'delete_text',
+                'event_data':self.text
+            })
+        wx.PostEvent(self.parent, evt)
 
 class DisplayCanvas(FloatCanvas.FloatCanvas):
 
@@ -166,7 +190,12 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Moving = False
 
     def context_menu(self,event):
-        self.PopupMenu(ContextMenu(self,event.GetPosition()), event.GetPosition())
+        if isinstance(event,wx.PyCommandEvent):
+            pos=event.GetPosition()
+            self.PopupMenu(ContextMenu(self,pos), pos)
+        elif isinstance(event,ScaledTextBox):
+            pos=wx.GetMousePosition() - self.GetScreenPosition() 
+            self.PopupMenu(ContextMenu(self,pos,2,event), pos)
 
     def clear(self):
         self.ClearAll()
@@ -186,6 +215,21 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         if event.data['event_type']=='add_text':
             data=event.data['event_data']
             self.add_text(data['string'],'',data['pos'],data['width'],data['size'])
+        elif event.data['event_type']=='edit_text':
+            data=event.data['event_data']
+            dlg = EditDialog(self,data.Font)
+
+            dlg.textTextCtrl.SetValue(data.String)
+            dlg.widthSpinCtrl.SetValue(data.Width)
+            dlg.sizeSpinCtrl.SetValue(data.Size)
+            if dlg.ShowModal()==wx.ID_OK:
+                data.SetText(dlg.textTextCtrl.GetValue())
+                data.Size=dlg.sizeSpinCtrl.GetValue()
+                data.Width=dlg.widthSpinCtrl.GetValue()
+                self.Draw(True)
+        elif event.data['event_type']=='delete_text':
+            data=event.data['event_data']
+            self.delete_text(data)
 
     def add_text(self,string,translated_string,pos,width,size):
         text=self.AddScaledTextBox(
@@ -202,6 +246,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
                 Font=wx.Font(size, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell"))
         text.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.start_move)
         text.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit_text)
+        text.Bind(FloatCanvas.EVT_FC_RIGHT_DOWN,self.context_menu)
 
         self.text.append( {
                 'original_text':string,
