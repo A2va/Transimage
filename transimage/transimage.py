@@ -22,6 +22,7 @@ import threading
 import time
 import pathos.multiprocessing as p_multiprocessing
 from transimage.canvas import DisplayCanvas
+from transimage.settings import SettingsDialog
 from image_translator.image_translator import ImageTranslator
 from transimage.lang import LANG,LANG_DICT
 from transimage.config import BACKGROUND_COLOR,TEXT_COLOR, CANVAS_COLOR
@@ -334,6 +335,9 @@ class Transimage(wx.Frame):
 
     def settings_menu(self,event):
         event.Skip()
+        dlg = SettingsDialog(self)
+        if dlg.ShowModal() == wx.ID_OK:
+            print('end')
         print('settings_menu')
 
     def update_translator(self,event):
