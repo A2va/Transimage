@@ -12,8 +12,19 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-BACKGROUND_COLOR = '#303030'
-HIGHLIGHT_COLOR = '#558de8'
-CANVAS_COLOR = '#404040'
-CANVAS_COLOR_HIGHLIGHT= '#353535'
-TEXT_COLOR = '#ffffff'
+
+import wx
+
+app=wx.App() #A ugly to resolver an error
+
+BACKGROUND_COLOR_HEX = '#303030'
+HIGHLIGHT_COLOR_HEX = '#558de8'
+CANVAS_COLOR_HEX = '#404040'
+CANVAS_COLOR_HIGHLIGHT_HEX= '#353535'
+TEXT_COLOR_HEX = '#ffffff'
+
+BACKGROUND_COLOR = wx.Colour(BACKGROUND_COLOR_HEX)
+HIGHLIGHT_COLOR = wx.Colour(HIGHLIGHT_COLOR_HEX)
+CANVAS_COLOR = wx.Colour(CANVAS_COLOR_HEX)
+CANVAS_COLOR_HIGHLIGHT = wx.Colour(CANVAS_COLOR_HIGHLIGHT_HEX)
+TEXT_COLOR = wx.Colour(TEXT_COLOR_HEX)
