@@ -184,6 +184,9 @@ class Transimage(wx.Frame):
         self.help=self.toolBar.AddTool(wx.ID_ANY,"Help",wx.Bitmap("icons/help.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.help_menu,self.help)
 
+        self.settings=self.toolBar.AddTool(wx.ID_ANY,"Settings",wx.Bitmap("icons/settings.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.Bind(wx.EVT_TOOL,self.settings_menu,self.settings)
+
         self.toolBar.Realize()
 
         imageSizer= wx.BoxSizer(wx.HORIZONTAL)
@@ -304,21 +307,8 @@ class Transimage(wx.Frame):
             self.dest_langCombo.Append(lang.capitalize())
             self.src_langCombo.Append(lang.capitalize())
 
-    def help_menu(self,event):
-        event.Skip()
-        print('help_menu')
-
-    def about_menu(self,event):
-        event.Skip()
-        print('about_menu')
-
     def context_menu(self,event):
         event.Skip()
-
-    def save_menu(self,event):
-        event.Skip()
-        print('save_menu')
-        self.translate()
 
     def open_menu(self,event):
         event.Skip()
@@ -328,6 +318,23 @@ class Transimage(wx.Frame):
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
             self.image_path = fileDialog.GetPath()
+
+    def save_menu(self,event):
+        event.Skip()
+        print('save_menu')
+        self.translate()
+
+    def about_menu(self,event):
+        event.Skip()
+        print('about_menu')
+
+    def help_menu(self,event):
+        event.Skip()
+        print('help_menu')
+
+    def settings_menu(self,event):
+        event.Skip()
+        print('settings_menu')
 
     def update_translator(self,event):
         string=event.String
