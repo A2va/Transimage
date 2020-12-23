@@ -12,7 +12,8 @@ TESSDATA_BEST='https://github.com/tesseract-ocr/tessdata_best/raw/master'
 def download_lang(lang,progress_dialog):
     tesseract_url=f'{TESSDATA_BEST}/{lang}.traineddata'
 
-    if not os.path.exists(f'tesseract-ocr/tessdata/{lang}.traineddata'):
+    lang_code_tesseract=image_translator_lang.OCR_LANG[lang][0]
+    if not os.path.exists(f'tesseract-ocr/tessdata/{lang_code_tesseract}.traineddata'):
         download(tesseract_url,'tesseract-ocr/tessdata',progress_dialog)
 
     lang_code_easyocr=image_translator_lang.OCR_LANG[lang][1]
