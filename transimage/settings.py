@@ -19,12 +19,12 @@ from transimage.config import BACKGROUND_COLOR,TEXT_COLOR
 
 class SettingsDialog(wx.Dialog):
     def __init__(self,parent):
-        wx.Dialog.__init__ (self,parent,id=wx.ID_ANY,title="Settings",pos=wx.DefaultPosition,size=wx.Size(400,200),style=wx.DEFAULT_DIALOG_STYLE)
+        wx.Dialog.__init__ (self,parent,id=wx.ID_ANY,title="Settings",pos=wx.DefaultPosition,size=wx.Size(400,300),style=wx.DEFAULT_DIALOG_STYLE)
 
         self.SetSizeHints(wx.DefaultSize,wx.DefaultSize)
         self.SetForegroundColour(BACKGROUND_COLOR)
         self.SetBackgroundColour(BACKGROUND_COLOR)
-        self.SetMinSize(wx.Size(400,200))
+        self.SetMinSize(wx.Size(400,300))
 
         mainSizer = wx.BoxSizer(wx.VERTICAL)
 
@@ -38,14 +38,40 @@ class SettingsDialog(wx.Dialog):
         self.notebook.SetGradientColours(BACKGROUND_COLOR,BACKGROUND_COLOR,BACKGROUND_COLOR)
         mainSizer.Add(self.notebook, 1, wx.EXPAND, 0)
 
-        # Page 1
+        # Page 1: General 
 
+        page1Sizer = wx.BoxSizer(wx.VERTICAL)
         self.page_1 = wx.Panel(self.notebook, wx.ID_ANY)
         self.page_1.SetForegroundColour(BACKGROUND_COLOR)
         self.page_1.SetBackgroundColour(BACKGROUND_COLOR)
-        self.notebook.AddPage(self.page_1, "Page 1")
+        self.notebook.AddPage(self.page_1, "General")
 
-        page1Sizer = wx.BoxSizer(wx.VERTICAL)
+        self.page_1.SetSizer(page1Sizer)
+
+        # Page 2: Language Pack
+
+        page2Sizer = wx.BoxSizer(wx.VERTICAL)
+        self.page_2 = wx.Panel(self.notebook, wx.ID_ANY)
+        self.page_2.SetForegroundColour(BACKGROUND_COLOR)
+        self.page_2.SetBackgroundColour(BACKGROUND_COLOR)
+        self.notebook.AddPage(self.page_2, "Language Pack")
+
+        self.lang_CheckList =wx.CheckListBox(self.page_2, wx.ID_ANY)
+        self.lang_CheckList.SetBackgroundColour(BACKGROUND_COLOR)
+        self.lang_CheckList.SetForegroundColour(BACKGROUND_COLOR)
+
+        # self.lang_CheckList.SetItemBackgroundColour(0, BACKGROUND_COLOR)
+        # self.lang_CheckList.SetItemForegroundColour(0,TEXT_COLOR)
+
+        page2Sizer.Add(self.lang_CheckList,1,wx.ALL|wx.EXPAND,5)
+
+        self.applyButton = wx.Button(self.page_2,wx.ID_ANY,"Apply",wx.DefaultPosition,wx.DefaultSize,0)
+        self.applyButton.SetForegroundColour(TEXT_COLOR)
+        self.applyButton.SetBackgroundColour(BACKGROUND_COLOR)
+
+        page2Sizer.Add(self.applyButton,0,wx.ALIGN_RIGHT|wx.ALL,5)
+
+        self.page_2.SetSizer(page2Sizer)
 
         # Confirmation Button
 
@@ -61,9 +87,7 @@ class SettingsDialog(wx.Dialog):
         self.cancelButton.SetBackgroundColour(BACKGROUND_COLOR)
         buttonSizer.Add(self.cancelButton,1,wx.ALIGN_CENTER|wx.ALL,5)
 
-        self.page_1.SetSizer(page1Sizer)
-
-        mainSizer.Add(buttonSizer, 0, wx.ALIGN_RIGHT | wx.ALL, 4)
+        mainSizer.Add(buttonSizer, 0, wx.ALIGN_RIGHT | wx.ALL, 5)
         self.SetSizer(mainSizer)
 
         self.Layout()
