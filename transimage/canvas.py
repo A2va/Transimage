@@ -217,7 +217,9 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             self.add_text(data['string'],'',data['pos'],data['width'],data['size'])
         elif event.data['event_type']=='edit_text':
             data=event.data['event_data']
-            dlg = EditDialog(self,data.Font)
+            font=data.Font
+            font.SetPointSize(data.Size)
+            dlg = EditDialog(self,font)
 
             dlg.textTextCtrl.SetValue(data.String)
             dlg.widthSpinCtrl.SetValue(data.Width)
@@ -274,7 +276,9 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
     def edit_text(self,event):
         string=event.String
-        dlg = EditDialog(self,event.Font)
+        font=event.Font
+        font.SetPointSize(event.Size)
+        dlg = EditDialog(self,font)
 
         dlg.textTextCtrl.SetValue(string)
         dlg.widthSpinCtrl.SetValue(event.Width)
