@@ -237,7 +237,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
                 Point=pos,
                 Size=size,
                 Color = "Black",
-                BackgroundColor = None,
+                BackgroundColor = "White",
                 LineStyle = "Transparent",
                 Width = width,
                 Position = 'tl',
