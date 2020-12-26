@@ -19,6 +19,10 @@ import wx.lib.agw.flatnotebook as agw_flatnotebook
 from transimage.lang import LANG,LANG_DICT
 from transimage.config import BACKGROUND_COLOR,TEXT_COLOR, SETTINGS_FILE
 
+def download_lang(lang):
+    print(f'Download {lang}')
+
+
 class SettingsDialog(wx.Dialog):
     def __init__(self,parent):
         wx.Dialog.__init__ (self,parent,id=wx.ID_ANY,title="Settings",pos=wx.DefaultPosition,size=wx.Size(400,300),style=wx.DEFAULT_DIALOG_STYLE)
@@ -101,8 +105,7 @@ class SettingsDialog(wx.Dialog):
             self.settings=json.load(settings_file)
             for item in range(self.lang_CheckList.GetCount()):
                 string =self.lang_CheckList.GetString(item).lower()
-                lang_code =LANG[string]
-                checked=self.settings['language_pack'][lang_code]
+                checked=self.settings['language_pack'][LANG[string]]
                 self.lang_CheckList.Check(item,checked)
     
 
@@ -117,6 +120,13 @@ class SettingsDialog(wx.Dialog):
             string =self.lang_CheckList.GetString(item).lower()
             checked=self.lang_CheckList.IsChecked(item)
             checked_lang[LANG[string]]=checked
+
+        differences = self.settings['language_pack'].items() -  checked_lang.items()
+        for diff in differences:
+            checked=checked_lang[diff[0]]
+            if checked:
+                download_lang(diff[0])
+
 
         self.settings['language_pack']=checked_lang
         with open(SETTINGS_FILE,'w') as settings_file:
