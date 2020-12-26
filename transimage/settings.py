@@ -112,4 +112,3 @@ class SettingsDialog(wx.Dialog):
             string = string[0].lower() + string[1:]
             checked=self.lang_CheckList.IsChecked(item)
             checked_lang[LANG[string]]=checked
-        print(checked_lang)
