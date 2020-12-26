@@ -119,3 +119,7 @@ class SettingsDialog(wx.Dialog):
             string = string[0].lower() + string[1:]
             checked=self.lang_CheckList.IsChecked(item)
             checked_lang[LANG[string]]=checked
+
+        self.settings['language_pack']=checked_lang
+        with open(SETTINGS_FILE,'w') as settings_file:
+            json.dump(self.settings,settings_file)
