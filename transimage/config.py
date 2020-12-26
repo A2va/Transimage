@@ -15,6 +15,8 @@
 
 import wx
 
+SETTINGS_FILE = 'settings.json'
+
 def convert_hexa(value):
     value = value.lstrip('#')
     lv = len(value)

@@ -25,7 +25,7 @@ from transimage.canvas import DisplayCanvas
 from transimage.settings import SettingsDialog
 from image_translator.image_translator import ImageTranslator
 from transimage.lang import LANG,LANG_DICT
-from transimage.config import BACKGROUND_COLOR,TEXT_COLOR, CANVAS_COLOR
+from transimage.config import BACKGROUND_COLOR,TEXT_COLOR, CANVAS_COLOR, SETTINGS_FILE
 
 import json
 
@@ -42,7 +42,7 @@ def gen_settings_file():
         LANG_DICT[lang]=False
 
     setting_dict['language_pack']=LANG_DICT
-    setting_file=open('settings.json','w')
+    setting_file=open(SETTINGS_FILE,'w')
     json.dump(setting_dict,setting_file)
     setting_file.close()
 
@@ -148,8 +148,8 @@ class Transimage(wx.Frame):
         self.src_lang='eng'
         self.dest_lang='fra'
         
-        if not os.path.exists('settings.json'):
-            open('settings.json','w+').close()
+        if not os.path.exists(SETTINGS_FILE):
+            open(SETTINGS_FILE,'w+').close()
             gen_settings_file()
 
         self.init_ui(parent)

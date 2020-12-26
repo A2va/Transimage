@@ -14,9 +14,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import wx
+import json
 import wx.lib.agw.flatnotebook as agw_flatnotebook
 from transimage.lang import LANG,LANG_DICT
-from transimage.config import BACKGROUND_COLOR,TEXT_COLOR
+from transimage.config import BACKGROUND_COLOR,TEXT_COLOR, SETTINGS_FILE
 
 class SettingsDialog(wx.Dialog):
     def __init__(self,parent):
@@ -61,9 +62,6 @@ class SettingsDialog(wx.Dialog):
         self.lang_CheckList.SetBackgroundColour(BACKGROUND_COLOR)
         self.lang_CheckList.SetForegroundColour(BACKGROUND_COLOR)
 
-        # self.lang_CheckList.SetItemBackgroundColour(0, BACKGROUND_COLOR)
-        # self.lang_CheckList.SetItemForegroundColour(0,TEXT_COLOR)
-
         page2Sizer.Add(self.lang_CheckList,1,wx.ALL|wx.EXPAND,5)
 
         self.applyButton = wx.Button(self.page_2,wx.ID_ANY,"Apply",wx.DefaultPosition,wx.DefaultSize,0)
@@ -98,10 +96,19 @@ class SettingsDialog(wx.Dialog):
 
         for lang in LANG:
             self.lang_CheckList.Append(lang.capitalize())
-           
-        for i in range(self.lang_CheckList.GetCount()):
-            self.lang_CheckList.SetItemBackgroundColour(i,BACKGROUND_COLOR)
-            self.lang_CheckList.SetItemForegroundColour(i,TEXT_COLOR)
+
+        with open(SETTINGS_FILE,'r') as settings_file:
+            self.settings=json.load(settings_file)
+            for item in range(self.lang_CheckList.GetCount()):
+                string =self.lang_CheckList.GetString(item)
+                string = string[0].lower() + string[1:]
+                lang_code =LANG[string]
+                checked=self.settings['language_pack'][lang_code]
+                self.lang_CheckList.Check(item,checked)
+    
+
+                self.lang_CheckList.SetItemBackgroundColour(item,BACKGROUND_COLOR)
+                self.lang_CheckList.SetItemForegroundColour(item,TEXT_COLOR)
 
 
     def apply(self,event):
