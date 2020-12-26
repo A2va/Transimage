@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import json
+import os
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
@@ -122,6 +123,7 @@ class SettingsDialog(wx.Dialog):
     def apply(self,event):
         #Format the CheckListBox to a dict
         checked_lang={}
+        progressDialog=None
         for item in range(self.lang_CheckList.GetCount()):
             string =self.lang_CheckList.GetString(item).lower()
             checked=self.lang_CheckList.IsChecked(item)
@@ -131,7 +133,11 @@ class SettingsDialog(wx.Dialog):
         for diff in differences:
             checked=checked_lang[diff[0]]
             if checked:
-                download_lang(diff[0])
+                progressDialog=wx.ProgressDialog(f'Language pack:{LANG_DICT[diff[0]].capitalize()}','',maximum=100,parent=self,style=wx.DEFAULT_DIALOG_STYLE)
+                download_lang(diff[0],progressDialog)
+                
+        if progressDialog != None:
+            progressDialog.Close()
 
 
         self.settings['language_pack']=checked_lang
@@ -140,6 +146,8 @@ class SettingsDialog(wx.Dialog):
 
 def download_lang(lang,progress_dialog):
     tesseract_url=f'{TESSDATA_BEST}/{lang}.traineddata'
+
+    progress_dialog.Update(progress_dialog.GetValue(),'Tesseract Model')
 
     lang_code_tesseract=image_translator_lang.OCR_LANG[lang][0]
     if not os.path.exists(f'tesseract-ocr/tessdata/{lang_code_tesseract}.traineddata'):
@@ -173,8 +181,10 @@ def download_lang(lang,progress_dialog):
         file='telegu.pth'
     elif lang_code_easyocr == 'kn':
         file='kannada.pth'
-    if file is not '' and not os.path.exists(f'easyocr/model/{file}'):
+    progress_dialog.Update(0)
+    if file != '' and not os.path.exists(f'easyocr/model/{file}'):
         url= easyocr_lang.model_url[file][0]
+        progress_dialog.Update(progress_dialog.GetValue(),'EasyOCR Model')
         download(url,'easyocr/model',progress_dialog,file)
 
 def download(url, path,progress_dialog,filename=None):
