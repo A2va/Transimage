@@ -15,6 +15,7 @@
 
 import wx
 import wx.lib.agw.flatnotebook as agw_flatnotebook
+from transimage.lang import LANG,LANG_DICT
 from transimage.config import BACKGROUND_COLOR,TEXT_COLOR
 
 class SettingsDialog(wx.Dialog):
@@ -56,7 +57,7 @@ class SettingsDialog(wx.Dialog):
         self.page_2.SetBackgroundColour(BACKGROUND_COLOR)
         self.notebook.AddPage(self.page_2, "Language Pack")
 
-        self.lang_CheckList =wx.CheckListBox(self.page_2, wx.ID_ANY)
+        self.lang_CheckList =wx.CheckListBox(self.page_2, wx.ID_ANY,style=wx.LB_SORT)
         self.lang_CheckList.SetBackgroundColour(BACKGROUND_COLOR)
         self.lang_CheckList.SetForegroundColour(BACKGROUND_COLOR)
 
@@ -68,6 +69,7 @@ class SettingsDialog(wx.Dialog):
         self.applyButton = wx.Button(self.page_2,wx.ID_ANY,"Apply",wx.DefaultPosition,wx.DefaultSize,0)
         self.applyButton.SetForegroundColour(TEXT_COLOR)
         self.applyButton.SetBackgroundColour(BACKGROUND_COLOR)
+        self.applyButton.Bind(wx.EVT_BUTTON,self.apply)
 
         page2Sizer.Add(self.applyButton,0,wx.ALIGN_RIGHT|wx.ALL,5)
 
@@ -93,4 +95,21 @@ class SettingsDialog(wx.Dialog):
         self.Layout()
 
         self.Centre(wx.BOTH)
-    
+
+        for lang in LANG:
+            self.lang_CheckList.Append(lang.capitalize())
+           
+        for i in range(self.lang_CheckList.GetCount()):
+            self.lang_CheckList.SetItemBackgroundColour(i,BACKGROUND_COLOR)
+            self.lang_CheckList.SetItemForegroundColour(i,TEXT_COLOR)
+
+
+    def apply(self,event):
+        #Format the CheckListBox to a dict
+        checked_lang={}
+        for item in range(self.lang_CheckList.GetCount()):
+            string =self.lang_CheckList.GetString(item)
+            string = string[0].lower() + string[1:]
+            checked=self.lang_CheckList.IsChecked(item)
+            checked_lang[LANG[string]]=checked
+        print(checked_lang)
