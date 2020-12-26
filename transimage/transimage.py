@@ -13,21 +13,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import json
 import os
-import wx
-import wx.lib.newevent
-import numpy as np
-import cv2
 import threading
 import time
-import pathos.multiprocessing as p_multiprocessing
-from transimage.canvas import DisplayCanvas
-from transimage.settings import SettingsDialog
-from image_translator.image_translator import ImageTranslator
-from transimage.lang import LANG,LANG_DICT
-from transimage.config import BACKGROUND_COLOR,TEXT_COLOR, CANVAS_COLOR, SETTINGS_FILE
 
-import json
+import cv2
+import numpy as np
+import pathos.multiprocessing as p_multiprocessing
+import wx
+import wx.lib.newevent
+from image_translator.image_translator import ImageTranslator
+
+from transimage.canvas import DisplayCanvas
+from transimage.config import (BACKGROUND_COLOR, CANVAS_COLOR, SETTINGS_FILE,
+                               TEXT_COLOR)
+from transimage.lang import LANG, LANG_DICT
+from transimage.settings import SettingsDialog
 
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
