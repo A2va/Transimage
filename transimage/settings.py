@@ -100,8 +100,7 @@ class SettingsDialog(wx.Dialog):
         with open(SETTINGS_FILE,'r') as settings_file:
             self.settings=json.load(settings_file)
             for item in range(self.lang_CheckList.GetCount()):
-                string =self.lang_CheckList.GetString(item)
-                string = string[0].lower() + string[1:]
+                string =self.lang_CheckList.GetString(item).lower()
                 lang_code =LANG[string]
                 checked=self.settings['language_pack'][lang_code]
                 self.lang_CheckList.Check(item,checked)
@@ -115,8 +114,7 @@ class SettingsDialog(wx.Dialog):
         #Format the CheckListBox to a dict
         checked_lang={}
         for item in range(self.lang_CheckList.GetCount()):
-            string =self.lang_CheckList.GetString(item)
-            string = string[0].lower() + string[1:]
+            string =self.lang_CheckList.GetString(item).lower()
             checked=self.lang_CheckList.IsChecked(item)
             checked_lang[LANG[string]]=checked
 

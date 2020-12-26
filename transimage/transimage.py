@@ -341,23 +341,19 @@ class Transimage(wx.Frame):
         print('settings_menu')
 
     def update_translator(self,event):
-        string=event.String
-        string = string[0].lower() + string[1:]
+        string=event.String.lower()
         self.translator_engine=string
 
     def update_ocr(self,event):
-        string=event.String
-        string = string[0].lower() + string[1:]
+        string=event.String.lower()
         self.ocr=string
 
     def update_src_lang(self,event):
-        string=event.String
-        string = string[0].lower() + string[1:]
+        string=event.String.lower()
         self.src_lang=LANG[string]
 
     def update_dest_lang(self,event):
         string=event.String
-        string = string[0].lower() + string[1:]
         self.dest_lang=LANG[string]
 
     def callback_image_process(self,event):
