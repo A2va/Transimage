@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-LANG_DICT={
+TO_LANG_NAME={
     'chi_sim': 'chinese (simplified)',                  #Chinese (simplified)
     'chi_sim_vert': 'chinese vertical (simplified)',    #Chinese vertical (simplified)
     'chi_tra':'chinese (traditional)',                  #Chinese (traditional)
@@ -30,7 +30,7 @@ LANG_DICT={
 
 }
 
-ALL_LANG_DICT={
+TO_LANG_NAME_ALL={
             
     #'abq':'abaza',                     #Abaza
     #'ady':'adyghe',                    #Adyghe
@@ -174,5 +174,5 @@ ALL_LANG_DICT={
     'yor': 'yoruba',                        #Yoruba 
 }
 
-ALL_LANG = dict(map(reversed, ALL_LANG_DICT.items()))
-LANG = dict(map(reversed, LANG_DICT.items()))
+TO_LANG_CODE_ALL = dict(map(reversed, TO_LANG_NAME_ALL.items()))
+TO_LANG_CODE = dict(map(reversed, TO_LANG_NAME.items()))

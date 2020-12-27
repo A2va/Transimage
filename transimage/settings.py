@@ -26,7 +26,7 @@ import wx.lib.agw.flatnotebook as agw_flatnotebook
 
 from transimage.config import (BACKGROUND_COLOR, LABEL_SIZE, SETTINGS_FILE,
                                TEXT_COLOR)
-from transimage.lang import LANG, LANG_DICT
+from transimage.lang import  TO_LANG_CODE, TO_LANG_NAME
 
 TESSDATA='https://github.com/tesseract-ocr/tessdata/raw/master'
 TESSDATA_BEST='https://github.com/tesseract-ocr/tessdata_best/raw/master'
@@ -111,14 +111,14 @@ class SettingsDialog(wx.Dialog):
 
         self.Centre(wx.BOTH)
 
-        for lang in LANG:
+        for lang in TO_LANG_NAME:
             self.lang_CheckList.Append(lang.capitalize())
 
         with open(SETTINGS_FILE,'r') as settings_file:
             self.settings=json.load(settings_file)
             for item in range(self.lang_CheckList.GetCount()):
                 string =self.lang_CheckList.GetString(item).lower()
-                checked=self.settings['language_pack'][LANG[string]]
+                checked=self.settings['language_pack'][TO_LANG_NAME[string]]
                 self.lang_CheckList.Check(item,checked)
     
 
@@ -132,7 +132,7 @@ class SettingsDialog(wx.Dialog):
         for item in range(self.lang_CheckList.GetCount()):
             string =self.lang_CheckList.GetString(item).lower()
             checked=self.lang_CheckList.IsChecked(item)
-            checked_lang[LANG[string]]=checked
+            checked_lang[TO_LANG_CODE[string]]=checked
 
         differences = self.settings['language_pack'].items() -  checked_lang.items()
         for diff in differences:
@@ -151,7 +151,7 @@ def download_lang(lang,parent):
 
     lang_code_tesseract=image_translator_lang.OCR_LANG[lang][0]
     if not os.path.exists(f'tesseract-ocr/tessdata/{lang_code_tesseract}.traineddata'):
-        progress_dialog=wx.ProgressDialog('Language pack',f'{LANG_DICT[lang].capitalize()}: Tesseract Model',maximum=100,parent=parent)
+        progress_dialog=wx.ProgressDialog('Language pack',f'{TO_LANG_NAME[lang].capitalize()}: Tesseract Model',maximum=100,parent=parent)
         download(tesseract_url,'tesseract-ocr/tessdata',progress_dialog)
         progress_dialog.Destroy()
 
@@ -190,7 +190,7 @@ def download_lang(lang,parent):
 
     if file != '' and not os.path.exists(f'easyocr/model/{file}'):
         url= easyocr_lang.model_url[file][0]
-        progress_dialog=wx.ProgressDialog('Language pack',f'{LANG_DICT[lang].capitalize()}: EasyOCR model',maximum=100,parent=parent)
+        progress_dialog=wx.ProgressDialog('Language pack',f'{TO_LANG_NAME[lang].capitalize()}: EasyOCR model',maximum=100,parent=parent)
         download(url,'easyocr/model',progress_dialog,file)
         progress_dialog.Destroy()
 
