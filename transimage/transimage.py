@@ -341,7 +341,8 @@ class Transimage(wx.Frame):
         dlg = SettingsDialog(self)
         if dlg.ShowModal() == wx.ID_OK:
            pass
-           
+        self.src_langCombo.Clear()
+        self.dest_langCombo.Clear()
         with open(SETTINGS_FILE,'r') as settings_file:
             settings=json.load(settings_file)
             for lang in settings['language_pack']:

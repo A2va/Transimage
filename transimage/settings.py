@@ -112,16 +112,15 @@ class SettingsDialog(wx.Dialog):
         self.Centre(wx.BOTH)
 
         for lang in TO_LANG_NAME:
-            self.lang_CheckList.Append(lang.capitalize())
+            self.lang_CheckList.Append(TO_LANG_NAME[lang].capitalize())
 
         with open(SETTINGS_FILE,'r') as settings_file:
             self.settings=json.load(settings_file)
             for item in range(self.lang_CheckList.GetCount()):
                 string =self.lang_CheckList.GetString(item).lower()
-                checked=self.settings['language_pack'][TO_LANG_NAME[string]]
+                checked=self.settings['language_pack'][TO_LANG_CODE[string]]
                 self.lang_CheckList.Check(item,checked)
     
-
                 self.lang_CheckList.SetItemBackgroundColour(item,BACKGROUND_COLOR)
                 self.lang_CheckList.SetItemForegroundColour(item,TEXT_COLOR)
 
