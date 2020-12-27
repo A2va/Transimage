@@ -339,8 +339,7 @@ class Transimage(wx.Frame):
         event.Skip()
         dlg = SettingsDialog(self)
         if dlg.ShowModal() == wx.ID_OK:
-            print('end')
-        print('settings_menu')
+           pass
 
     def update_translator(self,event):
         string=event.String.lower()

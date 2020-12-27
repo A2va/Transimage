@@ -2,8 +2,9 @@
 .vscode
 *.log
 *.bat
-#Tesseract 
+#OCR
 /tesseract-ocr
+/easyocr
 #Build
 /build
 

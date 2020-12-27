@@ -123,7 +123,6 @@ class SettingsDialog(wx.Dialog):
     def apply(self,event):
         #Format the CheckListBox to a dict
         checked_lang={}
-        progressDialog=None
         for item in range(self.lang_CheckList.GetCount()):
             string =self.lang_CheckList.GetString(item).lower()
             checked=self.lang_CheckList.IsChecked(item)
@@ -133,27 +132,28 @@ class SettingsDialog(wx.Dialog):
         for diff in differences:
             checked=checked_lang[diff[0]]
             if checked:
-                progressDialog=wx.ProgressDialog(f'Language pack:{LANG_DICT[diff[0]].capitalize()}','',maximum=100,parent=self,style=wx.DEFAULT_DIALOG_STYLE)
-                download_lang(diff[0],progressDialog)
-                
-        if progressDialog != None:
-            progressDialog.Close()
+                download_lang(diff[0],self)
 
-
+        #Save the new settings into json file        
         self.settings['language_pack']=checked_lang
         with open(SETTINGS_FILE,'w') as settings_file:
             json.dump(self.settings,settings_file)
 
-def download_lang(lang,progress_dialog):
+def download_lang(lang,parent):
+  
     tesseract_url=f'{TESSDATA_BEST}/{lang}.traineddata'
-
-    progress_dialog.Update(progress_dialog.GetValue(),'Tesseract Model')
 
     lang_code_tesseract=image_translator_lang.OCR_LANG[lang][0]
     if not os.path.exists(f'tesseract-ocr/tessdata/{lang_code_tesseract}.traineddata'):
+        progress_dialog=wx.ProgressDialog('Language pack',f'{LANG_DICT[lang].capitalize()}: Tesseract Model',maximum=100,parent=parent)
         download(tesseract_url,'tesseract-ocr/tessdata',progress_dialog)
+        progress_dialog.Destroy()
 
     lang_code_easyocr=image_translator_lang.OCR_LANG[lang][1]
+
+    if not os.path.exists('./easyocr'):
+        os.makedirs('easyocr/model')
+
     file=''
     if lang_code_easyocr in easyocr_lang.latin_lang_list:
         file='latin.pth'
@@ -181,11 +181,12 @@ def download_lang(lang,progress_dialog):
         file='telegu.pth'
     elif lang_code_easyocr == 'kn':
         file='kannada.pth'
-    progress_dialog.Update(0)
+
     if file != '' and not os.path.exists(f'easyocr/model/{file}'):
         url= easyocr_lang.model_url[file][0]
-        progress_dialog.Update(progress_dialog.GetValue(),'EasyOCR Model')
+        progress_dialog=wx.ProgressDialog('Language pack',f'{LANG_DICT[lang].capitalize()}: EasyOCR model',maximum=100,parent=parent)
         download(url,'easyocr/model',progress_dialog,file)
+        progress_dialog.Destroy()
 
 def download(url, path,progress_dialog,filename=None):
 
