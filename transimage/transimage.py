@@ -27,13 +27,12 @@ from image_translator.image_translator import ImageTranslator
 
 from transimage.canvas import DisplayCanvas
 from transimage.config import (BACKGROUND_COLOR, CANVAS_COLOR, SETTINGS_FILE,
-                               TEXT_COLOR)
+                               TEXT_COLOR, LABEL_SIZE)
 from transimage.lang import LANG, LANG_DICT
 from transimage.settings import SettingsDialog
 
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
-LABEL_SIZE=12
 
 def gen_settings_file():
     setting_dict={
@@ -305,10 +304,12 @@ class Transimage(wx.Frame):
 
         self.Centre(wx.BOTH)
 
-
-        for lang in LANG:
-            self.dest_langCombo.Append(lang.capitalize())
-            self.src_langCombo.Append(lang.capitalize())
+        with open(SETTINGS_FILE,'r') as settings_file:
+            settings=json.load(settings_file)
+            for lang in settings['language_pack']:
+                if settings['language_pack'][lang]:
+                    self.dest_langCombo.Append(LANG_DICT[lang].capitalize())
+                    self.src_langCombo.Append(LANG_DICT[lang].capitalize())
 
     def context_menu(self,event):
         event.Skip()
@@ -340,6 +341,12 @@ class Transimage(wx.Frame):
         dlg = SettingsDialog(self)
         if dlg.ShowModal() == wx.ID_OK:
            pass
+        with open(SETTINGS_FILE,'r') as settings_file:
+            settings=json.load(settings_file)
+            for lang in settings['language_pack']:
+                if settings['language_pack'][lang]:
+                    self.dest_langCombo.Append(LANG_DICT[lang].capitalize())
+                    self.src_langCombo.Append(LANG_DICT[lang].capitalize())
 
     def update_translator(self,event):
         string=event.String.lower()

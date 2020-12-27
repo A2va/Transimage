@@ -16,6 +16,7 @@
 import wx
 
 SETTINGS_FILE = 'settings.json'
+LABEL_SIZE=12
 
 def convert_hexa(value):
     value = value.lstrip('#')

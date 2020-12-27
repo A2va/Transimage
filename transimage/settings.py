@@ -19,12 +19,13 @@ from urllib.request import urlretrieve
 from zipfile import ZipFile
 
 import easyocr.config as easyocr_lang
-from easyocr.config import model_url
 import image_translator.utils.lang as image_translator_lang
 import wx
+from wx.core import ALIGN_CENTER
 import wx.lib.agw.flatnotebook as agw_flatnotebook
 
-from transimage.config import BACKGROUND_COLOR, SETTINGS_FILE, TEXT_COLOR
+from transimage.config import (BACKGROUND_COLOR, LABEL_SIZE, SETTINGS_FILE,
+                               TEXT_COLOR)
 from transimage.lang import LANG, LANG_DICT
 
 TESSDATA='https://github.com/tesseract-ocr/tessdata/raw/master'
@@ -58,6 +59,11 @@ class SettingsDialog(wx.Dialog):
         self.page_1.SetForegroundColour(BACKGROUND_COLOR)
         self.page_1.SetBackgroundColour(BACKGROUND_COLOR)
         self.notebook.AddPage(self.page_1, "General")
+
+        self.page_1Text = wx.StaticText(self.page_1, wx.ID_ANY, "Nothing to see in this page")
+        self.page_1Text.SetForegroundColour(TEXT_COLOR)
+        self.page_1Text.SetFont(wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        page1Sizer.Add(self.page_1Text,1,wx.ALL|wx.ALIGN_CENTER,5)
 
         self.page_1.SetSizer(page1Sizer)
 
