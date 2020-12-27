@@ -21,7 +21,8 @@ img = Image.open(filename)
 img.save('icons/logo_icon.ico')
 
 build_options = {"packages": ["torch","torchvision"],
-                "include_files":["tesseract-ocr","icons","font"]
+                "include_files":["tesseract-ocr","icons","font"],
+                "excludes": ["tkinter","test","curses","email","setuptools","tqdm","matplotlib"]
               }
 
 base = None
