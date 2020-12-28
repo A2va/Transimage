@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import logging
+
 import cv2
 import numpy as np
 import wx
@@ -20,6 +22,8 @@ from wx.lib.floatcanvas import FloatCanvas
 from wx.lib.floatcanvas.FCObjects import ScaledTextBox
 
 from transimage.config import BACKGROUND_COLOR, TEXT_COLOR
+
+log = logging.getLogger('transimage')
 
 wx.Font.AddPrivateFont('font/Cantarell.ttf')
 

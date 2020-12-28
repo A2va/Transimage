@@ -17,6 +17,7 @@ import json
 import os
 import threading
 import time
+import logging
 
 import cv2
 import numpy as np
@@ -32,6 +33,17 @@ from transimage.config import (BACKGROUND_COLOR, CANVAS_COLOR, SETTINGS_FILE,
                                TEXT_COLOR, LABEL_SIZE)
 from transimage.lang import TO_LANG_CODE, TO_LANG_NAME
 from transimage.settings import SettingsDialog, download
+
+logFormatter = logging.Formatter(
+    "[%(asctime)s] "
+    "[%(levelname)-5.5s]: "
+    "%(message)s")
+log = logging.getLogger('transimage')
+fileHandler = logging.FileHandler('latest.log')
+fileHandler.setFormatter(logFormatter)
+log.addHandler(fileHandler)
+
+log.setLevel(logging.WARNING)
 
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
