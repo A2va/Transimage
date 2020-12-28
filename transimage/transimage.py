@@ -25,11 +25,13 @@ import wx
 import wx.lib.newevent
 from image_translator.image_translator import ImageTranslator
 
+from easyocr.config import DETECTOR_FILENAME, model_url
+
 from transimage.canvas import DisplayCanvas
 from transimage.config import (BACKGROUND_COLOR, CANVAS_COLOR, SETTINGS_FILE,
                                TEXT_COLOR, LABEL_SIZE)
 from transimage.lang import TO_LANG_CODE, TO_LANG_NAME
-from transimage.settings import SettingsDialog
+from transimage.settings import SettingsDialog, download
 
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
@@ -149,7 +151,6 @@ class Transimage(wx.Frame):
         self.dest_lang=''
         
         self.init_ui(parent)
-
         if not os.path.exists(SETTINGS_FILE):
             open(SETTINGS_FILE,'w+').close()
             gen_settings_file()
@@ -370,7 +371,7 @@ class Transimage(wx.Frame):
         self.progressDialog.Close()
         self.translator=event.data[0]
         if self.processImage.mode_process==True:
-            self.imageCanvas.delete_all()
+            self.imageCanvas.clear()
             self.imageCanvas.update_image(self.translator.img_process)
             for text in self.translator.text:
                 if text['translated_string']=='':
@@ -390,6 +391,11 @@ class Transimage(wx.Frame):
         self.imageCanvas.add_text('Text placeholder','',(0,0),50,30)
 
     def process_image(self,event):
+            if not os.path.exists(f'easyocr/model/{DETECTOR_FILENAME}'):
+                progress_dialog=wx.ProgressDialog('Download','Detector model',maximum=100,parent=self)
+                download(model_url['detector'][0],'easyocr/model/',progress_dialog,DETECTOR_FILENAME)
+                progress_dialog.Destroy()
+
             if self.src_lang ==self.dest_lang:
                 wx.MessageDialog(None, 'The source and destination lang cannot be the same', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
             elif self.src_lang == '' or self.dest_lang=='' or self.translator_engine=='' or self.ocr=='':
