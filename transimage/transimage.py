@@ -370,9 +370,8 @@ class Transimage(wx.Frame):
         self.progressDialog.Close()
         self.translator=event.data[0]
         if self.processImage.mode_process==True:
-            self.img_out=self.translator.img_out
             self.imageCanvas.delete_all()
-            self.imageCanvas.update_image(self.translator.img_out)
+            self.imageCanvas.update_image(self.translator.img_process)
             for text in self.translator.text:
                 if text['translated_string']=='':
                     wx.MessageDialog(None, 'This translator does not work with the text on image. Change the text or translator', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
@@ -408,7 +407,6 @@ class Transimage(wx.Frame):
 
     def translate(self):
         self.translator.text.clear()
-        self.translator.img_out=self.img_out
         for text in self.imageCanvas.text:
             text_object=text['text_object']
             text_object.CalcBoundingBox()

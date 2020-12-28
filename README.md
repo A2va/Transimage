@@ -14,6 +14,7 @@ I wrote this [package](https://github.com/A2va/ImageTranslator) for translating 
 ## Usage
 
 Before to use this programm you need to download the desired language package in the settings and clicl on apply.
+
 ![Language Pack](images/language_pack.png)
 
 1. Open Image
