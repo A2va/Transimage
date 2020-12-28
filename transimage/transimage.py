@@ -36,13 +36,12 @@ EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
 def gen_settings_file():
     setting_dict={
-        'language_pack':None
+        'language_pack':TO_LANG_NAME.copy()
     }
+    
+    for lang in setting_dict['language_pack']:
+        setting_dict['language_pack'][lang]=False
 
-    for lang in TO_LANG_CODE:
-        TO_LANG_CODE[lang]=False
-
-    setting_dict['language_pack']=TO_LANG_CODE
     setting_file=open(SETTINGS_FILE,'w')
     json.dump(setting_dict,setting_file)
     setting_file.close()
@@ -144,16 +143,23 @@ class Transimage(wx.Frame):
     def __init__(self,parent):
         
         self.image_path=''
-        self.translator_engine='bing'
-        self.ocr='tesseract'
-        self.src_lang='eng'
-        self.dest_lang='fra'
+        self.translator_engine=''
+        self.ocr=''
+        self.src_lang=''
+        self.dest_lang=''
         
+        self.init_ui(parent)
+
         if not os.path.exists(SETTINGS_FILE):
             open(SETTINGS_FILE,'w+').close()
             gen_settings_file()
 
-        self.init_ui(parent)
+        with open(SETTINGS_FILE,'r') as settings_file:
+            settings=json.load(settings_file)
+            for lang in settings['language_pack']:
+                if settings['language_pack'][lang]:
+                    self.dest_langCombo.Append(TO_LANG_NAME[lang].capitalize())
+                    self.src_langCombo.Append(TO_LANG_NAME[lang].capitalize())
 
     def init_ui(self,parent):
         wx.Frame.__init__(self,parent,id=wx.ID_ANY,title="Transimage",pos=wx.DefaultPosition,size=wx.Size(1200,500),style=wx.DEFAULT_FRAME_STYLE)
@@ -304,12 +310,6 @@ class Transimage(wx.Frame):
 
         self.Centre(wx.BOTH)
 
-        with open(SETTINGS_FILE,'r') as settings_file:
-            settings=json.load(settings_file)
-            for lang in settings['language_pack']:
-                if settings['language_pack'][lang]:
-                    self.dest_langCombo.Append(TO_LANG_NAME[lang].capitalize())
-                    self.src_langCombo.Append(TO_LANG_NAME[lang].capitalize())
 
     def context_menu(self,event):
         event.Skip()
