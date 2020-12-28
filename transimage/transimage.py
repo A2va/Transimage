@@ -47,6 +47,8 @@ log.setLevel(logging.WARNING)
 
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
+class ImageProcessError(Exception):
+    pass
 
 def gen_settings_file():
     setting_dict={
@@ -74,19 +76,22 @@ class ImageProcess(threading.Thread):
         self.image_translator=ImageTranslator(self.img,self.ocr,self.translator,self.src_lang, self.dest_lang)
         self.process=p_multiprocessing.ProcessingPool()
     def run(self):
-        self.stop=False
-        if self.mode_process ==True:
-            results = self.process.amap(ImageProcess.worker_process,[self.image_translator])
-        else:
-            results = self.process.amap(ImageProcess.worker_translate,[self.image_translator])
-        while not results.ready() and self.stop==True:
-                time.sleep(2)
-        if self.stop==False:
-            self.image_translator=results.get()
-            #self.process.close()
-            evt = EvtImageProcess(data=self.image_translator)
-            wx.PostEvent(self.notify_window, evt)
-
+        try:
+            self.stop=False
+            if self.mode_process ==True:
+                results = self.process.amap(ImageProcess.worker_process,[self.image_translator])
+            else:
+                results = self.process.amap(ImageProcess.worker_translate,[self.image_translator])
+            while not results.ready() and self.stop==True:
+                    time.sleep(2)
+            if self.stop==False:
+                self.image_translator=results.get()
+                #self.process.close()
+                evt = EvtImageProcess(data=self.image_translator)
+                wx.PostEvent(self.notify_window, evt)
+        except:
+           log.error(f'ImageProcess got an error (mode_process:{self.mode_process})')
+           raise ImageProcessError(f'ImageProcess got an error (mode_process:{self.mode_process}) look at log file')
     def abort(self):
         if self.process !=None:
             self.stop=True
