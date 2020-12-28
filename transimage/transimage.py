@@ -363,7 +363,7 @@ class Transimage(wx.Frame):
         self.src_lang=TO_LANG_CODE[string]
 
     def update_dest_lang(self,event):
-        string=event.String
+        string=event.String.lower()
         self.dest_lang=TO_LANG_CODE[string]
 
     def callback_image_process(self,event):
