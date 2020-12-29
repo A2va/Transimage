@@ -181,19 +181,19 @@ class Transimage(wx.Frame):
         self.logo=self.toolBar.AddTool(wx.ID_ANY,"Logo",wx.Bitmap("icons/logo.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.context_menu,self.logo)
 
-        self.open=self.toolBar.AddTool(wx.ID_ANY,"Open File",wx.Bitmap("icons/open_file.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.open=self.toolBar.AddTool(wx.ID_ANY,"Open Image",wx.Bitmap("icons/open_file.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Open Image',wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.open_menu,self.open)
 
-        self.save=self.toolBar.AddTool(wx.ID_ANY,"Save",wx.Bitmap("icons/save.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.save=self.toolBar.AddTool(wx.ID_ANY,"Save",wx.Bitmap("icons/save.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Save',wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.save_menu,self.save)
 
-        self.about=self.toolBar.AddTool(wx.ID_ANY,"About",wx.Bitmap("icons/info.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.about=self.toolBar.AddTool(wx.ID_ANY,"About",wx.Bitmap("icons/info.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'About',wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.about_menu,self.about)
 
-        self.help=self.toolBar.AddTool(wx.ID_ANY,"Help",wx.Bitmap("icons/help.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.help=self.toolBar.AddTool(wx.ID_ANY,"Help",wx.Bitmap("icons/help.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Help',wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.help_menu,self.help)
 
-        self.settings=self.toolBar.AddTool(wx.ID_ANY,"Settings",wx.Bitmap("icons/settings.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
+        self.settings=self.toolBar.AddTool(wx.ID_ANY,"Settings",wx.Bitmap("icons/settings.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Settings',wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.settings_menu,self.settings)
 
         self.toolBar.Realize()
