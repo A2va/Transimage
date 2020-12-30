@@ -161,6 +161,8 @@ class ProgressingDialog(wx.Dialog):
 class Transimage(wx.Frame):
     def __init__(self,parent):
         
+        log.debug('Init the main frame (Transimage)')
+
         self.image_path=''
         self.translator_engine=''
         self.ocr=''
@@ -388,6 +390,7 @@ class Transimage(wx.Frame):
         self.progressDialog.Close()
         self.translator=event.data[0]
         if self.processImage.mode_process==True:
+            log.debug('End of the processing')
             self.imageCanvas.clear()
             self.imageCanvas.update_image(self.translator.img_process)
             for text in self.translator.text:
@@ -395,6 +398,7 @@ class Transimage(wx.Frame):
                     wx.MessageDialog(None, 'This translator does not work with the text on image. Change the text or translator', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
                 self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],-text['y']),text['max_width'],text['font_size'])
         else:#Saving image
+            log.debug('Saving the image')
             wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
             with wx.FileDialog(self, "Save Image File", wildcard=wildcard,
             style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
@@ -408,6 +412,7 @@ class Transimage(wx.Frame):
         self.imageCanvas.add_text('Text placeholder','',(0,0),50,30)
 
     def process_image(self,event):
+            log.debug('Start the processing of image')
             if not os.path.exists(f'easyocr/model/{DETECTOR_FILENAME}'):
                 progress_dialog=wx.ProgressDialog('Download','Detector model',maximum=100,parent=self)
                 download(model_url['detector'][0],'easyocr/model/',progress_dialog,DETECTOR_FILENAME)
@@ -429,8 +434,10 @@ class Transimage(wx.Frame):
                     self.processImage.abort()
 
     def translate(self):
+        log.debug('Start the tranlsation of image')
         self.translator.text.clear()
         for text in self.imageCanvas.text:
+            log.debug('Copy text object on canvas to image translator module')
             text_object=text['text_object']
             text_object.CalcBoundingBox()
             pos=text_object.XY
