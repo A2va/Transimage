@@ -305,7 +305,7 @@ class Transimage(wx.Frame):
         self.processButton.SetForegroundColour(TEXT_COLOR)
         self.processButton.SetBackgroundColour(BACKGROUND_COLOR)
 
-        buttonSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
+        #buttonSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
 
         self.textButton= wx.Button(self,wx.ID_ANY,"Add text",wx.DefaultPosition,wx.DefaultSize,0)
         self.textButton.Bind(wx.EVT_BUTTON,self.add_text)
@@ -318,8 +318,8 @@ class Transimage(wx.Frame):
         editSizer.Add(dest_langSizer,1,wx.ALL,5)
         editSizer.Add(translatorSizer, 1, wx.ALL,5)
         editSizer.Add(ocrSizer,1,wx.ALL,5)
-        editSizer.Add(buttonSizer,1,wx.ALL,5)
-        # editSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
+        #editSizer.Add(buttonSizer,1,wx.ALL,5)
+        editSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
 
         mainSizer.Add(editSizer,1,0,5)
 
