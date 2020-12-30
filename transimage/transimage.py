@@ -17,6 +17,7 @@ import json
 import os
 import threading
 import time
+import logging
 
 import cv2
 import numpy as np
@@ -33,8 +34,21 @@ from transimage.config import (BACKGROUND_COLOR, CANVAS_COLOR, SETTINGS_FILE,
 from transimage.lang import TO_LANG_CODE, TO_LANG_NAME
 from transimage.settings import SettingsDialog, download
 
+logFormatter = logging.Formatter(
+    "[%(asctime)s] "
+    "[%(levelname)-5.5s]: "
+    "%(message)s")
+log = logging.getLogger('transimage')
+fileHandler = logging.FileHandler('latest.log')
+fileHandler.setFormatter(logFormatter)
+log.addHandler(fileHandler)
+
+log.setLevel(logging.WARNING)
+
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
+class ImageProcessError(Exception):
+    pass
 
 def gen_settings_file():
     setting_dict={
@@ -62,19 +76,22 @@ class ImageProcess(threading.Thread):
         self.image_translator=ImageTranslator(self.img,self.ocr,self.translator,self.src_lang, self.dest_lang)
         self.process=p_multiprocessing.ProcessingPool()
     def run(self):
-        self.stop=False
-        if self.mode_process ==True:
-            results = self.process.amap(ImageProcess.worker_process,[self.image_translator])
-        else:
-            results = self.process.amap(ImageProcess.worker_translate,[self.image_translator])
-        while not results.ready() and self.stop==True:
-                time.sleep(2)
-        if self.stop==False:
-            self.image_translator=results.get()
-            #self.process.close()
-            evt = EvtImageProcess(data=self.image_translator)
-            wx.PostEvent(self.notify_window, evt)
-
+        try:
+            self.stop=False
+            if self.mode_process ==True:
+                results = self.process.amap(ImageProcess.worker_process,[self.image_translator])
+            else:
+                results = self.process.amap(ImageProcess.worker_translate,[self.image_translator])
+            while not results.ready() and self.stop==True:
+                    time.sleep(2)
+            if self.stop==False:
+                self.image_translator=results.get()
+                #self.process.close()
+                evt = EvtImageProcess(data=self.image_translator)
+                wx.PostEvent(self.notify_window, evt)
+        except:
+           log.error(f'ImageProcess got an error (mode_process:{self.mode_process})')
+           raise ImageProcessError(f'ImageProcess got an error (mode_process:{self.mode_process}) look at log file')
     def abort(self):
         if self.process !=None:
             self.stop=True
@@ -144,6 +161,8 @@ class ProgressingDialog(wx.Dialog):
 class Transimage(wx.Frame):
     def __init__(self,parent):
         
+        log.debug('Init the main frame (Transimage)')
+
         self.image_path=''
         self.translator_engine=''
         self.ocr=''
@@ -371,6 +390,7 @@ class Transimage(wx.Frame):
         self.progressDialog.Close()
         self.translator=event.data[0]
         if self.processImage.mode_process==True:
+            log.debug('End of the processing')
             self.imageCanvas.clear()
             self.imageCanvas.update_image(self.translator.img_process)
             for text in self.translator.text:
@@ -378,6 +398,7 @@ class Transimage(wx.Frame):
                     wx.MessageDialog(None, 'This translator does not work with the text on image. Change the text or translator', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
                 self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],-text['y']),text['max_width'],text['font_size'])
         else:#Saving image
+            log.debug('Saving the image')
             wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
             with wx.FileDialog(self, "Save Image File", wildcard=wildcard,
             style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
@@ -391,6 +412,7 @@ class Transimage(wx.Frame):
         self.imageCanvas.add_text('Text placeholder','',(0,0),50,30)
 
     def process_image(self,event):
+            log.debug('Start the processing of image')
             if not os.path.exists(f'easyocr/model/{DETECTOR_FILENAME}'):
                 progress_dialog=wx.ProgressDialog('Download','Detector model',maximum=100,parent=self)
                 download(model_url['detector'][0],'easyocr/model/',progress_dialog,DETECTOR_FILENAME)
@@ -412,8 +434,10 @@ class Transimage(wx.Frame):
                     self.processImage.abort()
 
     def translate(self):
+        log.debug('Start the tranlsation of image')
         self.translator.text.clear()
         for text in self.imageCanvas.text:
+            log.debug('Copy text object on canvas to image translator module')
             text_object=text['text_object']
             text_object.CalcBoundingBox()
             pos=text_object.XY

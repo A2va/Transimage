@@ -15,6 +15,7 @@
 
 import json
 import os
+import logging
 from urllib.request import urlretrieve
 from zipfile import ZipFile
 
@@ -27,6 +28,8 @@ import wx.lib.agw.flatnotebook as agw_flatnotebook
 from transimage.config import (BACKGROUND_COLOR, LABEL_SIZE, SETTINGS_FILE,
                                TEXT_COLOR)
 from transimage.lang import  TO_LANG_CODE, TO_LANG_NAME
+
+log = logging.getLogger('transimage')
 
 TESSDATA='https://github.com/tesseract-ocr/tessdata/raw/master'
 TESSDATA_BEST='https://github.com/tesseract-ocr/tessdata_best/raw/master'
