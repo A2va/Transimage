@@ -26,14 +26,14 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
      id="defs10" />
   <sodipodi:namedview
-     pagecolor="#7d7d7d"
+     pagecolor="#303030"
      bordercolor="#666666"
      borderopacity="1"
      objecttolerance="10"
@@ -49,7 +49,7 @@
      inkscape:cx="0.84555521"
      inkscape:cy="22.827019"
      inkscape:window-x="94"
-     inkscape:window-y="492"
+     inkscape:window-y="0"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg6"
      inkscape:document-rotation="0" />

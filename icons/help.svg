@@ -26,14 +26,14 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
      id="defs10" />
   <sodipodi:namedview
-     pagecolor="#7f7f7f"
+     pagecolor="#303030"
      bordercolor="#666666"
      borderopacity="1"
      objecttolerance="10"
