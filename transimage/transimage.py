@@ -382,6 +382,8 @@ class Transimage(wx.Frame):
 
             else:          
                 self.img =cv2.imread(self.file_path)
+                self.imageCanvas.clear()
+                self.imageCanvas.update_image(self.img)
 
     def save_menu(self,event):
         pass

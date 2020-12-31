@@ -89,7 +89,7 @@ class EditDialog (wx.Dialog):
         self.textTextCtrl = wx.TextCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,wx.TE_MULTILINE)
         self.textTextCtrl.SetForegroundColour(TEXT_COLOR)
         self.textTextCtrl.SetBackgroundColour(BACKGROUND_COLOR)
-        self.textTextCtrl.SetFont(font)
+        #self.textTextCtrl.SetFont(font)
 
         textSizer.Add(self.textTextCtrl,1,wx.ALL|wx.EXPAND,5)
 
@@ -202,20 +202,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             pos=wx.GetMousePosition() - self.GetScreenPosition() 
             self.PopupMenu(ContextMenu(self,pos,2,event), pos)
 
-    def clear(self):
-        self.ClearAll()
-        self.text.clear()
-        self.Draw(True)
-
-    def delete_text(self,text,Force=True):
-        self.RemoveObject(text)
-        self.Draw(Force)
-
-    def delete_all_text(self):
-        for text in self.text:
-            self.delete_text(text,False)
-        self.Draw(True) 
-
     def callback_context_menu(self,event):
         if event.data['event_type']=='add_text':
             data=event.data['event_data']
@@ -223,7 +209,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         elif event.data['event_type']=='edit_text':
             data=event.data['event_data']
             font=data.Font
-            font.SetPointSize(data.Size)
+            #font.SetPointSize(data.Size)
             dlg = EditDialog(self,font)
 
             dlg.textTextCtrl.SetValue(data.String)
@@ -237,6 +223,29 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         elif event.data['event_type']=='delete_text':
             data=event.data['event_data']
             self.delete_text(data)
+
+
+    def clear(self):
+        self.ClearAll()
+        self.text.clear()
+        self.Draw(True)
+
+    def update_image(self,image):
+        #For PIL Image
+        # self.img=wx.EmptyImage(image.size[0],image.size[1])
+        # self.img.setData(image.convert("RGB").tostring())
+        # self.img.setAlphaData(image.convert("RGBA").tostring()[3::4])
+
+        # self.bmp = wx.BitmapFromImage(self.img)
+
+        # self.AddScaledBitmap(self.img,(10,10),image.size[1],'cc')
+        height, width = image.shape[:2]
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        self.bmp = wx.Bitmap.FromBuffer(width, height, image)
+        self.bmp_object=self.AddScaledBitmap(self.bmp,(0,0),height,'tl')
+
+        self.Draw(True)
+        self.ZoomToBB()
 
     def add_text(self,string,translated_string,pos,width,size):
         text=self.AddScaledTextBox(
@@ -262,23 +271,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             })
         self.Draw(True)
 
-    def update_image(self,image):
-        #For PIL Image
-        # self.img=wx.EmptyImage(image.size[0],image.size[1])
-        # self.img.setData(image.convert("RGB").tostring())
-        # self.img.setAlphaData(image.convert("RGBA").tostring()[3::4])
-
-        # self.bmp = wx.BitmapFromImage(self.img)
-
-        # self.AddScaledBitmap(self.img,(10,10),image.size[1],'cc')
-        height, width = image.shape[:2]
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        self.bmp = wx.Bitmap.FromBuffer(width, height, image)
-        self.AddScaledBitmap(self.bmp,(0,0),height,'tl')
-
-        self.Draw(True)
-        self.ZoomToBB()
-
     def edit_text(self,event):
         string=event.String
         font=event.Font
@@ -293,6 +285,15 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             event.Size=dlg.sizeSpinCtrl.GetValue()
             event.Width=dlg.widthSpinCtrl.GetValue()
             self.Draw(True)
+
+    def delete_text(self,text,Force=True):
+        self.RemoveObject(text)
+        self.Draw(Force)
+
+    def delete_all_text(self):
+        for text in self.text:
+            self.delete_text(text,False)
+        self.Draw(True) 
 
     def zoom(self, wheel):
         #http://wxpython-users.1045709.n5.nabble.com/Hold-shift-ctrl-mouse-click-td2363641.html
