@@ -21,8 +21,10 @@ import logging
 
 import cv2
 import numpy as np
+import jsonpickle
 import pathos.multiprocessing as p_multiprocessing
 import wx
+from wx.core import NOT_FOUND
 import wx.lib.newevent
 from image_translator.image_translator import ImageTranslator
 
@@ -163,11 +165,20 @@ class Transimage(wx.Frame):
         
         log.debug('Init the main frame (Transimage)')
 
-        self.image_path=''
+        self.file_path=''
         self.translator_engine=''
         self.ocr=''
         self.src_lang=''
         self.dest_lang=''
+
+        self.file_dict={
+            'img': None,
+            'transltator': None,
+            'ocr': None,
+            'dest_lang': None,
+            'src_lang': None,
+            'name':None
+        }
         
         self.init_ui(parent)
         if not os.path.exists(SETTINGS_FILE):
@@ -338,12 +349,39 @@ class Transimage(wx.Frame):
 
     def open_menu(self,event):
         event.Skip()
-        wildcard = "Open Image Files (*.jpg;*.png)|*.jpg;*.png|PNG files (*.png)|*.png"
+        wildcard = "Open Image Files (*.jpg;*.png)|*.jpg;*.png|JSON files (*.json)|*.json"
         with wx.FileDialog(self, "Open image file", wildcard=wildcard,
         style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
-            self.image_path = fileDialog.GetPath()
+            self.file_path = fileDialog.GetPath()
+            if self.file_path.endswith('json'):
+                with open(self.file_path,'r') as file:
+                    self.file_dict=json.load(file)
+                self.img=jsonpickle.decode(self.file_dict['img'])
+                self.translator_engine=self.file_dict['translator']
+                self.ocr=self.file_dict['ocr']
+                self.src_lang=self.file_dict['src_lang']
+                self.dest_lang=self.file_dict['dest_lang']
+
+                item=self.ocrCombo.FindString(self.ocr)
+                self.ocrCombo.SetSelection(item)
+                item=self.translatorCombo.FindString(self.translator_engine)
+                self.translatorCombo.SetSelection(item)
+                item=self.src_langCombo.FindString(TO_LANG_NAME[self.src_lang])
+                if item !=-1:
+                    self.src_langCombo.SetSelection(item)
+                else:
+                    wx.MessageDialog(None, "The source language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+
+                item=self.dest_langCombo.FindString(TO_LANG_NAME[self.dest_lang])
+                if item !=-1:
+                     self.dest_langCombo.SetSelection(item)
+                else:
+                    wx.MessageDialog(None, "The destination language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+
+            else:          
+                self.img =cv2.imread(self.file_path)
 
     def save_menu(self,event):
         pass
@@ -427,11 +465,10 @@ class Transimage(wx.Frame):
                 wx.MessageDialog(None, 'The source and destination lang cannot be the same', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
             elif self.src_lang == '' or self.dest_lang=='' or self.translator_engine=='' or self.ocr=='':
                 wx.MessageDialog(None, 'One on the combox are empty', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
-            elif self.image_path=='':
-                wx.MessageDialog(None, 'Any image are open', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+            elif self.file_path=='':
+                wx.MessageDialog(None, 'Any image or file are open', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
             else:
-                img =cv2.imread(self.image_path)
-                self.processImage=ImageProcess(self,img, self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
+                self.processImage=ImageProcess(self.img, self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
                 self.processImage.start()
 
                 self.progressDialog = ProgressingDialog(self)

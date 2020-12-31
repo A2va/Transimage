@@ -10,7 +10,7 @@
 /build_nuitka
 /main.build
 
-settings.json
+*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
