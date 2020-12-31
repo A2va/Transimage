@@ -223,7 +223,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         elif event.data['event_type']=='edit_text':
             data=event.data['event_data']
             font=data.Font
-            font.SetPointSize(data.Size)
+            #font.SetPointSize(data.Size)
             dlg = EditDialog(self,font)
 
             dlg.textTextCtrl.SetValue(data.String)
