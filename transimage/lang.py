@@ -27,6 +27,8 @@ TO_LANG_NAME={
     'pol': 'polish',                                    #Polish
     'rus': 'russian',                                   #Russian
     'deu': 'german',                                    #German
+    'jpn': 'japanese',                                  #Japanese
+    'jpn_vert': 'japanese (vertical)',                  #Japanese (vertical)
 
 }
 
