@@ -380,6 +380,9 @@ class Transimage(wx.Frame):
                 else:
                     wx.MessageDialog(None, "The destination language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
 
+                self.imageCanvas.clear()
+                self.imageCanvas.update_image(self.img)
+                
             else:          
                 self.img =cv2.imread(self.file_path)
                 self.imageCanvas.clear()
