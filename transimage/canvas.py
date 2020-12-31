@@ -194,6 +194,8 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.MoveObject = None
         self.Moving = False
 
+        self.bmp_object = None
+
     def context_menu(self,event):
         if isinstance(event,wx.PyCommandEvent):
             pos=event.GetPosition()
@@ -241,11 +243,18 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         # self.AddScaledBitmap(self.img,(10,10),image.size[1],'cc')
         height, width = image.shape[:2]
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        self.delete_img()
         self.bmp = wx.Bitmap.FromBuffer(width, height, image)
         self.bmp_object=self.AddScaledBitmap(self.bmp,(0,0),height,'tl')
 
         self.Draw(True)
         self.ZoomToBB()
+
+    def delete_img(self):
+        if self.bmp_object is not None:
+            self.RemoveObject(self.bmp_object)
+            self.Draw(True)
 
     def add_text(self,string,translated_string,pos,width,size):
         text=self.AddScaledTextBox(
