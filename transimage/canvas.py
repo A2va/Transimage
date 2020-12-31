@@ -89,7 +89,7 @@ class EditDialog (wx.Dialog):
         self.textTextCtrl = wx.TextCtrl(self,wx.ID_ANY,wx.EmptyString,wx.DefaultPosition,wx.DefaultSize,wx.TE_MULTILINE)
         self.textTextCtrl.SetForegroundColour(TEXT_COLOR)
         self.textTextCtrl.SetBackgroundColour(BACKGROUND_COLOR)
-        self.textTextCtrl.SetFont(font)
+        #self.textTextCtrl.SetFont(font)
 
         textSizer.Add(self.textTextCtrl,1,wx.ALL|wx.EXPAND,5)
 
@@ -282,7 +282,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
     def edit_text(self,event):
         string=event.String
         font=event.Font
-        font.SetPointSize(event.Size)
+        #font.SetPointSize(event.Size)
         dlg = EditDialog(self,font)
 
         dlg.textTextCtrl.SetValue(string)

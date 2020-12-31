@@ -436,6 +436,7 @@ class Transimage(wx.Frame):
     def translate(self):
         log.debug('Start the tranlsation of image')
         self.translator.text.clear()
+        img=self.translator.img_process
         for text in self.imageCanvas.text:
             log.debug('Copy text object on canvas to image translator module')
             text_object=text['text_object']
@@ -454,6 +455,8 @@ class Transimage(wx.Frame):
                     string=text['original_translated']
             else:
                 string= self.translator.run_translator(text_object.String)
+            cv2.rectangle(img, (x, y), (x+w, y+h), (255, 255, 255), -1)
+
             self.translator.text.append(
                 {
                 'x': x,
