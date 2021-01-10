@@ -179,7 +179,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
     def __init__(self, *args, **kwargs):
         FloatCanvas.FloatCanvas.__init__(self, *args, **kwargs)
         self.text=[]
-        self.new_text=([],[])
+        self.new_text=([],[],[])
 
         #Canvas Event
         self.Bind(wx.EVT_MOUSEWHEEL,self.zoom)
@@ -291,6 +291,12 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
             self.new_text[0].append(text)
             self.new_text[1].append(text_box)
+            self.new_text[2].append(  {
+                'original_text':text['string'],
+                'original_translated':text['translated_string'],
+            })
+            
+            self.Draw(True)
 
     def add_text(self,string,translated_string,pos,width,size):
         text=self.AddScaledTextBox(
@@ -316,6 +322,30 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             })
         self.Draw(True)
 
+    def update_text_dict(self,text_object):
+        item=self.new_text[1].index(text_object)
+        text_object.CalcBoundingBox()
+        pos=text_object.XY
+        x=pos[0]
+        y=abs(pos[1])
+        w=text_object.BoxWidth
+        h=text_object.BoxHeight
+        self.new_text[0][item]['x']=x
+        self.new_text[0][item]['y']=y
+        self.new_text[0][item]['string']=text_object.String
+        self.new_text[0][item]['font_size']=text_object.Size
+
+        if self.new_text[0][item]['original_translated']!='':
+                string=self.new_text[0][item]['original_text']
+                if text_object.String != string:
+                    pass
+                    #string=self.translator.run_translator(text_object.String)
+                else:
+                    string=self.new_text[0][item]['original_translated']
+        else:
+            pass
+            #string= self.translator.run_translator(text_object.String) 
+
     def edit_text(self,event):
         string=event.String
         font=event.Font
@@ -329,6 +359,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             event.SetText(dlg.textTextCtrl.GetValue())
             event.Size=dlg.sizeSpinCtrl.GetValue()
             event.Width=dlg.widthSpinCtrl.GetValue()
+            self.update_text_dict(event)
             self.Draw(True)
 
     def delete_text(self,text,Force=True):
@@ -405,4 +436,5 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
                 dxy = self.ScalePixelToWorld(dxy)
                 self.MovingObject.Move(dxy)
                 self.MoveTri = None
+                self.update_text_dict(self.MovingObject)
             self.Draw(True)
