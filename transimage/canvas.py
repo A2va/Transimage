@@ -178,8 +178,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
     def __init__(self, *args, **kwargs):
         FloatCanvas.FloatCanvas.__init__(self, *args, **kwargs)
-        self.text=[]
-        self.new_text=([],[],[])
+        self.text=([],[],[])
 
         #Canvas Event
         self.Bind(wx.EVT_MOUSEWHEEL,self.zoom)
@@ -257,7 +256,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             self.RemoveObject(self.bmp_object)
             self.Draw(True)
 
-    def new_add_text(self,texts):
+    def add_text(self,texts):
         #text: [
             #     'x': None,
             #     'y': None,
@@ -289,61 +288,37 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             text_box.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit_text)
             text_box.Bind(FloatCanvas.EVT_FC_RIGHT_DOWN,self.context_menu)
 
-            self.new_text[0].append(text)
-            self.new_text[1].append(text_box)
-            self.new_text[2].append(  {
+            self.text[0].append(text)
+            self.text[1].append(text_box)
+            self.text[2].append(  {
                 'original_text':text['string'],
                 'original_translated':text['translated_string'],
             })
             
             self.Draw(True)
 
-    def add_text(self,string,translated_string,pos,width,size):
-        text=self.AddScaledTextBox(
-                String=string,
-                Point=pos,
-                Size=size,
-                Color = "Black",
-                BackgroundColor = "White",
-                LineStyle = "Transparent",
-                Width = width,
-                Position = 'tl',
-                LineSpacing = 1,
-                Alignment = "left",
-                Font=wx.Font(size, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell"))
-        text.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.start_move)
-        text.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit_text)
-        text.Bind(FloatCanvas.EVT_FC_RIGHT_DOWN,self.context_menu)
-
-        self.text.append( {
-                'original_text':string,
-                'original_translated':translated_string,
-                'text_object':text
-            })
-        self.Draw(True)
-
     def update_text_dict(self,text_object):
-        item=self.new_text[1].index(text_object)
+        item=self.text[1].index(text_object)
 
         text_object.CalcBoundingBox()
         pos=text_object.XY
         x=pos[0]
         y=abs(pos[1])
 
-        self.new_text[0][item]['x']=x
-        self.new_text[0][item]['y']=y
-        self.new_text[0][item]['w']=text_object.BoxWidth
-        self.new_text[0][item]['h']=text_object.BoxHeight
-        self.new_text[0][item]['string']=text_object.String
-        self.new_text[0][item]['font_size']=text_object.Size
+        self.text[0][item]['x']=x
+        self.text[0][item]['y']=y
+        self.text[0][item]['w']=text_object.BoxWidth
+        self.text[0][item]['h']=text_object.BoxHeight
+        self.text[0][item]['string']=text_object.String
+        self.text[0][item]['font_size']=text_object.Size
 
-        if self.new_text[2][item]['original_translated']!='':
-                string=self.new_text[2][item]['original_text']
+        if self.text[2][item]['original_translated']!='':
+                string=self.text[2][item]['original_text']
                 if text_object.String != string:
                     pass
                     #string=self.translator.run_translator(text_object.String)
                 else:
-                    string=self.new_text[2][item]['original_translated']
+                    string=self.text[2][item]['original_translated']
         else:
             pass
             #string= self.translator.run_translator(text_object.String) 
@@ -366,12 +341,13 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             self.Draw(True)
 
     def delete_text(self,text,Force=True):
-        item=self.new_text[1].index(text)
-        self.new_text[0].pop(item)
+        item=self.text[1].index(text)
+
+        self.text[0].pop(item)
         self.RemoveObject(text)
-        self.new_text[0].pop(item)
-        self.new_text[1].pop(item)
-        self.new_text[2].pop(item)
+        self.text[0].pop(item)
+        self.text[1].pop(item)
+        self.text[2].pop(item)
         self.Draw(Force)
 
     def delete_all_text(self):
