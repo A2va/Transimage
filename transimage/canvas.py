@@ -384,20 +384,14 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             elif wheel.WheelRotation==120: #Scroll up
                 self.Zoom(self.delta)
             self.Draw(True)
-        elif shift:
+        elif shift:#Move lef-right
             Rot = wheel.GetWheelRotation()
             Rot = Rot / abs(Rot) * 0.1
-            if wheel.ControlDown(): # move up-down
-                self.MoveImage( (0, Rot), "Panel" )
-            else: # move up-down
-                self.MoveImage( (Rot, 0), "Panel" )
+            self.MoveImage( (Rot, 0), "Panel" )
         else:
             Rot = wheel.GetWheelRotation()
             Rot = Rot / abs(Rot) * 0.1
-            if wheel.ControlDown(): # move left-right
-                self.MoveImage( (Rot, 0), "Panel" )
-            else: # move up-down
-                self.MoveImage( (0, Rot), "Panel" )
+            self.MoveImage( (0, Rot), "Panel" )
 
     def start_move(self, object):
         if not self.Moving:
