@@ -442,10 +442,7 @@ class Transimage(wx.Frame):
             log.debug('End of the processing')
             self.imageCanvas.clear()
             self.imageCanvas.update_image(self.translator.img_process)
-            for text in self.translator.text:
-                if text['translated_string']=='':
-                    wx.MessageDialog(None, 'This translator does not work with the text on image. Change the text or translator', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
-                self.imageCanvas.add_text(text['string'],text['translated_string'],(text['x'],-text['y']),text['max_width'],text['font_size'])
+            self.imageCanvas.add_text(self.translator.text)
         else:#Saving image
             log.debug('Saving the image')
             wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
