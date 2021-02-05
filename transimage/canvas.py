@@ -324,24 +324,26 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
     def update_text_dict(self,text_object):
         item=self.new_text[1].index(text_object)
+
         text_object.CalcBoundingBox()
         pos=text_object.XY
         x=pos[0]
         y=abs(pos[1])
-        w=text_object.BoxWidth
-        h=text_object.BoxHeight
+
         self.new_text[0][item]['x']=x
         self.new_text[0][item]['y']=y
+        self.new_text[0][item]['w']=text_object.BoxWidth
+        self.new_text[0][item]['h']=text_object.BoxHeight
         self.new_text[0][item]['string']=text_object.String
         self.new_text[0][item]['font_size']=text_object.Size
 
-        if self.new_text[0][item]['original_translated']!='':
-                string=self.new_text[0][item]['original_text']
+        if self.new_text[2][item]['original_translated']!='':
+                string=self.new_text[2][item]['original_text']
                 if text_object.String != string:
                     pass
                     #string=self.translator.run_translator(text_object.String)
                 else:
-                    string=self.new_text[0][item]['original_translated']
+                    string=self.new_text[2][item]['original_translated']
         else:
             pass
             #string= self.translator.run_translator(text_object.String) 
@@ -359,7 +361,8 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             event.SetText(dlg.textTextCtrl.GetValue())
             event.Size=dlg.sizeSpinCtrl.GetValue()
             event.Width=dlg.widthSpinCtrl.GetValue()
-            self.update_text_dict(event)
+            
+            self.update_text_dict(event)#Udate the 
             self.Draw(True)
 
     def delete_text(self,text,Force=True):
