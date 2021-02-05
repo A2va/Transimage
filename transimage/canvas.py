@@ -362,11 +362,16 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             event.Size=dlg.sizeSpinCtrl.GetValue()
             event.Width=dlg.widthSpinCtrl.GetValue()
             
-            self.update_text_dict(event)#Udate the 
+            self.update_text_dict(event)#Udate the text dict to actual value
             self.Draw(True)
 
     def delete_text(self,text,Force=True):
+        item=self.new_text[1].index(text)
+        self.new_text[0].pop(item)
         self.RemoveObject(text)
+        self.new_text[0].pop(item)
+        self.new_text[1].pop(item)
+        self.new_text[2].pop(item)
         self.Draw(Force)
 
     def delete_all_text(self):
@@ -379,16 +384,16 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         ctrl=wheel.ControlDown()
         shift=wheel.ShiftDown()
         if ctrl:
-            if wheel.WheelRotation==-120: #Scroll down
+            if wheel.WheelRotation==-120: #Zoom out
                 self.Zoom(1/self.delta)
-            elif wheel.WheelRotation==120: #Scroll up
+            elif wheel.WheelRotation==120: #Zoom in
                 self.Zoom(self.delta)
             self.Draw(True)
         elif shift:#Move lef-right
             Rot = wheel.GetWheelRotation()
             Rot = Rot / abs(Rot) * 0.1
             self.MoveImage( (Rot, 0), "Panel" )
-        else:
+        else:#move up-down
             Rot = wheel.GetWheelRotation()
             Rot = Rot / abs(Rot) * 0.1
             self.MoveImage( (0, Rot), "Panel" )
