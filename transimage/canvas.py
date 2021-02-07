@@ -256,7 +256,45 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             self.RemoveObject(self.bmp_object)
             self.Draw(True)
 
-    def add_text(self,texts):
+    def add_text(self,text,Force=True):
+        #     'x': None,
+        #     'y': None,
+        #     'w': None,
+        #     'h': None,
+        #     'paragraph_w': None,
+        #     'paragraph_h': None,
+        #     'string':None,
+        #     'translated_string': None,
+        #     'image': None,
+        #     'max_width': None,
+        #     'font_size': None
+        #     }
+        text_box=self.AddScaledTextBox(
+                String=text['string'],
+                Point=(text['x'],-text['y']),
+                Size=text['font_size'],
+                Color = "Black",
+                BackgroundColor = "White",
+                LineStyle = "Transparent",
+                Width = text['max_width'],
+                Position = 'tl',
+                LineSpacing = 1,
+                Alignment = "left",
+                Font=wx.Font(text['font_size'], wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell"))
+        text_box.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.start_move)
+        text_box.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit_text)
+        text_box.Bind(FloatCanvas.EVT_FC_RIGHT_DOWN,self.context_menu)
+
+        self.text[0].append(text)
+        self.text[1].append(text_box)
+        self.text[2].append(  {
+            'original_text':text['string'],
+            'original_translated':text['translated_string'],
+        })
+    
+        self.Draw(Force)
+
+    def add_text_from_list(self,texts):
         #text: [
             #     'x': None,
             #     'y': None,
@@ -272,30 +310,8 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             #     }
         # ]
         for text in texts:
-            text_box=self.AddScaledTextBox(
-                String=text['string'],
-                Point=(text['x'],-text['y']),
-                Size=text['font_size'],
-                Color = "Black",
-                BackgroundColor = "White",
-                LineStyle = "Transparent",
-                Width = text['max_width'],
-                Position = 'tl',
-                LineSpacing = 1,
-                Alignment = "left",
-                Font=wx.Font(text['font_size'], wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell"))
-            text_box.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.start_move)
-            text_box.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit_text)
-            text_box.Bind(FloatCanvas.EVT_FC_RIGHT_DOWN,self.context_menu)
-
-            self.text[0].append(text)
-            self.text[1].append(text_box)
-            self.text[2].append(  {
-                'original_text':text['string'],
-                'original_translated':text['translated_string'],
-            })
-            
-            self.Draw(True)
+            self.add_text(text,False)     
+        self.Draw(True)
 
     def update_text_dict(self,text_object):
         item=self.text[1].index(text_object)

@@ -442,7 +442,7 @@ class Transimage(wx.Frame):
             log.debug('End of the processing')
             self.imageCanvas.clear()
             self.imageCanvas.update_image(self.translator.img_process)
-            self.imageCanvas.add_text(self.translator.text)
+            self.imageCanvas.add_text_from_list(self.translator.text)
         else:#Saving image
             log.debug('Saving the image')
             wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
