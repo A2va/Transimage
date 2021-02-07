@@ -470,7 +470,7 @@ class Transimage(wx.Frame):
                 'font_size': 30
                 }
         ]
-        self.imageCanvas.new_add_text(text)
+        self.imageCanvas.add_text(text)
 
     def process_image(self,event):
             log.debug('Start the processing of image')

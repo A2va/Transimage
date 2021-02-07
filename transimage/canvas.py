@@ -207,7 +207,21 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
     def callback_context_menu(self,event):
         if event.data['event_type']=='add_text':
             data=event.data['event_data']
-            self.add_text(data['string'],'',data['pos'],data['width'],data['size'])
+            text_dict= {
+                'x': data['pos'][0],
+                'y': data['pos'][1],
+                'w': data['width'],
+                'h': None,
+                'paragraph_w': None,
+                'paragraph_h': None,
+                'string':data['string'],
+                'translated_string': '',
+                'image': None,
+                'max_width': None,
+                'font_size': data['size']
+
+            }
+            self.add_text(text_dict)
         elif event.data['event_type']=='edit_text':
             data=event.data['event_data']
             font=data.Font
