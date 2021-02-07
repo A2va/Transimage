@@ -496,38 +496,8 @@ class Transimage(wx.Frame):
     def translate(self):
         log.debug('Start the tranlsation of image')
         self.translator.text.clear()
-        for text in self.imageCanvas.text:
-            log.debug('Copy text object on canvas to image translator module')
-            text_object=text['text_object']
-            text_object.CalcBoundingBox()
-            pos=text_object.XY
-            x=pos[0]
-            y=abs(pos[1])
-            w=text_object.BoxWidth
-            h=text_object.BoxHeight
-
-            if text['original_translated']!='':
-                string=text['original_text']
-                if text_object.String != string:
-                    string=self.translator.run_translator(text_object.String)
-                else:
-                    string=text['original_translated']
-            else:
-                string= self.translator.run_translator(text_object.String)
-            self.translator.text.append(
-                {
-                'x': x,
-                'y': y,
-                'w': w,
-                'h': h,
-                'paragraph_w': None,
-                'paragraph_h': None,
-                'string':text_object.String,
-                'translated_string': string,
-                'image': None,
-                'max_width': w,
-                'font_size': text_object.Size
-                })
+        self.translator.text=self.imageCanvas.text[0]
+       
         self.processImage=ImageProcess(self,self.translator.img_out, self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
         self.processImage.image_translator=self.translator
         self.processImage.mode_process=False

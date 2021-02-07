@@ -178,6 +178,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
     def __init__(self, *args, **kwargs):
         FloatCanvas.FloatCanvas.__init__(self, *args, **kwargs)
+        #([Text dict],[text object (wxpython)],[some data])
         self.text=([],[],[])
 
         #Canvas Event
