@@ -244,7 +244,10 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
     def clear(self):
         self.ClearAll()
-        self.text.clear()
+        self.text[0].clear()
+        self.text[1].clear()
+        self.text[2].clear()
+        self.bmp_object=None
         self.Draw(True)
 
     def update_image(self,image):
@@ -374,7 +377,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
     def delete_text(self,text,Force=True):
         item=self.text[1].index(text)
 
-        self.text[0].pop(item)
         self.RemoveObject(text)
         self.text[0].pop(item)
         self.text[1].pop(item)
