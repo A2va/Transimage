@@ -215,10 +215,10 @@ class Transimage(wx.Frame):
         self.Bind(wx.EVT_TOOL,self.open_file,self.open)
 
         self.save=self.toolBar.AddTool(wx.ID_ANY,"Save",wx.Bitmap("icons/save.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Save',wx.EmptyString,None)
-        self.Bind(wx.EVT_TOOL,self.save_menu,self.save)
+        self.Bind(wx.EVT_TOOL,self.save_file,self.save)
 
         self.save_image=self.toolBar.AddTool(wx.ID_ANY,"Save",wx.Bitmap("icons/save_image.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Save Image','Save with png and jpeg format',None)
-        self.Bind(wx.EVT_TOOL,self.save_image_menu,self.save_image)
+        self.Bind(wx.EVT_TOOL,self.save_image_file,self.save_image)
 
         self.about=self.toolBar.AddTool(wx.ID_ANY,"About",wx.Bitmap("icons/info.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'About',wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.about_menu,self.about)
@@ -392,10 +392,10 @@ class Transimage(wx.Frame):
                 self.imageCanvas.clear()
                 self.imageCanvas.update_image(self.img)
 
-    def save_menu(self,event):
+    def save_file(self,event):
         pass
 
-    def save_image_menu(self,event):
+    def save_image_file(self,event):
         event.Skip()
         print('save_menu')
         self.translate()
