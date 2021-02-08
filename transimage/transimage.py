@@ -397,8 +397,20 @@ class Transimage(wx.Frame):
 
     def save_image_file(self,event):
         event.Skip()
-        print('save_menu')
-        self.translate()
+        #Translate the image
+        log.debug('Start the tranlsation of image')
+        self.translator.text.clear()
+        self.translator.text=self.imageCanvas.text[0]
+       
+        self.processImage=ImageProcess(self,self.translator.img_out, self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
+        self.processImage.image_translator=self.translator
+        self.processImage.mode_process=False
+        self.processImage.start()
+
+        #Progressing dialog
+        self.progressDialog = ProgressingDialog(self)
+        if self.progressDialog.ShowModal()==wx.ID_CANCEL:
+            self.processImage.abort()
 
     def about_menu(self,event):
         event.Skip()
@@ -494,17 +506,3 @@ class Transimage(wx.Frame):
                 self.progressDialog = ProgressingDialog(self)
                 if self.progressDialog.ShowModal()==wx.ID_CANCEL:
                     self.processImage.abort()
-
-    def translate(self):
-        log.debug('Start the tranlsation of image')
-        self.translator.text.clear()
-        self.translator.text=self.imageCanvas.text[0]
-       
-        self.processImage=ImageProcess(self,self.translator.img_out, self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
-        self.processImage.image_translator=self.translator
-        self.processImage.mode_process=False
-        self.processImage.start()
-
-        self.progressDialog = ProgressingDialog(self)
-        if self.progressDialog.ShowModal()==wx.ID_CANCEL:
-            self.processImage.abort()
