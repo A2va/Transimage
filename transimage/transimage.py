@@ -362,7 +362,7 @@ class Transimage(wx.Frame):
             self.file_path = fileDialog.GetPath()
             if self.file_path.endswith('json'):
                 with open(self.file_path,'r') as file:
-                    self.file_dict=json.load(file)
+                    self.file_dict=jsonpickle.loads(file.read())
                 self.img=jsonpickle.decode(self.file_dict['img'])
                 self.translator_engine=self.file_dict['translator']
                 self.ocr=self.file_dict['ocr']
