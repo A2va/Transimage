@@ -173,11 +173,12 @@ class Transimage(wx.Frame):
 
         self.file_dict={
             'img': None,
-            'transltator': None,
+            'translator': None,
             'ocr': None,
             'dest_lang': None,
             'src_lang': None,
-            'name':None
+            'name':None,
+            'text_list':None
         }
         
         self.init_ui(parent)
@@ -388,12 +389,27 @@ class Transimage(wx.Frame):
                 self.imageCanvas.update_image(self.img)
                 
             else:          
-                self.img =cv2.imread(self.file_path)
+                self.img = cv2.imread(self.file_path)
                 self.imageCanvas.clear()
                 self.imageCanvas.update_image(self.img)
 
     def save_file(self,event):
-        pass
+
+        self.file_dict['text_list']=self.imageCanvas.text[0]
+        self.file_dict['dest_lang']=self.dest_lang
+        self.file_dict['scr_lang']=self.src_lang
+        self.file_dict['ocr']=self.ocr
+        self.file_dict['img']=jsonpickle.encode(self.img) 
+
+        wildcard = "JSON File (*.json)|*.json"
+        with wx.FileDialog(self, "Save Json File", wildcard=wildcard,
+            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+                if fileDialog.ShowModal() == wx.ID_CANCEL:
+                    return 
+                self.file_dict['name']=fileDialog.GetFilename()
+
+                with open(fileDialog.GetPath(),'w') as file:
+                    file.write(jsonpickle.dumps(self.file_dict))
 
     def save_image_file(self,event):
         event.Skip()
@@ -461,7 +477,7 @@ class Transimage(wx.Frame):
             log.debug('Saving the image')
             wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
             with wx.FileDialog(self, "Save Image File", wildcard=wildcard,
-            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,defaultFile=self.file_dict['name']) as fileDialog:
             
                 if fileDialog.ShowModal() == wx.ID_CANCEL:
                     return 
@@ -469,8 +485,7 @@ class Transimage(wx.Frame):
                 cv2.imwrite(out_path,self.translator.img_out)
 
     def add_text(self,event):
-        text= [
-                {
+        text= {
                 'x': 0,
                 'y': 0,
                 'w': 50,
@@ -483,7 +498,7 @@ class Transimage(wx.Frame):
                 'max_width': 50,
                 'font_size': 30
                 }
-        ]
+        
         self.imageCanvas.add_text(text)
 
     def process_image(self,event):
@@ -500,7 +515,7 @@ class Transimage(wx.Frame):
             elif self.file_path=='':
                 wx.MessageDialog(None, 'Any image or file are open', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
             else:
-                self.processImage=ImageProcess(self.img, self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
+                self.processImage=ImageProcess(self,self.img, self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
                 self.processImage.start()
 
                 self.progressDialog = ProgressingDialog(self)
