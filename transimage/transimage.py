@@ -412,15 +412,14 @@ class Transimage(wx.Frame):
         event.Skip()
         dlg = SettingsDialog(self)
         if dlg.ShowModal() == wx.ID_OK:
-           pass
-        self.src_langCombo.Clear()
-        self.dest_langCombo.Clear()
-        with open(SETTINGS_FILE,'r') as settings_file:
-            settings=json.load(settings_file)
-            for lang in settings['language_pack']:
-                if settings['language_pack'][lang]:
-                    self.dest_langCombo.Append(TO_LANG_NAME[lang].capitalize())
-                    self.src_langCombo.Append(TO_LANG_NAME[lang].capitalize())
+            self.src_langCombo.Clear()
+            self.dest_langCombo.Clear()
+            with open(SETTINGS_FILE,'r') as settings_file:
+                settings=json.load(settings_file)
+                for lang in settings['language_pack']:
+                    if settings['language_pack'][lang]:
+                        self.dest_langCombo.Append(TO_LANG_NAME[lang].capitalize())
+                        self.src_langCombo.Append(TO_LANG_NAME[lang].capitalize())
 
     def update_translator(self,event):
         string=event.String.lower()
