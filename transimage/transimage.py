@@ -212,7 +212,7 @@ class Transimage(wx.Frame):
         self.Bind(wx.EVT_TOOL,self.context_menu,self.logo)
 
         self.open=self.toolBar.AddTool(wx.ID_ANY,"Open Image",wx.Bitmap("icons/open_file.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Open Image',wx.EmptyString,None)
-        self.Bind(wx.EVT_TOOL,self.open_menu,self.open)
+        self.Bind(wx.EVT_TOOL,self.open_file,self.open)
 
         self.save=self.toolBar.AddTool(wx.ID_ANY,"Save",wx.Bitmap("icons/save.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Save',wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.save_menu,self.save)
@@ -348,10 +348,13 @@ class Transimage(wx.Frame):
     def context_menu(self,event):
         event.Skip()
 
-    def open_menu(self,event):
+    def open_file(self,event):
         event.Skip()
-        wildcard = "Open Image Files (*.jpg;*.png)|*.jpg;*.png|JSON files (*.json)|*.json"
-        with wx.FileDialog(self, "Open image file", wildcard=wildcard,
+        wildcard = "Open Image/Project Files (*.jpg;*jpeg;*.png,*.json)|*.jpeg;*.jpg;*.png;*.json|"\
+                    "PNG file (*.png)|*.png|"\
+                    "JPG file (*.jpg;*.jpeg)|*.jpg;*.jpeg|"\
+                    "JSON file (*.json)|*.json"
+        with wx.FileDialog(self, "Open File", wildcard=wildcard,
         style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
