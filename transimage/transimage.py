@@ -404,7 +404,10 @@ class Transimage(wx.Frame):
         self.file_dict['src_lang']=self.src_lang
         self.file_dict['ocr']=self.ocr
         self.file_dict['translator']=self.translator_engine
-        self.file_dict['img']=jsonpickle.encode(self.img) 
+        if self.translator.img_process is not None:     
+            self.file_dict['img']=jsonpickle.encode(self.translator.img_process) 
+        else:
+            self.file_dict['img']=jsonpickle.encode(self.img) 
 
         wildcard = "JSON File (*.json)|*.json"
         with wx.FileDialog(self, "Save Json File", wildcard=wildcard,
