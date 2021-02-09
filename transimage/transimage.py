@@ -170,6 +170,7 @@ class Transimage(wx.Frame):
         self.ocr=''
         self.src_lang=''
         self.dest_lang=''
+        self.translator=None
 
         self.file_dict={
             'img': None,
@@ -391,6 +392,7 @@ class Transimage(wx.Frame):
 
                 self.imageCanvas.clear()
                 self.imageCanvas.update_image(self.img)
+                self.imageCanvas.add_text_from_list(self.file_dict['text_list'])
                 
             else:          
                 self.img = cv2.imread(self.file_path)
@@ -404,8 +406,12 @@ class Transimage(wx.Frame):
         self.file_dict['src_lang']=self.src_lang
         self.file_dict['ocr']=self.ocr
         self.file_dict['translator']=self.translator_engine
-        if self.translator.img_process is not None:     
-            self.file_dict['img']=jsonpickle.encode(self.translator.img_process) 
+        
+        if self.translator is not None:
+            if self.translator is not None:     
+                self.file_dict['img']=jsonpickle.encode(self.translator.img_process) 
+            else:
+                self.file_dict['img']=jsonpickle.encode(self.img)
         else:
             self.file_dict['img']=jsonpickle.encode(self.img) 
 
