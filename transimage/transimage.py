@@ -486,8 +486,7 @@ class Transimage(wx.Frame):
             
                 if fileDialog.ShowModal() == wx.ID_CANCEL:
                     return 
-                out_path = fileDialog.GetPath()
-                cv2.imwrite(out_path,self.translator.img_out)
+                cv2.imwrite(fileDialog.GetPath(),self.translator.img_out)
 
     def add_text(self,event):
         text= {
