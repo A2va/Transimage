@@ -369,21 +369,25 @@ class Transimage(wx.Frame):
                 self.src_lang=self.file_dict['src_lang']
                 self.dest_lang=self.file_dict['dest_lang']
 
-                item=self.ocrCombo.FindString(self.ocr)
-                self.ocrCombo.SetSelection(item)
-                item=self.translatorCombo.FindString(self.translator_engine)
-                self.translatorCombo.SetSelection(item)
-                item=self.src_langCombo.FindString(TO_LANG_NAME[self.src_lang])
-                if item !=-1:
-                    self.src_langCombo.SetSelection(item)
-                else:
-                    wx.MessageDialog(None, "The source language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+                if self.ocr is not None:
+                    item=self.ocrCombo.FindString(self.ocr)
+                    self.ocrCombo.SetSelection(item)
+                if self.translator_engine is not None:
+                    item=self.translatorCombo.FindString(self.translator_engine)
+                    self.translatorCombo.SetSelection(item)
+                if self.src_lang is not None:
+                    item=self.src_langCombo.FindString(TO_LANG_NAME[self.src_lang])
+                    if item !=-1:
+                        self.src_langCombo.SetSelection(item)
+                    else:
+                        wx.MessageDialog(None, "The source language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
 
-                item=self.dest_langCombo.FindString(TO_LANG_NAME[self.dest_lang])
-                if item !=-1:
-                     self.dest_langCombo.SetSelection(item)
-                else:
-                    wx.MessageDialog(None, "The destination language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+                if self.dest_lang is not None:    
+                    item=self.dest_langCombo.FindString(TO_LANG_NAME[self.dest_lang])
+                    if item !=-1:
+                        self.dest_langCombo.SetSelection(item)
+                    else:
+                        wx.MessageDialog(None, "The destination language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
 
                 self.imageCanvas.clear()
                 self.imageCanvas.update_image(self.img)
@@ -397,8 +401,9 @@ class Transimage(wx.Frame):
 
         self.file_dict['text_list']=self.imageCanvas.text[0]
         self.file_dict['dest_lang']=self.dest_lang
-        self.file_dict['scr_lang']=self.src_lang
+        self.file_dict['src_lang']=self.src_lang
         self.file_dict['ocr']=self.ocr
+        self.file_dict['translator']=self.translator_engine
         self.file_dict['img']=jsonpickle.encode(self.img) 
 
         wildcard = "JSON File (*.json)|*.json"
