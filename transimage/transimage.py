@@ -396,13 +396,13 @@ class Transimage(wx.Frame):
                         wx.MessageDialog(None, "The destination language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
 
                 self.imageCanvas.clear()
-                self.imageCanvas.update_image(self.img)
+                self.imageCanvas.set_image(self.img)
                 self.imageCanvas.add_text_from_list(self.file_dict['text_list'])
                 
             else:          
                 self.img = cv2.imread(self.file_path)
                 self.imageCanvas.clear()
-                self.imageCanvas.update_image(self.img)
+                self.imageCanvas.set_image(self.img)
 
     def save_file(self,event):
 
@@ -494,7 +494,7 @@ class Transimage(wx.Frame):
         if self.processImage.mode_process==True:
             log.debug('End of the processing')
             self.imageCanvas.clear()
-            self.imageCanvas.update_image(self.translator.img_process)
+            self.imageCanvas.set_image(self.translator.img_process)
             self.imageCanvas.add_text_from_list(self.translator.text)
         else:#Saving image
             log.debug('Saving the image')

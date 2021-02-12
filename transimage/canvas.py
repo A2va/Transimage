@@ -250,7 +250,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.bmp_object=None
         self.Draw(True)
 
-    def update_image(self,image):
+    def set_image(self,image):
         #For PIL Image
         # self.img=wx.EmptyImage(image.size[0],image.size[1])
         # self.img.setData(image.convert("RGB").tostring())
