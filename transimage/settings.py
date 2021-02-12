@@ -58,33 +58,38 @@ class SettingsDialog(wx.Dialog):
         # Page 1: General 
 
         page1Sizer = wx.BoxSizer(wx.VERTICAL)
+        page1Sizer.AddSpacer(10)
 
         self.page_1 = wx.Panel(self.notebook, wx.ID_ANY)
         self.page_1.SetForegroundColour(BACKGROUND_COLOR)
         self.page_1.SetBackgroundColour(BACKGROUND_COLOR)
         self.notebook.AddPage(self.page_1, "General")
 
-        testSizer = wx.BoxSizer(wx.HORIZONTAL)
+        defaultTranslatorSizer = wx.BoxSizer(wx.HORIZONTAL)
+        defaultTranslatorSizer.AddSpacer(10)
 
-        self.defaultTranslatorText = wx.StaticText(self.page_1, wx.ID_ANY, "Nothing to see in this page")
+        self.defaultTranslatorText = wx.StaticText(self.page_1, wx.ID_ANY, "Default translator")
         self.defaultTranslatorText.SetForegroundColour(TEXT_COLOR)
-        self.defaultTranslatorText.SetFont(wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-        testSizer.Add(self.defaultTranslatorText,1,wx.ALL,0)
+        self.defaultTranslatorText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        defaultTranslatorSizer.Add(self.defaultTranslatorText,1,wx.ALL,0)
+        defaultTranslatorSizer.AddSpacer(10)
 
         self.defaultTranslatorCombo = wx.ComboBox(self.page_1, wx.ID_ANY, choices=["Deepl","Bing"], style=wx.CB_DROPDOWN | wx.CB_SORT)
         self.defaultTranslatorCombo.SetBackgroundColour(BACKGROUND_COLOR)
         self.defaultTranslatorCombo.SetForegroundColour(TEXT_COLOR) #For text
         self.defaultTranslatorCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-        testSizer.Add(self.defaultTranslatorCombo,0,wx.ALL|wx.EXPAND,0)
+        defaultTranslatorSizer.Add(self.defaultTranslatorCombo,0,wx.ALL|wx.EXPAND,0)
 
 
-        page1Sizer.Add(testSizer, 0, wx.ALL,0)
+        page1Sizer.Add(defaultTranslatorSizer, 0, wx.ALL,0)
 
         self.page_1.SetSizer(page1Sizer)
 
         # Page 2: Language Pack
 
         page2Sizer = wx.BoxSizer(wx.VERTICAL)
+        page2Sizer.AddSpacer(10)
+
         self.page_2 = wx.Panel(self.notebook, wx.ID_ANY)
         self.page_2.SetForegroundColour(BACKGROUND_COLOR)
         self.page_2.SetBackgroundColour(BACKGROUND_COLOR)
