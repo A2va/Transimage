@@ -211,6 +211,13 @@ class SettingsDialog(wx.Dialog):
         if item !=-1:
             self.defaultDestlangCombo.SetSelection(item)
 
+        item=self.defaultOcrCombo.FindString(TO_LANG_NAME[self.settings['default_ocr']])
+        if item !=-1:
+            self.defaultOcrCombo.SetSelection(item)
+
+        item=self.defaultTranslatorText.FindString(TO_LANG_NAME[self.settings['default_translator']])
+        if item !=-1:
+            self.defaultTranslatorText.SetSelection(item)
 
     def apply(self,event):
         #Format the CheckListBox to a dict
