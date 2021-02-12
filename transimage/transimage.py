@@ -24,7 +24,6 @@ import numpy as np
 import jsonpickle
 import pathos.multiprocessing as p_multiprocessing
 import wx
-from wx.core import NOT_FOUND
 import wx.lib.newevent
 from image_translator.image_translator import ImageTranslator
 
@@ -178,8 +177,9 @@ class Transimage(wx.Frame):
             'ocr': None,
             'dest_lang': None,
             'src_lang': None,
+            'text_list':None,
             'name':None,
-            'text_list':None
+            'path':None
         }
         
         self.init_ui(parent)
@@ -352,6 +352,7 @@ class Transimage(wx.Frame):
 
     def open_file(self,event):
         event.Skip()
+        self.file_dict['path']=None
         wildcard = "Open Image/Project Files (*.jpg;*jpeg;*.png,*.json)|*.jpeg;*.jpg;*.png;*.json|"\
                     "PNG file (*.png)|*.png|"\
                     "JPG file (*.jpg;*.jpeg)|*.jpg;*.jpeg|"\
@@ -415,14 +416,18 @@ class Transimage(wx.Frame):
         else:
             self.file_dict['img']=jsonpickle.encode(self.img) 
 
-        wildcard = "JSON File (*.json)|*.json"
-        with wx.FileDialog(self, "Save Json File", wildcard=wildcard,
-            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
-                if fileDialog.ShowModal() == wx.ID_CANCEL:
-                    return 
-                self.file_dict['name']=fileDialog.GetFilename()
-
-                with open(fileDialog.GetPath(),'w') as file:
+        if self.file_dict['path'] is None:
+            wildcard = "JSON File (*.json)|*.json"
+            with wx.FileDialog(self, "Save Json File", wildcard=wildcard,
+                style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+                    if fileDialog.ShowModal() == wx.ID_CANCEL:
+                        return 
+                    self.file_dict['name']=fileDialog.GetFilename()
+                    self.file_dict['path']=fileDialog.GetPath()
+                    with open(fileDialog.GetPath(),'w') as file:
+                        file.write(jsonpickle.dumps(self.file_dict))
+        else:
+            with open(self.file_dict['path'],'w') as file:
                     file.write(jsonpickle.dumps(self.file_dict))
 
     def save_image_file(self,event):
