@@ -68,7 +68,7 @@ class SettingsDialog(wx.Dialog):
         defaultTranslatorSizer = wx.BoxSizer(wx.HORIZONTAL)
         defaultTranslatorSizer.AddSpacer(10)
 
-        self.defaultTranslatorText = wx.StaticText(self.page_1, wx.ID_ANY, "Default translator")
+        self.defaultTranslatorText = wx.StaticText(self.page_1, wx.ID_ANY, "Default translator:")
         self.defaultTranslatorText.SetForegroundColour(TEXT_COLOR)
         self.defaultTranslatorText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         defaultTranslatorSizer.Add(self.defaultTranslatorText,1,wx.ALL,0)
@@ -80,8 +80,25 @@ class SettingsDialog(wx.Dialog):
         self.defaultTranslatorCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         defaultTranslatorSizer.Add(self.defaultTranslatorCombo,0,wx.ALL|wx.EXPAND,0)
 
+        defaultOcrSizer = wx.BoxSizer(wx.HORIZONTAL)
+        defaultOcrSizer.AddSpacer(10)
+
+        self.defaultOcrText = wx.StaticText(self.page_1, wx.ID_ANY, "Default OCR:")
+        self.defaultOcrText.SetForegroundColour(TEXT_COLOR)
+        self.defaultOcrText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        defaultOcrSizer.Add(self.defaultOcrText,1,wx.ALL,0)
+        defaultOcrSizer.AddSpacer(10)
+
+        self.defaultcOcrCombo = wx.ComboBox(self.page_1, wx.ID_ANY, choices=["Tesseract","Easyocr"], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.defaultcOcrCombo.SetBackgroundColour(BACKGROUND_COLOR)
+        self.defaultcOcrCombo.SetForegroundColour(TEXT_COLOR) #For text
+        self.defaultcOcrCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        defaultOcrSizer.Add(self.defaultcOcrCombo,0,wx.ALL|wx.EXPAND,0)
+
 
         page1Sizer.Add(defaultTranslatorSizer, 0, wx.ALL,0)
+        page1Sizer.AddSpacer(10)
+        page1Sizer.Add(defaultOcrSizer, 0, wx.ALL,0)
 
         self.page_1.SetSizer(page1Sizer)
 
