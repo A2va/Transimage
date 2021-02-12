@@ -51,9 +51,13 @@ EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 class ImageProcessError(Exception):
     pass
 
-def gen_settings_file():
+def create_settings_file():
     setting_dict={
-        'language_pack':TO_LANG_NAME.copy()
+        'language_pack':TO_LANG_NAME.copy(),
+        'default_src_lang':'eng',
+        'default_dest_lang':'fra',
+        'default_ocr':'tesseract',
+        'default_translator':'bing'
     }
     
     for lang in setting_dict['language_pack']:
@@ -185,7 +189,7 @@ class Transimage(wx.Frame):
         self.init_ui(parent)
         if not os.path.exists(SETTINGS_FILE):
             open(SETTINGS_FILE,'w+').close()
-            gen_settings_file()
+            create_settings_file()
 
         with open(SETTINGS_FILE,'r') as settings_file:
             settings=json.load(settings_file)
