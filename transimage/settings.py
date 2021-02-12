@@ -215,25 +215,25 @@ class SettingsDialog(wx.Dialog):
         if item !=-1:
             self.defaultDestlangCombo.SetSelection(item)
 
-        item=self.defaultOcrCombo.FindString(TO_LANG_NAME[self.settings['default_ocr']])
+        item=self.defaultOcrCombo.FindString(self.settings['default_ocr'])
         if item !=-1:
             self.defaultOcrCombo.SetSelection(item)
 
-        item=self.defaultTranslatorText.FindString(TO_LANG_NAME[self.settings['default_translator']])
+        item=self.defaultTranslatorCombo.FindString(self.settings['default_translator'])
         if item !=-1:
-            self.defaultTranslatorText.SetSelection(item)
+            self.defaultTranslatorCombo.SetSelection(item)
 
     def update_default_ocr(self,event):
-        pass
+        self.settings['default_ocr']=event.String.lower()
 
     def update_default_translator(self,event):
-        pass
+        self.settings['default_translator']=event.String.lower()
 
     def update_default_src_lang(self,event):
-        pass
+        self.settings['default_src_lang']=TO_LANG_CODE[event.String.lower()]
 
     def update_default_dest_lang(self,event):
-        pass
+        self.settings['default_dest_lang']=TO_LANG_CODE[event.String.lower()]
 
     def apply(self,event):
         #Format the CheckListBox to a dict
@@ -253,6 +253,10 @@ class SettingsDialog(wx.Dialog):
         self.settings['language_pack']=checked_lang
         with open(SETTINGS_FILE,'w') as settings_file:
             json.dump(self.settings,settings_file)
+    
+    def EndModal(self, retCode):
+
+        return super().EndModal(wx.ID_OK)
 
 def download_lang(lang,parent):
   
