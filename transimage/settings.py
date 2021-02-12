@@ -110,6 +110,20 @@ class SettingsDialog(wx.Dialog):
         self.defaultSrclangCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
         defaultSrclangSizer.Add(self.defaultSrclangCombo,0,wx.ALL|wx.EXPAND,0)
 
+        defaultDestlangSizer = wx.BoxSizer(wx.HORIZONTAL)
+        defaultDestlangSizer.AddSpacer(10)
+
+        self.defaultDestlangText = wx.StaticText(self.page_1, wx.ID_ANY, "Default source language:")
+        self.defaultDestlangText.SetForegroundColour(TEXT_COLOR)
+        self.defaultDestlangText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        defaultDestlangSizer.Add(self.defaultDestlangText,1,wx.ALL,0)
+        defaultDestlangSizer.AddSpacer(10)
+
+        self.defaultDestlangCombo = wx.ComboBox(self.page_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.defaultDestlangCombo.SetBackgroundColour(BACKGROUND_COLOR)
+        self.defaultDestlangCombo.SetForegroundColour(TEXT_COLOR) #For text
+        self.defaultDestlangCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        defaultDestlangSizer.Add(self.defaultDestlangCombo,0,wx.ALL|wx.EXPAND,0)
 
 
         page1Sizer.Add(defaultTranslatorSizer, 0, wx.ALL,0)
@@ -117,6 +131,8 @@ class SettingsDialog(wx.Dialog):
         page1Sizer.Add(defaultOcrSizer, 0, wx.ALL,0)
         page1Sizer.AddSpacer(10)
         page1Sizer.Add(defaultSrclangSizer, 0, wx.ALL,0)
+        page1Sizer.AddSpacer(10)
+        page1Sizer.Add(defaultDestlangSizer, 0, wx.ALL,0)
 
         self.page_1.SetSizer(page1Sizer)
 
