@@ -78,6 +78,7 @@ class SettingsDialog(wx.Dialog):
         self.defaultTranslatorCombo.SetBackgroundColour(BACKGROUND_COLOR)
         self.defaultTranslatorCombo.SetForegroundColour(TEXT_COLOR) #For text
         self.defaultTranslatorCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.defaultTranslatorCombo.Bind(wx.EVT_COMBOBOX,self.update_default_translator)
         defaultTranslatorSizer.Add(self.defaultTranslatorCombo,0,wx.ALL|wx.EXPAND,0)
 
         defaultOcrSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -93,6 +94,7 @@ class SettingsDialog(wx.Dialog):
         self.defaultOcrCombo.SetBackgroundColour(BACKGROUND_COLOR)
         self.defaultOcrCombo.SetForegroundColour(TEXT_COLOR) #For text
         self.defaultOcrCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.defaultOcrCombo.Bind(wx.EVT_COMBOBOX,self.update_default_ocr)
         defaultOcrSizer.Add(self.defaultOcrCombo,0,wx.ALL|wx.EXPAND,0)
 
         defaultSrclangSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -108,6 +110,7 @@ class SettingsDialog(wx.Dialog):
         self.defaultSrclangCombo.SetBackgroundColour(BACKGROUND_COLOR)
         self.defaultSrclangCombo.SetForegroundColour(TEXT_COLOR) #For text
         self.defaultSrclangCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.defaultSrclangCombo.Bind(wx.EVT_COMBOBOX,self.update_default_src_lang)
         defaultSrclangSizer.Add(self.defaultSrclangCombo,0,wx.ALL|wx.EXPAND,0)
 
         defaultDestlangSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -123,6 +126,7 @@ class SettingsDialog(wx.Dialog):
         self.defaultDestlangCombo.SetBackgroundColour(BACKGROUND_COLOR)
         self.defaultDestlangCombo.SetForegroundColour(TEXT_COLOR) #For text
         self.defaultDestlangCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.defaultDestlangCombo.Bind(wx.EVT_COMBOBOX,self.update_default_dest_lang)
         defaultDestlangSizer.Add(self.defaultDestlangCombo,0,wx.ALL|wx.EXPAND,0)
 
 
@@ -218,6 +222,18 @@ class SettingsDialog(wx.Dialog):
         item=self.defaultTranslatorText.FindString(TO_LANG_NAME[self.settings['default_translator']])
         if item !=-1:
             self.defaultTranslatorText.SetSelection(item)
+
+    def update_default_ocr(self,event):
+        pass
+
+    def update_default_translator(self,event):
+        pass
+
+    def update_default_src_lang(self,event):
+        pass
+
+    def update_default_dest_lang(self,event):
+        pass
 
     def apply(self,event):
         #Format the CheckListBox to a dict
