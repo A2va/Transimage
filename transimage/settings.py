@@ -188,11 +188,7 @@ class SettingsDialog(wx.Dialog):
         with open(SETTINGS_FILE,'r') as settings_file:
             self.settings=json.load(settings_file)
 
-        for lang in self.settings['language_pack']:
-                if self.settings['language_pack'][lang]:
-                    self.defaultDestlangCombo.Append(TO_LANG_NAME[lang].capitalize())
-                    self.defaultSrclangCombo.Append(TO_LANG_NAME[lang].capitalize())
-
+        #Load all the available language
         for item in range(self.lang_CheckList.GetCount()):
             string =self.lang_CheckList.GetString(item).lower()
             checked=self.settings['language_pack'][TO_LANG_CODE[string]]
@@ -200,7 +196,20 @@ class SettingsDialog(wx.Dialog):
 
             self.lang_CheckList.SetItemBackgroundColour(item,BACKGROUND_COLOR)
             self.lang_CheckList.SetItemForegroundColour(item,TEXT_COLOR)
+
+        #Load the language for the default selection (only the intsalled language)
+        for lang in self.settings['language_pack']:
+            if self.settings['language_pack'][lang]:
+                self.defaultDestlangCombo.Append(TO_LANG_NAME[lang].capitalize())
+                self.defaultSrclangCombo.Append(TO_LANG_NAME[lang].capitalize())
+
+        item=self.defaultSrclangCombo.FindString(TO_LANG_NAME[self.settings['default_src_lang']])
+        if item !=-1:
+            self.defaultSrclangCombo.SetSelection(item)
             
+        item=self.defaultDestlangCombo.FindString(TO_LANG_NAME[self.settings['default_dest_lang']])
+        if item !=-1:
+            self.defaultDestlangCombo.SetSelection(item)
 
 
     def apply(self,event):
