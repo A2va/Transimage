@@ -465,13 +465,13 @@ class Transimage(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             self.src_langCombo.Clear()
             self.dest_langCombo.Clear()
-            with open(SETTINGS_FILE,'r') as settings_file:
-                settings=json.load(settings_file)
-                for lang in settings['language_pack']:
-                    if settings['language_pack'][lang]:
+            for lang in dlg.settings['language_pack']:
+                    if dlg.settings['language_pack'][lang]:
                         self.dest_langCombo.Append(TO_LANG_NAME[lang].capitalize())
                         self.src_langCombo.Append(TO_LANG_NAME[lang].capitalize())
-
+            with open(SETTINGS_FILE,'w') as settings_file:
+                json.dump(dlg.settings,settings_file)
+        
     def update_translator(self,event):
         string=event.String.lower()
         self.translator_engine=string
