@@ -187,6 +187,7 @@ class Transimage(wx.Frame):
         }
         
         self.init_ui(parent)
+
         if not os.path.exists(SETTINGS_FILE):
             open(SETTINGS_FILE,'w+').close()
             create_settings_file()
@@ -197,6 +198,22 @@ class Transimage(wx.Frame):
                 if settings['language_pack'][lang]:
                     self.dest_langCombo.Append(TO_LANG_NAME[lang].capitalize())
                     self.src_langCombo.Append(TO_LANG_NAME[lang].capitalize())
+
+            item=self.src_langCombo.FindString(TO_LANG_NAME[settings['default_src_lang']])
+            if item !=-1:
+                self.src_langCombo.SetSelection(item)
+                
+            item=self.dest_langCombo.FindString(TO_LANG_NAME[settings['default_dest_lang']])
+            if item !=-1:
+                self.dest_langCombo.SetSelection(item)
+
+            item=self.ocrCombo.FindString(settings['default_ocr'])
+            if item !=-1:
+                self.ocrCombo.SetSelection(item)
+
+            item=self.translatorCombo.FindString(settings['default_translator'])
+            if item !=-1:
+                self.translatorCombo.SetSelection(item)
 
     def init_ui(self,parent):
         wx.Frame.__init__(self,parent,id=wx.ID_ANY,title="Transimage",pos=wx.DefaultPosition,size=wx.Size(1200,500),style=wx.DEFAULT_FRAME_STYLE)
