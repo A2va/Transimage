@@ -157,7 +157,7 @@ class ContextMenu(wx.Menu):
                     'width':dlg.widthSpinCtrl.GetValue(),
                     'size':dlg.sizeSpinCtrl.GetValue(),
                     'string':dlg.textTextCtrl.GetValue(),
-                    'pos':(0,0)
+                    'pos':self.pos
                 }
             })
             wx.PostEvent(self.parent, evt)
@@ -188,7 +188,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Bind(FloatCanvas.EVT_RIGHT_DOWN,self.context_menu)
         self.Bind(EVT_CANVAS_CONTEXT_MENU, self.callback_context_menu)
 
-
         self.Show()
         self.ZoomToBB()
         self.delta = 1.2
@@ -198,12 +197,11 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.bmp_object = None
 
     def context_menu(self,event):
+        pos_menu=wx.GetMousePosition() - self.GetScreenPosition() 
         if isinstance(event,wx.PyCommandEvent):
-            pos=event.GetPosition()
-            self.PopupMenu(ContextMenu(self,pos), pos)
+            self.PopupMenu(ContextMenu(self,event.Coords), pos_menu)
         elif isinstance(event,ScaledTextBox):
-            pos=wx.GetMousePosition() - self.GetScreenPosition() 
-            self.PopupMenu(ContextMenu(self,pos,2,event), pos)
+            self.PopupMenu(ContextMenu(self,event.XY,2,event), pos_menu)
 
     def callback_context_menu(self,event):
         if event.data['event_type']=='add_text':
@@ -222,7 +220,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
                 'font_size': data['size']
 
             }
-            self.add_text(text_dict)
+            self.add_text(text_dict,False)
         elif event.data['event_type']=='edit_text':
             data=event.data['event_data']
             font=data.Font
@@ -274,7 +272,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             self.RemoveObject(self.bmp_object)
             self.Draw(True)
 
-    def add_text(self,text,Force=True):
+    def add_text(self,text,invert=True,Force=True):
         #     'x': None,
         #     'y': None,
         #     'w': None,
@@ -287,9 +285,11 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         #     'max_width': None,
         #     'font_size': None
         #     }
+        if invert:
+            text['y']=-text['y']
         text_box=self.AddScaledTextBox(
                 String=text['string'],
-                Point=(text['x'],-text['y']),
+                Point=(text['x'],text['y']),
                 Size=text['font_size'],
                 Color = "Black",
                 BackgroundColor = "White",
