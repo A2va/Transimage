@@ -237,7 +237,7 @@ class Transimage(wx.Frame):
         self.open=self.toolBar.AddTool(wx.ID_ANY,"Open Image",wx.Bitmap("icons/open_file.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Open Image',wx.EmptyString,None)
         self.Bind(wx.EVT_TOOL,self.open_file,self.open)
 
-        self.save=self.toolBar.AddTool(wx.ID_ANY,"Save",wx.Bitmap("icons/save.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Save',wx.EmptyString,None)
+        self.save=self.toolBar.AddTool(wx.ID_ANY,"Save",wx.Bitmap("icons/save.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Save project (shift click for save as)',"Save project (shift click for save as)",None)
         self.Bind(wx.EVT_TOOL,self.save_file,self.save)
 
         self.save_image=self.toolBar.AddTool(wx.ID_ANY,"Save",wx.Bitmap("icons/save_image.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Save Image','Save with png and jpeg format',None)
@@ -437,18 +437,25 @@ class Transimage(wx.Frame):
         else:
             self.file_dict['img']=jsonpickle.encode(self.img) 
 
-        if self.file_dict['path'] is None:
-            wildcard = "JSON File (*.json)|*.json"
-            with wx.FileDialog(self, "Save Json File", wildcard=wildcard,
-                style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
-                    if fileDialog.ShowModal() == wx.ID_CANCEL:
-                        return 
-                    self.file_dict['name']=fileDialog.GetFilename()
-                    self.file_dict['path']=fileDialog.GetPath()
-                    with open(fileDialog.GetPath(),'w') as file:
+        shift=wx.GetKeyState(wx.WXK_SHIFT)
+        if shift:#normal save
+            if self.file_dict['path'] is None:
+               self.save_file_dialog()
+            else:
+                with open(self.file_dict['path'],'w') as file:
                         file.write(jsonpickle.dumps(self.file_dict))
-        else:
-            with open(self.file_dict['path'],'w') as file:
+        else:#Save as   
+           self.save_file_dialog()
+
+    def save_file_dialog(self):          
+        wildcard = "JSON File (*.json)|*.json"
+        with wx.FileDialog(self, "Save Json File", wildcard=wildcard,
+            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+                if fileDialog.ShowModal() == wx.ID_CANCEL:
+                    return 
+                self.file_dict['name']=fileDialog.GetFilename()
+                self.file_dict['path']=fileDialog.GetPath()
+                with open(fileDialog.GetPath(),'w') as file:
                     file.write(jsonpickle.dumps(self.file_dict))
 
     def save_image_file(self,event):
