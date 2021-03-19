@@ -72,13 +72,14 @@ def create_settings_file():
 
 class ImageFile():
     def __init__(self):
-        self.file_path=None
+        self.path=None
         self.translator=None
         self.ocr=None
         self.src_lang=None
         self.dest_lang=None
         self.img=None
         self.name=None
+        self.text_list=None
 
 
 class ImageProcess(threading.Thread):
@@ -387,6 +388,7 @@ class Transimage(wx.Frame):
     def open_file(self,event):
         event.Skip()
         self.file_dict['path']=None
+        self.img_file.path=None
         wildcard = "Open Image/Project Files (*.jpg;*jpeg;*.png,*.json)|*.jpeg;*.jpg;*.png;*.json|"\
                     "PNG file (*.png)|*.png|"\
                     "JPG file (*.jpg;*.jpeg)|*.jpg;*.jpeg|"\
@@ -396,14 +398,16 @@ class Transimage(wx.Frame):
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
             self.file_path = fileDialog.GetPath()
-            if self.file_path.endswith('json'):
+         
+            if self.file_path.endswith('transimg'):
                 with open(self.file_path,'r') as file:
-                    self.file_dict=jsonpickle.loads(file.read())
-                self.img=jsonpickle.decode(self.file_dict['img'])
-                self.translator_engine=self.file_dict['translator']
-                self.ocr=self.file_dict['ocr']
-                self.src_lang=self.file_dict['src_lang']
-                self.dest_lang=self.file_dict['dest_lang']
+                        self.img_file=pickle.load(file)
+
+                self.img=self.img_file.img
+                self.translator_engine=self.img_file.translator
+                self.ocr=self.img_file.ocr
+                self.src_lang=self.img_file.src_lang
+                self.dest_lang=self.img_file.dest_lang
 
                 if self.ocr is not None:
                     item=self.ocrCombo.FindString(self.ocr)
@@ -427,7 +431,7 @@ class Transimage(wx.Frame):
 
                 self.imageCanvas.clear()
                 self.imageCanvas.set_image(self.img)
-                self.imageCanvas.add_text_from_list(self.file_dict['text_list'])
+                self.imageCanvas.add_text_from_list(self.img_file.text_list)
                 
             else:          
                 self.img = cv2.imread(self.file_path)
@@ -436,27 +440,26 @@ class Transimage(wx.Frame):
 
     def save_file(self,event):
 
-        self.file_dict['text_list']=self.imageCanvas.text[0]
-        self.file_dict['dest_lang']=self.dest_lang
-        self.file_dict['src_lang']=self.src_lang
-        self.file_dict['ocr']=self.ocr
-        self.file_dict['translator']=self.translator_engine
-        
+        self.img_file.text_list=self.imageCanvas.text[0]
+        self.img_file.dest_lang=self.dest_lang
+        self.img_file.src_lang=self.src_lang
+        self.img_file.ocr=self.ocr
+
         if self.translator is not None:
             if self.translator is not None:     
-                self.file_dict['img']=jsonpickle.encode(self.translator.img_process) 
+                self.img_file.img=self.translator.img_process 
             else:
-                self.file_dict['img']=jsonpickle.encode(self.img)
+                self.img_file.img=self.img
         else:
-            self.file_dict['img']=jsonpickle.encode(self.img) 
+            self.img_file.img=self.img
 
         shift=wx.GetKeyState(wx.WXK_SHIFT)
         if shift:#normal save
-            if self.file_dict['path'] is None:
+            if self.img_file.path is None:
                self.save_file_dialog()
             else:
-                with open(self.file_dict['path'],'w') as file:
-                        file.write(jsonpickle.dumps(self.file_dict))
+                with open(self.img_file.path,'w') as file:
+                        pickle.dump(self.img_file,file)
         else:#Save as   
            self.save_file_dialog()
 
@@ -466,10 +469,10 @@ class Transimage(wx.Frame):
             style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
                 if fileDialog.ShowModal() == wx.ID_CANCEL:
                     return 
-                self.file_dict['name']=fileDialog.GetFilename()
-                self.file_dict['path']=fileDialog.GetPath()
+                self.img_file.name=fileDialog.GetFilename()
+                self.img_file.path=fileDialog.GetPath()
                 with open(fileDialog.GetPath(),'w') as file:
-                    file.write(jsonpickle.dumps(self.file_dict))
+                    pickle.dump(self.img_file,file)
 
     def save_image_file(self,event):
         event.Skip()
@@ -537,7 +540,7 @@ class Transimage(wx.Frame):
             log.debug('Saving the image')
             wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
             with wx.FileDialog(self, "Save Image File", wildcard=wildcard,
-            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,defaultFile=self.file_dict['name']) as fileDialog:
+            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,defaultFile=self.img_file.name) as fileDialog:
             
                 if fileDialog.ShowModal() == wx.ID_CANCEL:
                     return 
