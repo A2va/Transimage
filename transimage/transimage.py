@@ -22,8 +22,10 @@ import logging
 import cv2
 import numpy as np
 import jsonpickle
+import pickle
 import pathos.multiprocessing as p_multiprocessing
 import wx
+from wx.core import Width
 import wx.lib.newevent
 from image_translator.image_translator import ImageTranslator
 
@@ -66,6 +68,17 @@ def create_settings_file():
     setting_file=open(SETTINGS_FILE,'w')
     json.dump(setting_dict,setting_file)
     setting_file.close()
+
+
+class ImageFile():
+    def __init__(self):
+        self.file_path=None
+        self.translator=None
+        self.ocr=None
+        self.src_lang=None
+        self.dest_lang=None
+        self.img=None
+        self.name=None
 
 
 class ImageProcess(threading.Thread):
