@@ -157,7 +157,7 @@ class ContextMenu(wx.Menu):
                     'width':dlg.widthSpinCtrl.GetValue(),
                     'size':dlg.sizeSpinCtrl.GetValue(),
                     'string':dlg.textTextCtrl.GetValue(),
-                    'pos':(0,0)
+                    'pos':self.pos
                 }
             })
             wx.PostEvent(self.parent, evt)
@@ -178,7 +178,8 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
     def __init__(self, *args, **kwargs):
         FloatCanvas.FloatCanvas.__init__(self, *args, **kwargs)
-        self.text=[]
+        #([Text dict],[text object (wxpython)],[some data])
+        self.text=([],[],[])
 
         #Canvas Event
         self.Bind(wx.EVT_MOUSEWHEEL,self.zoom)
@@ -187,39 +188,39 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Bind(FloatCanvas.EVT_RIGHT_DOWN,self.context_menu)
         self.Bind(EVT_CANVAS_CONTEXT_MENU, self.callback_context_menu)
 
-
         self.Show()
         self.ZoomToBB()
         self.delta = 1.2
         self.MoveObject = None
         self.Moving = False
 
+        self.bmp_object = None
+
     def context_menu(self,event):
+        pos_menu=wx.GetMousePosition() - self.GetScreenPosition() 
         if isinstance(event,wx.PyCommandEvent):
-            pos=event.GetPosition()
-            self.PopupMenu(ContextMenu(self,pos), pos)
+            self.PopupMenu(ContextMenu(self,event.Coords), pos_menu)
         elif isinstance(event,ScaledTextBox):
-            pos=wx.GetMousePosition() - self.GetScreenPosition() 
-            self.PopupMenu(ContextMenu(self,pos,2,event), pos)
-
-    def clear(self):
-        self.ClearAll()
-        self.text.clear()
-        self.Draw(True)
-
-    def delete_text(self,text,Force=True):
-        self.RemoveObject(text)
-        self.Draw(Force)
-
-    def delete_all_text(self):
-        for text in self.text:
-            self.delete_text(text,False)
-        self.Draw(True) 
+            self.PopupMenu(ContextMenu(self,event.XY,2,event), pos_menu)
 
     def callback_context_menu(self,event):
         if event.data['event_type']=='add_text':
             data=event.data['event_data']
-            self.add_text(data['string'],'',data['pos'],data['width'],data['size'])
+            text_dict= {
+                'x': data['pos'][0],
+                'y': data['pos'][1],
+                'w': data['width'],
+                'h': None,
+                'paragraph_w': None,
+                'paragraph_h': None,
+                'string':data['string'],
+                'translated_string': '',
+                'image': None,
+                'max_width': None,
+                'font_size': data['size']
+
+            }
+            self.add_text(text_dict,False)
         elif event.data['event_type']=='edit_text':
             data=event.data['event_data']
             font=data.Font
@@ -238,31 +239,16 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             data=event.data['event_data']
             self.delete_text(data)
 
-    def add_text(self,string,translated_string,pos,width,size):
-        text=self.AddScaledTextBox(
-                String=string,
-                Point=pos,
-                Size=size,
-                Color = "Black",
-                BackgroundColor = "White",
-                LineStyle = "Transparent",
-                Width = width,
-                Position = 'tl',
-                LineSpacing = 1,
-                Alignment = "left",
-                Font=wx.Font(size, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell"))
-        text.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.start_move)
-        text.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit_text)
-        text.Bind(FloatCanvas.EVT_FC_RIGHT_DOWN,self.context_menu)
 
-        self.text.append( {
-                'original_text':string,
-                'original_translated':translated_string,
-                'text_object':text
-            })
+    def clear(self):
+        self.ClearAll()
+        self.text[0].clear()
+        self.text[1].clear()
+        self.text[2].clear()
+        self.bmp_object=None
         self.Draw(True)
 
-    def update_image(self,image):
+    def set_image(self,image):
         #For PIL Image
         # self.img=wx.EmptyImage(image.size[0],image.size[1])
         # self.img.setData(image.convert("RGB").tostring())
@@ -273,11 +259,103 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         # self.AddScaledBitmap(self.img,(10,10),image.size[1],'cc')
         height, width = image.shape[:2]
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        self.delete_img()
         self.bmp = wx.Bitmap.FromBuffer(width, height, image)
-        self.AddScaledBitmap(self.bmp,(0,0),height,'tl')
+        self.bmp_object=self.AddScaledBitmap(self.bmp,(0,0),height,'tl')
 
         self.Draw(True)
         self.ZoomToBB()
+
+    def delete_img(self):
+        if self.bmp_object is not None:
+            self.RemoveObject(self.bmp_object)
+            self.Draw(True)
+
+    def add_text(self,text,invert=True,Force=True):
+        #     'x': None,
+        #     'y': None,
+        #     'w': None,
+        #     'h': None,
+        #     'paragraph_w': None,
+        #     'paragraph_h': None,
+        #     'string':None,
+        #     'translated_string': None,
+        #     'image': None,
+        #     'max_width': None,
+        #     'font_size': None
+        #     }
+        if invert:
+            text['y']=-text['y']
+        text_box=self.AddScaledTextBox(
+                String=text['string'],
+                Point=(text['x'],text['y']),
+                Size=text['font_size'],
+                Color = "Black",
+                BackgroundColor = "White",
+                LineStyle = "Transparent",
+                Width = text['max_width'],
+                Position = 'tl',
+                LineSpacing = 1,
+                Alignment = "left",
+                Font=wx.Font(text['font_size'], wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, "Cantarell"))
+        text_box.Bind(FloatCanvas.EVT_FC_LEFT_DOWN, self.start_move)
+        text_box.Bind(FloatCanvas.EVT_FC_LEFT_DCLICK,self.edit_text)
+        text_box.Bind(FloatCanvas.EVT_FC_RIGHT_DOWN,self.context_menu)
+
+        self.text[0].append(text)
+        self.text[1].append(text_box)
+        self.text[2].append(  {
+            'original_text':text['string'],
+            'original_translated':text['translated_string'],
+        })
+    
+        self.Draw(Force)
+
+    def add_text_from_list(self,texts):
+        #text: [
+            #     'x': None,
+            #     'y': None,
+            #     'w': None,
+            #     'h': None,
+            #     'paragraph_w': None,
+            #     'paragraph_h': None,
+            #     'string':None,
+            #     'translated_string': None,
+            #     'image': None,
+            #     'max_width': None,
+            #     'font_size': None
+            #     }
+        # ]
+        for text in texts:
+            self.add_text(text,False)     
+        self.Draw(True)
+
+    def update_text_dict(self,text_object):
+        item=self.text[1].index(text_object)
+
+        text_object.CalcBoundingBox()
+        pos=text_object.XY
+        x=pos[0]
+        y=abs(pos[1])
+
+        self.text[0][item]['x']=x
+        self.text[0][item]['y']=y
+        self.text[0][item]['w']=text_object.BoxWidth
+        self.text[0][item]['h']=text_object.BoxHeight
+        self.text[0][item]['string']=text_object.String
+        self.text[0][item]['font_size']=text_object.Size
+
+        if self.text[2][item]['original_translated']!='':
+                string=self.text[2][item]['original_text']
+                if text_object.String != string:
+                    pass
+                    #string=self.translator.run_translator(text_object.String)
+                else:
+                    string=self.text[2][item]['original_translated']
+        else:
+            pass
+            #string= self.translator.run_translator(text_object.String) 
 
     def edit_text(self,event):
         string=event.String
@@ -292,32 +370,42 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             event.SetText(dlg.textTextCtrl.GetValue())
             event.Size=dlg.sizeSpinCtrl.GetValue()
             event.Width=dlg.widthSpinCtrl.GetValue()
+            
+            self.update_text_dict(event)#Udate the text dict to actual value
             self.Draw(True)
+
+    def delete_text(self,text,Force=True):
+        item=self.text[1].index(text)
+
+        self.RemoveObject(text)
+        self.text[0].pop(item)
+        self.text[1].pop(item)
+        self.text[2].pop(item)
+        self.Draw(Force)
+
+    def delete_all_text(self):
+        for text in self.text:
+            self.delete_text(text,False)
+        self.Draw(True) 
 
     def zoom(self, wheel):
         #http://wxpython-users.1045709.n5.nabble.com/Hold-shift-ctrl-mouse-click-td2363641.html
         ctrl=wheel.ControlDown()
         shift=wheel.ShiftDown()
         if ctrl:
-            if wheel.WheelRotation==-120: #Scroll down
+            if wheel.WheelRotation==-120: #Zoom out
                 self.Zoom(1/self.delta)
-            elif wheel.WheelRotation==120: #Scroll up
+            elif wheel.WheelRotation==120: #Zoom in
                 self.Zoom(self.delta)
             self.Draw(True)
-        elif shift:
+        elif shift:#Move lef-right
             Rot = wheel.GetWheelRotation()
             Rot = Rot / abs(Rot) * 0.1
-            if wheel.ControlDown(): # move up-down
-                self.MoveImage( (0, Rot), "Panel" )
-            else: # move up-down
-                self.MoveImage( (Rot, 0), "Panel" )
-        else:
+            self.MoveImage( (Rot, 0), "Panel" )
+        else:#move up-down
             Rot = wheel.GetWheelRotation()
             Rot = Rot / abs(Rot) * 0.1
-            if wheel.ControlDown(): # move left-right
-                self.MoveImage( (Rot, 0), "Panel" )
-            else: # move up-down
-                self.MoveImage( (0, Rot), "Panel" )
+            self.MoveImage( (0, Rot), "Panel" )
 
     def start_move(self, object):
         if not self.Moving:
@@ -359,4 +447,5 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
                 dxy = self.ScalePixelToWorld(dxy)
                 self.MovingObject.Move(dxy)
                 self.MoveTri = None
+                self.update_text_dict(self.MovingObject)
             self.Draw(True)

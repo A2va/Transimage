@@ -58,21 +58,93 @@ class SettingsDialog(wx.Dialog):
         # Page 1: General 
 
         page1Sizer = wx.BoxSizer(wx.VERTICAL)
+        page1Sizer.AddSpacer(10)
+
         self.page_1 = wx.Panel(self.notebook, wx.ID_ANY)
         self.page_1.SetForegroundColour(BACKGROUND_COLOR)
         self.page_1.SetBackgroundColour(BACKGROUND_COLOR)
         self.notebook.AddPage(self.page_1, "General")
 
-        self.page_1Text = wx.StaticText(self.page_1, wx.ID_ANY, "Nothing to see in this page")
-        self.page_1Text.SetForegroundColour(TEXT_COLOR)
-        self.page_1Text.SetFont(wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-        page1Sizer.Add(self.page_1Text,1,wx.ALL|wx.ALIGN_CENTER,5)
+        defaultTranslatorSizer = wx.BoxSizer(wx.HORIZONTAL)
+        defaultTranslatorSizer.AddSpacer(10)
+
+        self.defaultTranslatorText = wx.StaticText(self.page_1, wx.ID_ANY, "Default translator:")
+        self.defaultTranslatorText.SetForegroundColour(TEXT_COLOR)
+        self.defaultTranslatorText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        defaultTranslatorSizer.Add(self.defaultTranslatorText,1,wx.ALL,0)
+        defaultTranslatorSizer.AddSpacer(10)
+
+        self.defaultTranslatorCombo = wx.ComboBox(self.page_1, wx.ID_ANY, choices=["Deepl","Bing"], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.defaultTranslatorCombo.SetBackgroundColour(BACKGROUND_COLOR)
+        self.defaultTranslatorCombo.SetForegroundColour(TEXT_COLOR) #For text
+        self.defaultTranslatorCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.defaultTranslatorCombo.Bind(wx.EVT_COMBOBOX,self.update_default_translator)
+        defaultTranslatorSizer.Add(self.defaultTranslatorCombo,0,wx.ALL|wx.EXPAND,0)
+
+        defaultOcrSizer = wx.BoxSizer(wx.HORIZONTAL)
+        defaultOcrSizer.AddSpacer(10)
+
+        self.defaultOcrText = wx.StaticText(self.page_1, wx.ID_ANY, "Default OCR:")
+        self.defaultOcrText.SetForegroundColour(TEXT_COLOR)
+        self.defaultOcrText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        defaultOcrSizer.Add(self.defaultOcrText,1,wx.ALL,0)
+        defaultOcrSizer.AddSpacer(10)
+
+        self.defaultOcrCombo = wx.ComboBox(self.page_1, wx.ID_ANY, choices=["Tesseract","Easyocr"], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.defaultOcrCombo.SetBackgroundColour(BACKGROUND_COLOR)
+        self.defaultOcrCombo.SetForegroundColour(TEXT_COLOR) #For text
+        self.defaultOcrCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.defaultOcrCombo.Bind(wx.EVT_COMBOBOX,self.update_default_ocr)
+        defaultOcrSizer.Add(self.defaultOcrCombo,0,wx.ALL|wx.EXPAND,0)
+
+        defaultSrclangSizer = wx.BoxSizer(wx.HORIZONTAL)
+        defaultSrclangSizer.AddSpacer(10)
+
+        self.defaultSrclangText = wx.StaticText(self.page_1, wx.ID_ANY, "Default source language:")
+        self.defaultSrclangText.SetForegroundColour(TEXT_COLOR)
+        self.defaultSrclangText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        defaultSrclangSizer.Add(self.defaultSrclangText,1,wx.ALL,0)
+        defaultSrclangSizer.AddSpacer(10)
+
+        self.defaultSrclangCombo = wx.ComboBox(self.page_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.defaultSrclangCombo.SetBackgroundColour(BACKGROUND_COLOR)
+        self.defaultSrclangCombo.SetForegroundColour(TEXT_COLOR) #For text
+        self.defaultSrclangCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.defaultSrclangCombo.Bind(wx.EVT_COMBOBOX,self.update_default_src_lang)
+        defaultSrclangSizer.Add(self.defaultSrclangCombo,0,wx.ALL|wx.EXPAND,0)
+
+        defaultDestlangSizer = wx.BoxSizer(wx.HORIZONTAL)
+        defaultDestlangSizer.AddSpacer(10)
+
+        self.defaultDestlangText = wx.StaticText(self.page_1, wx.ID_ANY, "Default source language:")
+        self.defaultDestlangText.SetForegroundColour(TEXT_COLOR)
+        self.defaultDestlangText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        defaultDestlangSizer.Add(self.defaultDestlangText,1,wx.ALL,0)
+        defaultDestlangSizer.AddSpacer(10)
+
+        self.defaultDestlangCombo = wx.ComboBox(self.page_1, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.defaultDestlangCombo.SetBackgroundColour(BACKGROUND_COLOR)
+        self.defaultDestlangCombo.SetForegroundColour(TEXT_COLOR) #For text
+        self.defaultDestlangCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.defaultDestlangCombo.Bind(wx.EVT_COMBOBOX,self.update_default_dest_lang)
+        defaultDestlangSizer.Add(self.defaultDestlangCombo,0,wx.ALL|wx.EXPAND,0)
+
+
+        page1Sizer.Add(defaultTranslatorSizer, 0, wx.ALL,0)
+        page1Sizer.AddSpacer(10)
+        page1Sizer.Add(defaultOcrSizer, 0, wx.ALL,0)
+        page1Sizer.AddSpacer(10)
+        page1Sizer.Add(defaultSrclangSizer, 0, wx.ALL,0)
+        page1Sizer.AddSpacer(10)
+        page1Sizer.Add(defaultDestlangSizer, 0, wx.ALL,0)
 
         self.page_1.SetSizer(page1Sizer)
 
         # Page 2: Language Pack
 
         page2Sizer = wx.BoxSizer(wx.VERTICAL)
+        page2Sizer.AddSpacer(10)
+
         self.page_2 = wx.Panel(self.notebook, wx.ID_ANY)
         self.page_2.SetForegroundColour(BACKGROUND_COLOR)
         self.page_2.SetBackgroundColour(BACKGROUND_COLOR)
@@ -119,14 +191,49 @@ class SettingsDialog(wx.Dialog):
 
         with open(SETTINGS_FILE,'r') as settings_file:
             self.settings=json.load(settings_file)
-            for item in range(self.lang_CheckList.GetCount()):
-                string =self.lang_CheckList.GetString(item).lower()
-                checked=self.settings['language_pack'][TO_LANG_CODE[string]]
-                self.lang_CheckList.Check(item,checked)
-    
-                self.lang_CheckList.SetItemBackgroundColour(item,BACKGROUND_COLOR)
-                self.lang_CheckList.SetItemForegroundColour(item,TEXT_COLOR)
 
+        #Load all the available language
+        for item in range(self.lang_CheckList.GetCount()):
+            string =self.lang_CheckList.GetString(item).lower()
+            checked=self.settings['language_pack'][TO_LANG_CODE[string]]
+            self.lang_CheckList.Check(item,checked)
+
+            self.lang_CheckList.SetItemBackgroundColour(item,BACKGROUND_COLOR)
+            self.lang_CheckList.SetItemForegroundColour(item,TEXT_COLOR)
+
+        #Load the language for the default selection (only the intsalled language)
+        for lang in self.settings['language_pack']:
+            if self.settings['language_pack'][lang]:
+                self.defaultDestlangCombo.Append(TO_LANG_NAME[lang].capitalize())
+                self.defaultSrclangCombo.Append(TO_LANG_NAME[lang].capitalize())
+
+        item=self.defaultSrclangCombo.FindString(TO_LANG_NAME[self.settings['default_src_lang']])
+        if item !=-1:
+            self.defaultSrclangCombo.SetSelection(item)
+            
+        item=self.defaultDestlangCombo.FindString(TO_LANG_NAME[self.settings['default_dest_lang']])
+        if item !=-1:
+            self.defaultDestlangCombo.SetSelection(item)
+
+        item=self.defaultOcrCombo.FindString(self.settings['default_ocr'])
+        if item !=-1:
+            self.defaultOcrCombo.SetSelection(item)
+
+        item=self.defaultTranslatorCombo.FindString(self.settings['default_translator'])
+        if item !=-1:
+            self.defaultTranslatorCombo.SetSelection(item)
+
+    def update_default_ocr(self,event):
+        self.settings['default_ocr']=event.String.lower()
+
+    def update_default_translator(self,event):
+        self.settings['default_translator']=event.String.lower()
+
+    def update_default_src_lang(self,event):
+        self.settings['default_src_lang']=TO_LANG_CODE[event.String.lower()]
+
+    def update_default_dest_lang(self,event):
+        self.settings['default_dest_lang']=TO_LANG_CODE[event.String.lower()]
 
     def apply(self,event):
         #Format the CheckListBox to a dict
@@ -146,6 +253,10 @@ class SettingsDialog(wx.Dialog):
         self.settings['language_pack']=checked_lang
         with open(SETTINGS_FILE,'w') as settings_file:
             json.dump(self.settings,settings_file)
+    
+    def EndModal(self, retCode):
+
+        return super().EndModal(wx.ID_OK)
 
 def download_lang(lang,parent):
   
