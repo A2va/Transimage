@@ -83,15 +83,15 @@ class ImageFile():
 
 
 class ImageProcess(threading.Thread):
-    def __init__(self,notify_window,img, ocr, translator, src_lang, dest_lang,mode_process=True):
+    def __init__(self,notify_window,img_file,mode_process=True):
         super(ImageProcess, self).__init__()
         self.notify_window = notify_window
         self.mode_process=mode_process
-        self.img=img
-        self.ocr=ocr
-        self.translator=translator
-        self.src_lang=src_lang
-        self.dest_lang=dest_lang
+        self.img=img_file.img
+        self.ocr=img_file.ocr
+        self.translator=img_file.translator
+        self.src_lang=img_file.src_lang
+        self.dest_lang=img_file.dest_lang
         self.image_translator=ImageTranslator(self.img,self.ocr,self.translator,self.src_lang, self.dest_lang)
         self.process=p_multiprocessing.ProcessingPool()
     def run(self):
@@ -182,12 +182,14 @@ class Transimage(wx.Frame):
         
         log.debug('Init the main frame (Transimage)')
 
-        self.file_path=''
-        self.translator_engine=''
-        self.ocr=''
-        self.src_lang=''
-        self.dest_lang=''
-        self.translator=None
+        self.image_translator=None
+
+
+        self.img_file=ImageFile()
+        self.img_file.dest_lang=''
+        self.img_file.src_lang=''
+        self.img_file.translator=''
+        self.img_file.ocr=''
 
         self.file_dict={
             'img': None,
@@ -397,61 +399,47 @@ class Transimage(wx.Frame):
         style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
-            self.file_path = fileDialog.GetPath()
+            self.img.file_path = fileDialog.GetPath()
          
             if self.file_path.endswith('transimg'):
                 with open(self.file_path,'r') as file:
                         self.img_file=pickle.load(file)
 
-                self.img=self.img_file.img
-                self.translator_engine=self.img_file.translator
-                self.ocr=self.img_file.ocr
-                self.src_lang=self.img_file.src_lang
-                self.dest_lang=self.img_file.dest_lang
-
-                if self.ocr is not None:
-                    item=self.ocrCombo.FindString(self.ocr)
+                if self.img_file.ocr is not None:
+                    item=self.ocrCombo.FindString(self.img_file.ocr)
                     self.ocrCombo.SetSelection(item)
-                if self.translator_engine is not None:
-                    item=self.translatorCombo.FindString(self.translator_engine)
+                if self.img.translator is not None:
+                    item=self.translatorCombo.FindString(self.img_file.translator)
                     self.translatorCombo.SetSelection(item)
-                if self.src_lang is not None:
-                    item=self.src_langCombo.FindString(TO_LANG_NAME[self.src_lang])
+                if self.img_file.src_lang is not None:
+                    item=self.src_langCombo.FindString(TO_LANG_NAME[self.img_file.src_lang])
                     if item !=-1:
                         self.src_langCombo.SetSelection(item)
                     else:
                         wx.MessageDialog(None, "The source language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
 
-                if self.dest_lang is not None:    
-                    item=self.dest_langCombo.FindString(TO_LANG_NAME[self.dest_lang])
+                if self.img_file.dest_lang is not None:    
+                    item=self.dest_langCombo.FindString(TO_LANG_NAME[self.img_file.dest_lang])
                     if item !=-1:
                         self.dest_langCombo.SetSelection(item)
                     else:
                         wx.MessageDialog(None, "The destination language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
 
                 self.imageCanvas.clear()
-                self.imageCanvas.set_image(self.img)
+                self.imageCanvas.set_image(self.img_file.img)
                 self.imageCanvas.add_text_from_list(self.img_file.text_list)
                 
             else:          
-                self.img = cv2.imread(self.file_path)
+                self.img_file.img = cv2.imread(self.file_path)
                 self.imageCanvas.clear()
-                self.imageCanvas.set_image(self.img)
+                self.imageCanvas.set_image(self.img_file.img)
 
     def save_file(self,event):
 
         self.img_file.text_list=self.imageCanvas.text[0]
-        self.img_file.dest_lang=self.dest_lang
-        self.img_file.src_lang=self.src_lang
-        self.img_file.ocr=self.ocr
 
-        if self.translator is not None:
-            if self.translator is not None:     
-                self.img_file.img=self.translator.img_process 
-            else:
-                self.img_file.img=self.img
-        else:
-            self.img_file.img=self.img
+        if self.image_translator is not None:
+            self.img_file.img=self.image_translator.img_process
 
         shift=wx.GetKeyState(wx.WXK_SHIFT)
         if shift:#normal save
@@ -478,11 +466,11 @@ class Transimage(wx.Frame):
         event.Skip()
         #Translate the image
         log.debug('Start the tranlsation of image')
-        self.translator.text.clear()
-        self.translator.text=self.imageCanvas.text[0]
+        self.image_translator.text.clear()
+        self.image_translator.text=self.imageCanvas.text[0]
        
-        self.processImage=ImageProcess(self,self.translator.img_out, self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
-        self.processImage.image_translator=self.translator
+        self.processImage=ImageProcess(self,self.img_file)
+        self.processImage.image_translator=self.image_translator
         self.processImage.mode_process=False
         self.processImage.start()
 
@@ -514,11 +502,11 @@ class Transimage(wx.Frame):
         
     def update_translator(self,event):
         string=event.String.lower()
-        self.translator_engine=string
+        self.img.translator=string
 
     def update_ocr(self,event):
         string=event.String.lower()
-        self.ocr=string
+        self.img_file.ocr=string
 
     def update_src_lang(self,event):
         string=event.String.lower()
@@ -530,12 +518,12 @@ class Transimage(wx.Frame):
 
     def callback_image_process(self,event):
         self.progressDialog.Close()
-        self.translator=event.data[0]
+        self.image_translator=event.data[0]
         if self.processImage.mode_process==True:
             log.debug('End of the processing')
             self.imageCanvas.clear()
-            self.imageCanvas.set_image(self.translator.img_process)
-            self.imageCanvas.add_text_from_list(self.translator.text)
+            self.imageCanvas.set_image(self.image_translator.img_process)
+            self.imageCanvas.add_text_from_list(self.image_translator.text)
         else:#Saving image
             log.debug('Saving the image')
             wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
@@ -544,7 +532,7 @@ class Transimage(wx.Frame):
             
                 if fileDialog.ShowModal() == wx.ID_CANCEL:
                     return 
-                cv2.imwrite(fileDialog.GetPath(),self.translator.img_out)
+                cv2.imwrite(fileDialog.GetPath(),self.image_translator.img_out)
 
     def add_text(self,event):
         text= {
@@ -570,14 +558,14 @@ class Transimage(wx.Frame):
                 download(model_url['detector'][0],'easyocr/model/',progress_dialog,DETECTOR_FILENAME)
                 progress_dialog.Destroy()
 
-            if self.src_lang ==self.dest_lang:
+            if self.src_lang ==self.img_file.dest_lang:
                 wx.MessageDialog(None, 'The source and destination lang cannot be the same', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
-            elif self.src_lang == '' or self.dest_lang=='' or self.translator_engine=='' or self.ocr=='':
+            elif self.src_lang == '' or self.img_file.dest_lang=='' or self.img_file.translator=='' or self.img_file.ocr=='':
                 wx.MessageDialog(None, 'One on the combox are empty', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
-            elif self.file_path=='':
+            elif self.img.file_path=='':
                 wx.MessageDialog(None, 'Any image or file are open', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
             else:
-                self.processImage=ImageProcess(self,self.img, self.ocr, self.translator_engine, self.src_lang, self.dest_lang)
+                self.processImage=ImageProcess(self,self.img_file)
                 self.processImage.start()
 
                 self.progressDialog = ProgressingDialog(self)
