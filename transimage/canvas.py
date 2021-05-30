@@ -196,6 +196,8 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
         self.bmp_object = None
 
+        self.MaxScale = 1.3396
+
     def context_menu(self,event):
         pos_menu=wx.GetMousePosition() - self.GetScreenPosition() 
         if isinstance(event,wx.PyCommandEvent):
@@ -328,7 +330,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             #     }
         # ]
         for text in texts:
-            self.add_text(text,False)     
+            self.add_text(text)     
         self.Draw(True)
 
     def update_text_dict(self,text_object):
