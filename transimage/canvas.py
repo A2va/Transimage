@@ -288,10 +288,10 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         #     'font_size': None
         #     }
         if invert:
-            text['y']=-text['y']
+            y=-text['y']
         text_box=self.AddScaledTextBox(
                 String=text['string'],
-                Point=(text['x'],text['y']),
+                Point=(text['x'],y),
                 Size=text['font_size'],
                 Color = "Black",
                 BackgroundColor = "White",
