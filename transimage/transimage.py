@@ -20,11 +20,9 @@ import time
 import logging
 
 import cv2
-import numpy as np
 import pickle
 import pathos.multiprocessing as p_multiprocessing
 import wx
-from wx.core import Width
 import wx.lib.newevent
 from image_translator.image_translator import ImageTranslator
 
@@ -49,74 +47,84 @@ log.setLevel(logging.WARNING)
 
 EvtImageProcess, EVT_IMAGE_PROCESS = wx.lib.newevent.NewEvent()
 
+
 class ImageProcessError(Exception):
     pass
 
-def create_settings_file():
-    setting_dict={
-        'language_pack':TO_LANG_NAME.copy(),
-        'default_src_lang':'eng',
-        'default_dest_lang':'fra',
-        'default_ocr':'tesseract',
-        'default_translator':'bing'
-    }
-    
-    for lang in setting_dict['language_pack']:
-        setting_dict['language_pack'][lang]=False
 
-    setting_file=open(SETTINGS_FILE,'w')
-    json.dump(setting_dict,setting_file)
+def create_settings_file():
+    setting_dict = {
+        'language_pack': TO_LANG_NAME.copy(),
+        'default_src_lang': 'eng',
+        'default_dest_lang': 'fra',
+        'default_ocr': 'tesseract',
+        'default_translator': 'bing'
+    }
+
+    for lang in setting_dict['language_pack']:
+        setting_dict['language_pack'][lang] = False
+
+    setting_file = open(SETTINGS_FILE, 'w')
+    json.dump(setting_dict, setting_file)
     setting_file.close()
 
 
 class ImageFile():
     def __init__(self):
-        self.path=None
-        self.translator=None
-        self.ocr=None
-        self.src_lang=None
-        self.dest_lang=None
-        self.img=None
-        self.name=None
-        self.text_list=None
+        self.path = None
+        self.translator = None
+        self.ocr = None
+        self.src_lang = None
+        self.dest_lang = None
+        self.img = None
+        self.name = None
+        self.text_list = None
 
 
 class ImageProcess(threading.Thread):
-    def __init__(self,notify_window,img_file,mode_process=True):
+    def __init__(self, notify_window, img_file, mode_process=True):
         super(ImageProcess, self).__init__()
         self.notify_window = notify_window
-        self.mode_process=mode_process
-        self.img=img_file.img
-        self.ocr=img_file.ocr
-        self.translator=img_file.translator
-        self.src_lang=img_file.src_lang
-        self.dest_lang=img_file.dest_lang
-        self.image_translator=ImageTranslator(self.img,self.ocr,self.translator,self.src_lang, self.dest_lang)
-        self.process=p_multiprocessing.ProcessingPool()
+        self.mode_process = mode_process
+        self.img = img_file.img
+        self.ocr = img_file.ocr
+        self.translator = img_file.translator
+        self.src_lang = img_file.src_lang
+        self.dest_lang = img_file.dest_lang
+        self.image_translator = ImageTranslator(self.img, self.ocr,
+                                                self.translator,
+                                                self.src_lang, self.dest_lang)
+        self.process = p_multiprocessing.ProcessingPool()
+
     def run(self):
         try:
-            self.stop=False
-            if self.mode_process ==True:
-                results = self.process.amap(ImageProcess.worker_process,[self.image_translator])
+            self.stop = False
+            if self.mode_process:
+                results = self.process.amap(ImageProcess.worker_process,
+                                            [self.image_translator])
             else:
-                results = self.process.amap(ImageProcess.worker_translate,[self.image_translator])
-            while not results.ready() and self.stop==True:
-                    time.sleep(2)
-            if self.stop==False:
-                self.image_translator=results.get()
-                #self.process.close()
+                results = self.process.amap(ImageProcess.worker_translate,
+                                            [self.image_translator])
+            while not results.ready() and self.stop:
+                time.sleep(2)
+            if self.stop:
+                self.image_translator = results.get()
+                # self.process.close()
                 evt = EvtImageProcess(data=self.image_translator)
                 wx.PostEvent(self.notify_window, evt)
-        except:
-           log.error(f'ImageProcess got an error (mode_process:{self.mode_process})')
-           raise ImageProcessError(f'ImageProcess got an error (mode_process:{self.mode_process}) look at log file')
+        except ImageProcessError:
+            log.error(
+                f'ImageProcess got an error (mode_process:{self.mode_process})')
+            raise ImageProcessError(
+                f'ImageProcess got an error (mode_process:{self.mode_process}) look at log file')
+
     def abort(self):
-        if self.process !=None:
-            self.stop=True
+        if self.process is not None:
+            self.stop = True
             self.process.terminate()
             self.process.join()
             self.process.restart()
-            self.image_translator=None
+            self.image_translator = None
 
     @staticmethod
     def worker_process(image_translator):
@@ -128,10 +136,13 @@ class ImageProcess(threading.Thread):
         image_translator.translate()
         return image_translator
 
+
 class ProgressingDialog(wx.Dialog):
 
-    def __init__(self,parent):
-        wx.Dialog.__init__ (self,parent,id=wx.ID_ANY, title="Progressing", pos=wx.DefaultPosition,size=wx.Size(200,120),style=wx.DEFAULT_DIALOG_STYLE)
+    def __init__(self, parent):
+        wx.Dialog.__init__(self, parent, id=wx.ID_ANY, title="Progressing",
+                           pos=wx.DefaultPosition, size=wx.Size(200, 120),
+                           style=wx.DEFAULT_DIALOG_STYLE)
 
         self.SetForegroundColour(BACKGROUND_COLOR)
         self.SetBackgroundColour(BACKGROUND_COLOR)
@@ -141,28 +152,31 @@ class ProgressingDialog(wx.Dialog):
 
         textSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.fixedText = wx.StaticText(self,wx.ID_ANY,"Time:",wx.DefaultPosition,wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.fixedText = wx.StaticText(self, wx.ID_ANY, "Time:", wx.DefaultPosition,
+                                       wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
         self.fixedText.SetForegroundColour(TEXT_COLOR)
         self.fixedText.Wrap(-1)
 
-        textSizer.Add(self.fixedText,1,wx.ALIGN_CENTER,5)
+        textSizer.Add(self.fixedText, 1, wx.ALIGN_CENTER, 5)
 
-        self.timeText = wx.StaticText(self, wx.ID_ANY, "0", wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
+        self.timeText = wx.StaticText(self, wx.ID_ANY, "0", wx.DefaultPosition,
+                                      wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL)
         self.timeText.SetForegroundColour(TEXT_COLOR)
 
-        textSizer.Add(self.timeText,1,wx.ALIGN_CENTER|wx.ALL,5)
+        textSizer.Add(self.timeText, 1, wx.ALIGN_CENTER | wx.ALL, 5)
 
-        mainSizer.Add(textSizer,1,wx.ALIGN_CENTER,5)
+        mainSizer.Add(textSizer, 1, wx.ALIGN_CENTER, 5)
 
         buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.cancelButton = wx.Button(self,wx.ID_CANCEL,"Cancel",wx.DefaultPosition,wx.DefaultSize,0)
+        self.cancelButton = wx.Button(self, wx.ID_CANCEL, "Cancel",
+                                      wx.DefaultPosition, wx.DefaultSize, 0)
         self.cancelButton.SetForegroundColour(TEXT_COLOR)
         self.cancelButton.SetBackgroundColour(BACKGROUND_COLOR)
 
-        buttonSizer.Add(self.cancelButton,1,wx.ALIGN_CENTER|wx.ALL,5)
+        buttonSizer.Add(self.cancelButton, 1, wx.ALIGN_CENTER | wx.ALL, 5)
 
-        mainSizer.Add( buttonSizer, 1, wx.ALIGN_CENTER, 5 )
+        mainSizer.Add(buttonSizer, 1, wx.ALIGN_CENTER, 5)
 
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.update_label, self.timer)
@@ -173,51 +187,54 @@ class ProgressingDialog(wx.Dialog):
 
         self.Centre(wx.BOTH)
 
-    def update_label(self,event):
+    def update_label(self, event):
         self.timeText.SetLabel(str(int(self.timeText.Label)+1))
 
+
 class Transimage(wx.Frame):
-    def __init__(self,parent):
-        
+    def __init__(self, parent):
+
         log.debug('Init the main frame (Transimage)')
 
-        self.image_translator=None
+        self.image_translator = None
 
-
-        self.img_file=ImageFile()
-        self.img_file.dest_lang=''
-        self.img_file.src_lang=''
-        self.img_file.translator=''
-        self.img_file.ocr=''
-        self.img_file.path=''
+        self.img_file = ImageFile()
+        self.img_file.dest_lang = ''
+        self.img_file.src_lang = ''
+        self.img_file.translator = ''
+        self.img_file.ocr = ''
+        self.img_file.path = ''
 
         self.init_ui(parent)
 
         if not os.path.exists(SETTINGS_FILE):
-            open(SETTINGS_FILE,'w+').close()
+            open(SETTINGS_FILE, 'w+').close()
             create_settings_file()
 
-        with open(SETTINGS_FILE,'r') as settings_file:
-            settings=json.load(settings_file)
+        with open(SETTINGS_FILE, 'r') as settings_file:
+            settings = json.load(settings_file)
             for lang in settings['language_pack']:
                 if settings['language_pack'][lang]:
                     self.dest_langCombo.Append(TO_LANG_NAME[lang].capitalize())
                     self.src_langCombo.Append(TO_LANG_NAME[lang].capitalize())
 
-            item=self.src_langCombo.FindString(TO_LANG_NAME[settings['default_src_lang']])
-            if item !=-1:
+            item = self.src_langCombo.FindString(
+                TO_LANG_NAME[settings['default_src_lang']])
+            if item != -1:
                 self.src_langCombo.SetSelection(item)
-                
-            item=self.dest_langCombo.FindString(TO_LANG_NAME[settings['default_dest_lang']])
-            if item !=-1:
+
+            item = self.dest_langCombo.FindString(
+                TO_LANG_NAME[settings['default_dest_lang']])
+            if item != -1:
                 self.dest_langCombo.SetSelection(item)
 
-            item=self.ocrCombo.FindString(settings['default_ocr'])
-            if item !=-1:
+            item = self.ocrCombo.FindString(settings['default_ocr'])
+            if item != -1:
                 self.ocrCombo.SetSelection(item)
 
-            item=self.translatorCombo.FindString(settings['default_translator'])
-            if item !=-1:
+            item = self.translatorCombo.FindString(
+                settings['default_translator'])
+            if item != -1:
                 self.translatorCombo.SetSelection(item)
 
             self.img_file.translator = settings['default_translator']
@@ -225,150 +242,209 @@ class Transimage(wx.Frame):
             self.img_file.src_lang = settings['default_src_lang']
             self.img_file.dest_lang = settings['default_dest_lang']
 
-    def init_ui(self,parent):
-        wx.Frame.__init__(self,parent,id=wx.ID_ANY,title="Transimage",pos=wx.DefaultPosition,size=wx.Size(1200,500),style=wx.DEFAULT_FRAME_STYLE)
+    def init_ui(self, parent):
+        wx.Frame.__init__(self, parent, id=wx.ID_ANY, title="Transimage",
+                          pos=wx.DefaultPosition, size=wx.Size(1200, 500),
+                          style=wx.DEFAULT_FRAME_STYLE)
         self.locale = wx.Locale(wx.LANGUAGE_ENGLISH)
 
-        self.SetSizeHints(wx.DefaultSize,wx.DefaultSize)
+        self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
         self.SetForegroundColour(BACKGROUND_COLOR)
         self.SetBackgroundColour(BACKGROUND_COLOR)
 
-        mainSizer= wx.BoxSizer(wx.HORIZONTAL)
+        mainSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         # Toolbar
-        self.toolBar= wx.ToolBar(self,wx.ID_ANY,wx.DefaultPosition,wx.DefaultSize,wx.TB_VERTICAL)
+        self.toolBar = wx.ToolBar(self, wx.ID_ANY, wx.DefaultPosition,
+                                  wx.DefaultSize, wx.TB_VERTICAL)
         self.SetToolBar(self.toolBar)
         self.toolBar.SetForegroundColour(BACKGROUND_COLOR)
         self.toolBar.SetBackgroundColour(BACKGROUND_COLOR)
 
-        self.logo=self.toolBar.AddTool(wx.ID_ANY,"Logo",wx.Bitmap("icons/logo.png"),wx.NullBitmap,wx.ITEM_NORMAL ,wx.EmptyString,wx.EmptyString,None)
-        self.Bind(wx.EVT_TOOL,self.context_menu,self.logo)
+        self.logo = self.toolBar.AddTool(wx.ID_ANY, "Logo",
+                                         wx.Bitmap("icons/logo.png"),
+                                         wx.NullBitmap, wx.ITEM_NORMAL,
+                                         wx.EmptyString, wx.EmptyString)
+        self.Bind(wx.EVT_TOOL, self.context_menu, self.logo)
 
-        self.open=self.toolBar.AddTool(wx.ID_ANY,"Open Image",wx.Bitmap("icons/open_file.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Open Image',wx.EmptyString,None)
-        self.Bind(wx.EVT_TOOL,self.open_file,self.open)
+        self.open = self.toolBar.AddTool(wx.ID_ANY, "Open Image",
+                                         wx.Bitmap("icons/open_file.png"),
+                                         wx.NullBitmap, wx.ITEM_NORMAL,
+                                         'Open Image', wx.EmptyString)
+        self.Bind(wx.EVT_TOOL, self.open_file, self.open)
 
-        self.save=self.toolBar.AddTool(wx.ID_ANY,"Save",wx.Bitmap("icons/save.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Save project (shift click for save as)',"Save project (shift click for save as)",None)
-        self.Bind(wx.EVT_TOOL,self.save_file,self.save)
+        self.save = self.toolBar.AddTool(wx.ID_ANY, "Save",
+                                         wx.Bitmap("icons/save.png"),
+                                         wx.NullBitmap, wx.ITEM_NORMAL,
+                                         'Save project (shift click for save as)',
+                                         wx.EmptyString)
+        self.Bind(wx.EVT_TOOL, self.save_file, self.save)
 
-        self.save_image=self.toolBar.AddTool(wx.ID_ANY,"Save",wx.Bitmap("icons/save_image.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Save Image','Save with png and jpeg format',None)
-        self.Bind(wx.EVT_TOOL,self.save_image_file,self.save_image)
+        self.save_image = self.toolBar.AddTool(wx.ID_ANY, "Save",
+                                               wx.Bitmap("icons/save_image.png"),
+                                               wx.NullBitmap,
+                                               wx.ITEM_NORMAL,
+                                               'Save Image',
+                                               'Save with png and jpeg format')
+        self.Bind(wx.EVT_TOOL, self.save_image_file, self.save_image)
 
-        self.about=self.toolBar.AddTool(wx.ID_ANY,"About",wx.Bitmap("icons/info.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'About',wx.EmptyString,None)
-        self.Bind(wx.EVT_TOOL,self.about_menu,self.about)
+        self.about = self.toolBar.AddTool(wx.ID_ANY, "About",
+                                          wx.Bitmap("icons/info.png"),
+                                          wx.NullBitmap, wx.ITEM_NORMAL,
+                                          'About', wx.EmptyString)
+        self.Bind(wx.EVT_TOOL, self.about_menu, self.about)
 
-        self.help=self.toolBar.AddTool(wx.ID_ANY,"Help",wx.Bitmap("icons/help.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Help',wx.EmptyString,None)
-        self.Bind(wx.EVT_TOOL,self.help_menu,self.help)
+        self.help = self.toolBar.AddTool(wx.ID_ANY, "Help",
+                                         wx.Bitmap("icons/help.png"),
+                                         wx.NullBitmap, wx.ITEM_NORMAL,
+                                         'Help', wx.EmptyString)
+        self.Bind(wx.EVT_TOOL, self.help_menu, self.help)
 
-        self.settings=self.toolBar.AddTool(wx.ID_ANY,"Settings",wx.Bitmap("icons/settings.png"),wx.NullBitmap,wx.ITEM_NORMAL ,'Settings',wx.EmptyString,None)
-        self.Bind(wx.EVT_TOOL,self.settings_menu,self.settings)
+        self.settings = self.toolBar.AddTool(wx.ID_ANY, "Settings",
+                                             wx.Bitmap("icons/settings.png"),
+                                             wx.NullBitmap, wx.ITEM_NORMAL,
+                                             'Settings', wx.EmptyString)
+        self.Bind(wx.EVT_TOOL, self.settings_menu, self.settings)
 
         self.toolBar.Realize()
 
-        imageSizer= wx.BoxSizer(wx.HORIZONTAL)
-        
-        #Image Canvas
-        self.imageCanvas=DisplayCanvas(self,id=wx.ID_ANY,size=wx.DefaultSize,ProjectionFun=None,BackgroundColor=CANVAS_COLOR)
+        imageSizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        # Image Canvas
+        self.imageCanvas = DisplayCanvas(self, id=wx.ID_ANY, size=wx.DefaultSize,
+                                         ProjectionFun=None,
+                                         BackgroundColor=CANVAS_COLOR)
         self.imageCanvas.SetForegroundColour(CANVAS_COLOR)
         self.imageCanvas.SetBackgroundColour(CANVAS_COLOR)
 
-        imageSizer.Add(self.imageCanvas,3,wx.EXPAND)
-        mainSizer.Add(imageSizer,3,wx.EXPAND,1)
+        imageSizer.Add(self.imageCanvas, 3, wx.EXPAND)
+        mainSizer.Add(imageSizer, 3, wx.EXPAND, 1)
 
-        
-        editSizer=wx.BoxSizer(wx.VERTICAL)
-        #Source Language
-        src_langSizer=wx.BoxSizer(wx.HORIZONTAL)
+        editSizer = wx.BoxSizer(wx.VERTICAL)
+        # Source Language
+        src_langSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.src_langText = wx.StaticText(self, wx.ID_ANY, "Source Language")
         self.src_langText.SetForegroundColour(TEXT_COLOR)
-        self.src_langText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.src_langText.SetFont(wx.Font(LABEL_SIZE,
+                                          wx.FONTFAMILY_DEFAULT,
+                                          wx.FONTSTYLE_NORMAL,
+                                          wx.FONTWEIGHT_NORMAL, 0, ""))
 
-        self.src_langCombo = wx.ComboBox(self, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.src_langCombo = wx.ComboBox(
+            self, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
         self.src_langCombo.SetBackgroundColour(BACKGROUND_COLOR)
-        self.src_langCombo.SetForegroundColour(TEXT_COLOR)  #For text
-        self.src_langCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-        self.src_langCombo.Bind(wx.EVT_COMBOBOX,self.update_src_lang)
+        self.src_langCombo.SetForegroundColour(TEXT_COLOR)  # For text
+        self.src_langCombo.SetFont(wx.Font(LABEL_SIZE,
+                                           wx.FONTFAMILY_DEFAULT,
+                                           wx.FONTSTYLE_NORMAL,
+                                           wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.src_langCombo.Bind(wx.EVT_COMBOBOX, self.update_src_lang)
 
         src_langSizer.Add(self.src_langText, 0, wx.ALL | wx.EXPAND, 0)
         src_langSizer.AddSpacer(10)
         src_langSizer.Add(self.src_langCombo, 0, wx.ALL | wx.EXPAND, 0)
 
-        #Destination Language
-        dest_langSizer=wx.BoxSizer(wx.HORIZONTAL)
+        # Destination Language
+        dest_langSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.dest_langText = wx.StaticText(self, wx.ID_ANY, "Destination Language")
+        self.dest_langText = wx.StaticText(
+            self, wx.ID_ANY, "Destination Language")
         self.dest_langText.SetForegroundColour(TEXT_COLOR)
-        self.dest_langText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.dest_langText.SetFont(wx.Font(LABEL_SIZE,
+                                           wx.FONTFAMILY_DEFAULT,
+                                           wx.FONTSTYLE_NORMAL,
+                                           wx.FONTWEIGHT_NORMAL, 0, ""))
 
-        self.dest_langCombo = wx.ComboBox(self, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.dest_langCombo = wx.ComboBox(
+            self, wx.ID_ANY, choices=[], style=wx.CB_DROPDOWN | wx.CB_SORT)
         self.dest_langCombo.SetBackgroundColour(BACKGROUND_COLOR)
-        self.dest_langCombo.SetForegroundColour(TEXT_COLOR) #For text
-        self.dest_langCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-        self.dest_langCombo.Bind(wx.EVT_COMBOBOX,self.update_dest_lang)
+        self.dest_langCombo.SetForegroundColour(TEXT_COLOR)  # For text
+        self.dest_langCombo.SetFont(wx.Font(LABEL_SIZE,
+                                            wx.FONTFAMILY_DEFAULT,
+                                            wx.FONTSTYLE_NORMAL,
+                                            wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.dest_langCombo.Bind(wx.EVT_COMBOBOX, self.update_dest_lang)
 
         dest_langSizer.Add(self.dest_langText, 0, wx.ALL, 0)
         dest_langSizer.AddSpacer(10)
         dest_langSizer.Add(self.dest_langCombo, 0, wx.ALL, 0)
 
-        #Translator
-        translatorSizer=wx.BoxSizer(wx.HORIZONTAL)
+        # Translator
+        translatorSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.translatorText = wx.StaticText(self, wx.ID_ANY, "Translator")
         self.translatorText.SetForegroundColour(TEXT_COLOR)
-        self.translatorText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.translatorText.SetFont(wx.Font(LABEL_SIZE,
+                                            wx.FONTFAMILY_DEFAULT,
+                                            wx.FONTSTYLE_NORMAL,
+                                            wx.FONTWEIGHT_NORMAL, 0, ""))
 
-        self.translatorCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Deepl","Google"], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.translatorCombo = wx.ComboBox(self, wx.ID_ANY,
+                                           choices=["Deepl", "Google"],
+                                           style=wx.CB_DROPDOWN | wx.CB_SORT)
         self.translatorCombo.SetBackgroundColour(BACKGROUND_COLOR)
-        self.translatorCombo.SetForegroundColour(TEXT_COLOR) #For text
-        self.translatorCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-        self.translatorCombo.Bind(wx.EVT_COMBOBOX,self.update_translator)
+        self.translatorCombo.SetForegroundColour(TEXT_COLOR)  # For text
+        self.translatorCombo.SetFont(wx.Font(LABEL_SIZE,
+                                             wx.FONTFAMILY_DEFAULT,
+                                             wx.FONTSTYLE_NORMAL,
+                                             wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.translatorCombo.Bind(wx.EVT_COMBOBOX, self.update_translator)
 
         translatorSizer.Add(self.translatorText, 0, wx.ALL | wx.EXPAND, 0)
         translatorSizer.AddSpacer(10)
         translatorSizer.Add(self.translatorCombo, 0, wx.ALL | wx.EXPAND, 0)
 
-        #OCR
-        ocrSizer=wx.BoxSizer(wx.HORIZONTAL)
+        # OCR
+        ocrSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.ocrText = wx.StaticText(self, wx.ID_ANY, "OCR")
         self.ocrText.SetForegroundColour(TEXT_COLOR)
-        self.ocrText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.ocrText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT,
+                             wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 
-        self.ocrCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Tesseract","Easyocr"], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.ocrCombo = wx.ComboBox(self, wx.ID_ANY,
+                                    choices=["Tesseract", "Easyocr"],
+                                    style=wx.CB_DROPDOWN | wx.CB_SORT)
         self.ocrCombo.SetBackgroundColour(BACKGROUND_COLOR)
-        self.ocrCombo.SetForegroundColour(TEXT_COLOR) #For text
-        self.ocrCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
-        self.ocrCombo.Bind(wx.EVT_COMBOBOX,self.update_ocr)
+        self.ocrCombo.SetForegroundColour(TEXT_COLOR)  # For text
+        self.ocrCombo.SetFont(wx.Font(LABEL_SIZE,
+                                      wx.FONTFAMILY_DEFAULT,
+                                      wx.FONTSTYLE_NORMAL,
+                                      wx.FONTWEIGHT_NORMAL, 0, ""))
+        self.ocrCombo.Bind(wx.EVT_COMBOBOX, self.update_ocr)
 
         ocrSizer.Add(self.ocrText, 0, wx.ALL | wx.EXPAND, 0)
         ocrSizer.AddSpacer(10)
         ocrSizer.Add(self.ocrCombo, 0, wx.ALL | wx.EXPAND, 0)
 
-        #Button
-        buttonSizer=wx.BoxSizer(wx.HORIZONTAL)
+        # Button
+        buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.processButton = wx.Button(self,wx.ID_ANY,"Run processing",wx.DefaultPosition,wx.DefaultSize,0)
-        self.processButton.Bind(wx.EVT_BUTTON,self.process_image)
+        self.processButton = wx.Button(
+            self, wx.ID_ANY, "Run processing", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.processButton.Bind(wx.EVT_BUTTON, self.process_image)
         self.processButton.SetForegroundColour(TEXT_COLOR)
         self.processButton.SetBackgroundColour(BACKGROUND_COLOR)
 
-        buttonSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
+        buttonSizer.Add(self.processButton, 1, wx.ALL | wx.ALIGN_CENTER, 5)
 
-        self.textButton= wx.Button(self,wx.ID_ANY,"Add text",wx.DefaultPosition,wx.DefaultSize,0)
-        self.textButton.Bind(wx.EVT_BUTTON,self.add_text)
+        self.textButton = wx.Button(
+            self, wx.ID_ANY, "Add text", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.textButton.Bind(wx.EVT_BUTTON, self.add_text)
         self.textButton.SetForegroundColour(TEXT_COLOR)
         self.textButton.SetBackgroundColour(BACKGROUND_COLOR)
-        
-        buttonSizer.Add(self.textButton,1,wx.ALL | wx.ALIGN_CENTER,5)
 
-        editSizer.Add(src_langSizer,1,wx.ALL,5)
-        editSizer.Add(dest_langSizer,1,wx.ALL,5)
-        editSizer.Add(translatorSizer, 1, wx.ALL,5)
-        editSizer.Add(ocrSizer,1,wx.ALL,5)
-        #editSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
-        editSizer.Add(buttonSizer,1,wx.ALL | wx.ALIGN_CENTER,5)
+        buttonSizer.Add(self.textButton, 1, wx.ALL | wx.ALIGN_CENTER, 5)
 
-        mainSizer.Add(editSizer,1,0,5)
+        editSizer.Add(src_langSizer, 1, wx.ALL, 5)
+        editSizer.Add(dest_langSizer, 1, wx.ALL, 5)
+        editSizer.Add(translatorSizer, 1, wx.ALL, 5)
+        editSizer.Add(ocrSizer, 1, wx.ALL, 5)
+        # editSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
+        editSizer.Add(buttonSizer, 1, wx.ALL | wx.ALIGN_CENTER, 5)
+
+        mainSizer.Add(editSizer, 1, 0, 5)
 
         self.Bind(EVT_IMAGE_PROCESS, self.callback_image_process)
 
@@ -377,195 +453,212 @@ class Transimage(wx.Frame):
 
         self.Centre(wx.BOTH)
 
-
-    def context_menu(self,event):
+    def context_menu(self, event):
         event.Skip()
 
-    def open_file(self,event):
+    def open_file(self, event):
         event.Skip()
-        self.img_file.path=None
-        wildcard = "Open Image/Project Files (*.jpg;*jpeg;*.png,*.transimg)|*.jpeg;*.jpg;*.png;*.transimg|"\
-                    "PNG file (*.png)|*.png|"\
-                    "JPG file (*.jpg;*.jpeg)|*.jpg;*.jpeg|"\
-                    "Transimg file (*.transimg)|*.transimg"
+        self.img_file.path = None
+        wildcard = """Open Image/Project Files (*.jpg;*jpeg;*.png,*.transimg)
+        |*.jpeg;*.jpg;*.png;*.transimg|"""\
+            "PNG file (*.png)|*.png|"\
+            "JPG file (*.jpg;*.jpeg)|*.jpg;*.jpeg|"\
+            "Transimg file (*.transimg)|*.transimg"
         with wx.FileDialog(self, "Open File", wildcard=wildcard,
-        style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
             file_path = fileDialog.GetPath()
-         
+
             if file_path.endswith('transimg'):
-                with open(file_path,'rb') as file:
-                        self.img_file=pickle.load(file)
+                with open(file_path, 'rb') as file:
+                    self.img_file = pickle.load(file)
 
                 if self.img_file.ocr is not None:
-                    item=self.ocrCombo.FindString(self.img_file.ocr)
+                    item = self.ocrCombo.FindString(self.img_file.ocr)
                     self.ocrCombo.SetSelection(item)
                 if self.img_file.translator is not None:
-                    item=self.translatorCombo.FindString(self.img_file.translator)
+                    item = self.translatorCombo.FindString(
+                        self.img_file.translator)
                     self.translatorCombo.SetSelection(item)
                 if self.img_file.src_lang is not None:
-                    item=self.src_langCombo.FindString(TO_LANG_NAME[self.img_file.src_lang])
-                    if item !=-1:
+                    item = self.src_langCombo.FindString(
+                        TO_LANG_NAME[self.img_file.src_lang])
+                    if item != -1:
                         self.src_langCombo.SetSelection(item)
                     else:
-                        wx.MessageDialog(None, "The source language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+                        wx.MessageDialog(None, "The source language in the doesn't installed",
+                                         'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
 
-                if self.img_file.dest_lang is not None:    
-                    item=self.dest_langCombo.FindString(TO_LANG_NAME[self.img_file.dest_lang])
-                    if item !=-1:
+                if self.img_file.dest_lang is not None:
+                    item = self.dest_langCombo.FindString(
+                        TO_LANG_NAME[self.img_file.dest_lang])
+                    if item != -1:
                         self.dest_langCombo.SetSelection(item)
                     else:
-                        wx.MessageDialog(None, "The destination language in the doesn't installed", 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+                        wx.MessageDialog(None, """The destination language in the
+                                          doesn't installed""",
+                                         'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
 
                 self.imageCanvas.clear()
                 self.imageCanvas.set_image(self.img_file.img)
                 self.imageCanvas.add_text_from_list(self.img_file.text_list)
 
-                self.image_translator = ImageTranslator(self.img_file.img,self.img_file.ocr,self.img_file.translator,
-                                                        self.img_file.src_lang,self.img_file.dest_lang)
+                self.image_translator = ImageTranslator(self.img_file.img,
+                                                        self.img_file.ocr,
+                                                        self.img_file.translator,
+                                                        self.img_file.src_lang,
+                                                        self.img_file.dest_lang)
                 self.image_translator.img_process = self.img_file.img
                 self.image_translator.text = self.img_file.text_list
 
-            else:          
+            else:
                 self.img_file.img = cv2.imread(file_path)
                 self.img_file.path = file_path
                 self.imageCanvas.clear()
                 self.imageCanvas.set_image(self.img_file.img)
 
-    def save_file(self,event):
+    def save_file(self, event):
 
-        self.img_file.text_list=self.imageCanvas.text[0]
+        self.img_file.text_list = self.imageCanvas.text[0]
 
         if self.image_translator is not None:
-            self.img_file.img=self.image_translator.img_process
+            self.img_file.img = self.image_translator.img_process
 
-        shift=wx.GetKeyState(wx.WXK_SHIFT)
-        if shift:#normal save
+        shift = wx.GetKeyState(wx.WXK_SHIFT)
+        if shift:  # normal save
             if self.img_file.path is None:
-               self.save_file_dialog()
+                self.save_file_dialog()
             else:
-                with open(self.img_file.path,'w') as file:
-                        pickle.dump(self.img_file,file)
-        else:#Save as   
-           self.save_as_file_dialog()
+                with open(self.img_file.path, 'w') as file:
+                    pickle.dump(self.img_file, file)
+        else:  # Save as
+            self.save_as_file_dialog()
 
-    def save_as_file_dialog(self):          
+    def save_as_file_dialog(self):
         wildcard = "Transimg File (*.transimg)|*.transimg"
         with wx.FileDialog(self, "Save Transimg File", wildcard=wildcard,
-            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
-                if fileDialog.ShowModal() == wx.ID_CANCEL:
-                    return 
-                self.img_file.name=fileDialog.GetFilename()
-                self.img_file.path=fileDialog.GetPath()
-                with open(fileDialog.GetPath(),'wb') as file:
-                    pickle.dump(self.img_file,file)
+                           style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            self.img_file.name = fileDialog.GetFilename()
+            self.img_file.path = fileDialog.GetPath()
+            with open(fileDialog.GetPath(), 'wb') as file:
+                pickle.dump(self.img_file, file)
 
-    def save_image_file(self,event):
+    def save_image_file(self, event):
         event.Skip()
-        #Translate the image
+        # Translate the image
         log.debug('Start the translation of image')
-        self.image_translator.text=self.imageCanvas.text[0]
-       
-        self.processImage=ImageProcess(self,self.img_file)
-        self.processImage.image_translator=self.image_translator
-        self.processImage.mode_process=False
+        self.image_translator.text = self.imageCanvas.text[0]
+
+        self.processImage = ImageProcess(self, self.img_file)
+        self.processImage.image_translator = self.image_translator
+        self.processImage.mode_process = False
         self.processImage.start()
 
-        #Progressing dialog
+        # Progressing dialog
         self.progressDialog = ProgressingDialog(self)
-        if self.progressDialog.ShowModal()==wx.ID_CANCEL:
+        if self.progressDialog.ShowModal() == wx.ID_CANCEL:
             self.processImage.abort()
 
-    def about_menu(self,event):
+    def about_menu(self, event):
         event.Skip()
         print('about_menu')
 
-    def help_menu(self,event):
+    def help_menu(self, event):
         event.Skip()
         print('help_menu')
 
-    def settings_menu(self,event):
+    def settings_menu(self, event):
         event.Skip()
         dlg = SettingsDialog(self)
         if dlg.ShowModal() == wx.ID_OK:
             self.src_langCombo.Clear()
             self.dest_langCombo.Clear()
             for lang in dlg.settings['language_pack']:
-                    if dlg.settings['language_pack'][lang]:
-                        self.dest_langCombo.Append(TO_LANG_NAME[lang].capitalize())
-                        self.src_langCombo.Append(TO_LANG_NAME[lang].capitalize())
-            with open(SETTINGS_FILE,'w') as settings_file:
-                json.dump(dlg.settings,settings_file)
-        
-    def update_translator(self,event):
-        string=event.String.lower()
-        self.img_file.translator=string
+                if dlg.settings['language_pack'][lang]:
+                    self.dest_langCombo.Append(TO_LANG_NAME[lang].capitalize())
+                    self.src_langCombo.Append(TO_LANG_NAME[lang].capitalize())
+            with open(SETTINGS_FILE, 'w') as settings_file:
+                json.dump(dlg.settings, settings_file)
 
-    def update_ocr(self,event):
-        string=event.String.lower()
-        self.img_file.ocr=string
+    def update_translator(self, event):
+        string = event.String.lower()
+        self.img_file.translator = string
 
-    def update_src_lang(self,event):
-        string=event.String.lower()
-        self.img_file.src_lang=TO_LANG_CODE[string]
+    def update_ocr(self, event):
+        string = event.String.lower()
+        self.img_file.ocr = string
 
-    def update_dest_lang(self,event):
-        string=event.String.lower()
-        self.img_file.dest_lang=TO_LANG_CODE[string]
+    def update_src_lang(self, event):
+        string = event.String.lower()
+        self.img_file.src_lang = TO_LANG_CODE[string]
 
-    def callback_image_process(self,event):
+    def update_dest_lang(self, event):
+        string = event.String.lower()
+        self.img_file.dest_lang = TO_LANG_CODE[string]
+
+    def callback_image_process(self, event):
         self.progressDialog.Close()
-        self.image_translator=event.data[0]
-        if self.processImage.mode_process==True:
+        self.image_translator = event.data[0]
+        if self.processImage.mode_process:
             log.debug('End of the processing')
             self.imageCanvas.clear()
             self.imageCanvas.set_image(self.image_translator.img_process)
             self.imageCanvas.add_text_from_list(self.image_translator.text)
-        else:#Saving image
+        else:  # Saving image
             log.debug('Saving the image')
             wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
             with wx.FileDialog(self, "Save Image File", wildcard=wildcard,
-            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,defaultFile=self.img_file.name) as fileDialog:
-            
-                if fileDialog.ShowModal() == wx.ID_CANCEL:
-                    return 
-                cv2.imwrite(fileDialog.GetPath(),self.image_translator.img_out)
+                               style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
+                               defaultFile=self.img_file.name) as fileDialog:
 
-    def add_text(self,event):
-        text= {
-                'x': 0,
-                'y': 0,
-                'w': 50,
-                'h': None,
-                'paragraph_w': None,
-                'paragraph_h': None,
-                'string':'Text placeholder',
-                'translated_string': None,
-                'image': None,
-                'max_width': 50,
-                'font_size': 30
-                }
-        
+                if fileDialog.ShowModal() == wx.ID_CANCEL:
+                    return
+                cv2.imwrite(fileDialog.GetPath(),
+                            self.image_translator.img_out)
+
+    def add_text(self, event):
+        text = {
+            'x': 0,
+            'y': 0,
+            'w': 50,
+            'h': None,
+            'paragraph_w': None,
+            'paragraph_h': None,
+            'string': 'Text placeholder',
+            'translated_string': None,
+            'image': None,
+            'max_width': 50,
+            'font_size': 30
+        }
+
         self.imageCanvas.add_text(text)
 
-    def process_image(self,event):
-            log.debug('Start the processing of image')
-            if not os.path.exists(f'easyocr/model/{DETECTOR_FILENAME}'):
-                progress_dialog=wx.ProgressDialog('Download','Detector model',maximum=100,parent=self)
-                download(model_url['detector'][0],'easyocr/model/',progress_dialog,DETECTOR_FILENAME)
-                progress_dialog.Destroy()
+    def process_image(self, event):
+        log.debug('Start the processing of image')
+        if not os.path.exists(f'easyocr/model/{DETECTOR_FILENAME}'):
+            progress_dialog = wx.ProgressDialog(
+                'Download', 'Detector model', maximum=100, parent=self)
+            download(model_url['detector'][0], 'easyocr/model/',
+                     progress_dialog, DETECTOR_FILENAME)
+            progress_dialog.Destroy()
 
-            if self.img_file.src_lang ==self.img_file.dest_lang:
-                wx.MessageDialog(None, 'The source and destination lang cannot be the same', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
-            elif self.img_file.src_lang == '' or self.img_file.dest_lang=='' or self.img_file.translator=='' or self.img_file.ocr=='':
-                wx.MessageDialog(None, 'One on the combox are empty', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
-            elif self.img_file.path=='':
-                wx.MessageDialog(None, 'Any image or file are open', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
-            else:
-                self.processImage=ImageProcess(self,self.img_file)
-                self.processImage.start()
+        if self.img_file.src_lang == self.img_file.dest_lang:
+            wx.MessageDialog(None, 'The source and destination lang cannot be the same',
+                             'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+        elif (self.img_file.src_lang == '' or self.img_file.dest_lang == ''
+              or self.img_file.translator == '' or self.img_file.ocr == ''):
+            wx.MessageDialog(None, 'One on the combox are empty',
+                             'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+        elif self.img_file.path == '':
+            wx.MessageDialog(None, 'Any image or file are open',
+                             'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
+        else:
+            self.processImage = ImageProcess(self, self.img_file)
+            self.processImage.start()
 
-                self.progressDialog = ProgressingDialog(self)
-                if self.progressDialog.ShowModal()==wx.ID_CANCEL:
-                    self.processImage.abort()
+            self.progressDialog = ProgressingDialog(self)
+            if self.progressDialog.ShowModal() == wx.ID_CANCEL:
+                self.processImage.abort()
