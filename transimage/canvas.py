@@ -13,13 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from typing import List, Tuple
+
 import logging
 
 import cv2
 import numpy as np
 import wx
 from wx.lib.floatcanvas import FloatCanvas
-from wx.lib.floatcanvas.FCObjects import ScaledTextBox
+from wx.lib.floatcanvas.FCObjects import ScaledTextBox, ScaledBitmap
 
 from transimage.config import BACKGROUND_COLOR, TEXT_COLOR
 
@@ -42,13 +44,14 @@ class EditDialog (wx.Dialog):
         self.SetBackgroundColour(BACKGROUND_COLOR)
         self.SetMinSize(wx.Size(400, 200))
 
-        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        mainSizer: wx.BoxSizer = wx.BoxSizer(wx.VERTICAL)
 
-        sizeSizer = wx.BoxSizer(wx.HORIZONTAL)
+        sizeSizer: wx.BoxSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.sizeText = wx.StaticText(self, wx.ID_ANY, "Size",
-                                      wx.DefaultPosition,
-                                      wx.DefaultSize, wx.ALIGN_LEFT)
+        self.sizeText: wx.StaticText = wx.StaticText(self, wx.ID_ANY, "Size",
+                                                     wx.DefaultPosition,
+                                                     wx.DefaultSize,
+                                                     wx.ALIGN_LEFT)
         self.sizeText.SetForegroundColour(TEXT_COLOR)
         self.sizeText.Wrap(-1)
 
@@ -83,10 +86,11 @@ class EditDialog (wx.Dialog):
 
         mainSizer.Add(sizeSizer, 1, wx.EXPAND, 5)
 
-        textSizer = wx.BoxSizer(wx.VERTICAL)
+        textSizer: wx.BoxSizer = wx.BoxSizer(wx.VERTICAL)
 
-        self.textText = wx.StaticText(self, wx.ID_ANY, "Text",
-                                      wx.DefaultPosition, wx.DefaultSize, 0)
+        self.textText: wx.StaticText = wx.StaticText(self, wx.ID_ANY, "Text",
+                                                     wx.DefaultPosition,
+                                                     wx.DefaultSize, 0)
         self.textText.SetForegroundColour(TEXT_COLOR)
 
         self.textText.Wrap(-1)
@@ -94,9 +98,11 @@ class EditDialog (wx.Dialog):
         textSizer.Add(self.textText, 0, wx.ALL, 5)
 
         # Change for ExpandoTextCtrl in wx.lib.expando
-        self.textTextCtrl = wx.TextCtrl(self, wx.ID_ANY, wx.EmptyString,
-                                        wx.DefaultPosition,
-                                        wx.DefaultSize, wx.TE_MULTILINE)
+        self.textTextCtrl: wx.TextCtrl = wx.TextCtrl(self, wx.ID_ANY,
+                                                     wx.EmptyString,
+                                                     wx.DefaultPosition,
+                                                     wx.DefaultSize,
+                                                     wx.TE_MULTILINE)
         self.textTextCtrl.SetForegroundColour(TEXT_COLOR)
         self.textTextCtrl.SetBackgroundColour(BACKGROUND_COLOR)
         # self.textTextCtrl.SetFont(font)
@@ -107,14 +113,16 @@ class EditDialog (wx.Dialog):
 
         buttonSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.okButton = wx.Button(
-            self, wx.ID_OK, "OK", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.okButton: wx.Button = wx.Button(self, wx.ID_OK, "OK",
+                                             wx.DefaultPosition,
+                                             wx.DefaultSize, 0)
         self.okButton.SetForegroundColour(TEXT_COLOR)
         self.okButton.SetBackgroundColour(BACKGROUND_COLOR)
         buttonSizer.Add(self.okButton, 1, wx.ALIGN_CENTER | wx.ALL, 5)
 
-        self.cancelButton = wx.Button(self, wx.ID_CANCEL, "Cancel",
-                                      wx.DefaultPosition, wx.DefaultSize, 0)
+        self.cancelButton: wx.Button = wx.Button(self, wx.ID_CANCEL, "Cancel",
+                                                 wx.DefaultPosition,
+                                                 wx.DefaultSize, 0)
         self.cancelButton.SetForegroundColour(TEXT_COLOR)
         self.cancelButton.SetBackgroundColour(BACKGROUND_COLOR)
         buttonSizer.Add(self.cancelButton, 1, wx.ALIGN_CENTER | wx.ALL, 5)
@@ -144,26 +152,28 @@ class ContextMenu(wx.Menu):
         super(ContextMenu, self).__init__()
 
         self.parent = parent
-        self.font = wx.Font(30, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL,
-                            wx.FONTWEIGHT_NORMAL, False, "Cantarell")
+        self.font: wx.Font = wx.Font(30, wx.FONTFAMILY_DEFAULT,
+                                     wx.FONTSTYLE_NORMAL,
+                                     wx.FONTWEIGHT_NORMAL,
+                                     False, "Cantarell")
         self.pos = pos
         self.text = text
 
-        add_text = wx.MenuItem(self, wx.NewIdRef(), 'Add Text')
+        add_text: wx.MenuItem = wx.MenuItem(self, wx.NewIdRef(), 'Add Text')
         self.Append(add_text)
         self.Bind(wx.EVT_MENU, self.add_text, add_text)
 
         if type >= 1:
-            edit_text = wx.MenuItem(self, wx.NewIdRef(), 'Edit Text')
+            edit_text: wx.MenuItem = wx.MenuItem(self, wx.NewIdRef(), 'Edit Text')
             self.Append(edit_text)
             self.Bind(wx.EVT_MENU, self.edit_text, edit_text)
         if type >= 2:
-            delete_text = wx.MenuItem(self, wx.NewIdRef(), 'Delete Text')
+            delete_text: wx.MenuItem = wx.MenuItem(self, wx.NewIdRef(), 'Delete Text')
             self.Append(delete_text)
             self.Bind(wx.EVT_MENU, self.delete_text, delete_text)
 
     def add_text(self, event):
-        dlg = EditDialog(self.parent, self.font)
+        dlg: EditDialog = EditDialog(self.parent, self.font)
         dlg.SetTitle('Add')
         dlg.sizeSpinCtrl.SetValue(30)
         dlg.widthSpinCtrl.SetValue(50)
@@ -200,7 +210,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
     def __init__(self, *args, **kwargs):
         FloatCanvas.FloatCanvas.__init__(self, *args, **kwargs)
         # ([Text dict],[text object (wxpython)],[some data])
-        self.text = ([], [], [])
+        self.text: Tuple(List, List, List) = ([], [], [])
 
         # Canvas Event
         self.Bind(wx.EVT_MOUSEWHEEL, self.zoom)
@@ -211,16 +221,16 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
         self.Show()
         self.ZoomToBB()
-        self.delta = 1.2
-        self.MoveObject = None
-        self.Moving = False
+        self.delta: float = 1.2
+        self.MoveObject: bool = None
+        self.Moving: bool = False
 
         self.bmp_object = None
 
-        self.MaxScale = 1.3396
+        self.MaxScale: float = 1.3396
 
     def context_menu(self, event):
-        pos_menu = wx.GetMousePosition() - self.GetScreenPosition()
+        pos_menu: wx.Point = wx.GetMousePosition() - self.GetScreenPosition()
         if isinstance(event, wx.PyCommandEvent):
             self.PopupMenu(ContextMenu(self, event.Coords), pos_menu)
         elif isinstance(event, ScaledTextBox):
@@ -283,8 +293,9 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         self.delete_img()
-        self.bmp = wx.Bitmap.FromBuffer(width, height, image)
-        self.bmp_object = self.AddScaledBitmap(self.bmp, (0, 0), height, 'tl')
+        self.bmp: wx.Bitmap = wx.Bitmap.FromBuffer(width, height, image)
+        self.bmp_object: ScaledBitmap = ScaledBitmap(self.bmp, (0, 0),height,'tl')
+        self.AddObject(self.bmp_object)
 
         self.Draw(True)
         self.ZoomToBB()
@@ -308,7 +319,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         #     'font_size': None
         #     }
         if invert:
-            y = -text['y']
+            y: int = -text['y']
         text_box = self.AddScaledTextBox(
             String=text['string'],
             Point=(text['x'], y),
@@ -362,8 +373,8 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
         text_object.CalcBoundingBox()
         pos = text_object.XY
-        x = pos[0]
-        y = abs(pos[1])
+        x: int = pos[0]
+        y: int = abs(pos[1])
 
         self.text[0][item]['x'] = x
         self.text[0][item]['y'] = y
@@ -373,7 +384,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.text[0][item]['font_size'] = text_object.Size
 
         if self.text[2][item]['original_translated'] != '':
-            string = self.text[2][item]['original_text']
+            string: str = self.text[2][item]['original_text']
             if text_object.String != string:
                 pass
                 # string=self.translator.run_translator(text_object.String)
@@ -384,10 +395,10 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             # string= self.translator.run_translator(text_object.String)
 
     def edit_text(self, event):
-        string = event.String
-        font = event.Font
+        string: str = event.String
+        font: wx.Font = event.Font
         # font.SetPointSize(event.Size)
-        dlg = EditDialog(self, font)
+        dlg: EditDialog = EditDialog(self, font)
 
         dlg.textTextCtrl.SetValue(string)
         dlg.widthSpinCtrl.SetValue(event.Width)
@@ -438,12 +449,10 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             self.Moving = True
             self.StartPoint = object.HitCoordsPixel
             BB = object.BoundingBox
-            OutlinePoints = np.array(((BB[0, 0], BB[0, 1]),
-                                      (BB[0, 0], BB[1, 1]),
-                                      (BB[1, 0], BB[1, 1]),
-                                      (BB[1, 0], BB[0, 1]),
-                                      )
-                                     )
+            OutlinePoints: np.ndarray = np.array(((BB[0, 0], BB[0, 1]),
+                                                  (BB[0, 0], BB[1, 1]),
+                                                  (BB[1, 0], BB[1, 1]),
+                                                  (BB[1, 0], BB[0, 1])))
             self.StartObject = self.WorldToPixel(OutlinePoints)
             self.MoveObject = None
             self.MovingObject = object

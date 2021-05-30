@@ -281,7 +281,8 @@ class Transimage(wx.Frame):
         self.Bind(wx.EVT_TOOL, self.save_file, self.save)
 
         self.save_image = self.toolBar.AddTool(wx.ID_ANY, "Save",
-                                               wx.Bitmap("icons/save_image.png"),
+                                               wx.Bitmap(
+                                                   "icons/save_image.png"),
                                                wx.NullBitmap,
                                                wx.ITEM_NORMAL,
                                                'Save Image',
