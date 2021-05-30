@@ -4,7 +4,7 @@ An image translator that can use 3 translators (Google, Bing and DeepL)
 and two OCR ([Tesseract](https://github.com/tesseract-ocr) and [EasyOCR](https://github.com/JaidedAI/EasyOCR)). 
 Text editing is also possible but only in the original language of the image.
 
-**At the moment the Google translator does not work because of this [issue](https://github.com/ssut/py-googletrans/issues/234).**
+**At the moment the Bing translator does not work**
 
 I wrote this [package](https://github.com/A2va/ImageTranslator) for translating and detecting text on images
 

@@ -21,7 +21,6 @@ import logging
 
 import cv2
 import numpy as np
-import jsonpickle
 import pickle
 import pathos.multiprocessing as p_multiprocessing
 import wx
@@ -190,18 +189,8 @@ class Transimage(wx.Frame):
         self.img_file.src_lang=''
         self.img_file.translator=''
         self.img_file.ocr=''
+        self.img_file.path=''
 
-        self.file_dict={
-            'img': None,
-            'translator': None,
-            'ocr': None,
-            'dest_lang': None,
-            'src_lang': None,
-            'text_list':None,
-            'name':None,
-            'path':None
-        }
-        
         self.init_ui(parent)
 
         if not os.path.exists(SETTINGS_FILE):
@@ -230,6 +219,11 @@ class Transimage(wx.Frame):
             item=self.translatorCombo.FindString(settings['default_translator'])
             if item !=-1:
                 self.translatorCombo.SetSelection(item)
+
+            self.img_file.translator = settings['default_translator']
+            self.img_file.ocr = settings['default_ocr']
+            self.img_file.src_lang = settings['default_src_lang']
+            self.img_file.dest_lang = settings['default_dest_lang']
 
     def init_ui(self,parent):
         wx.Frame.__init__(self,parent,id=wx.ID_ANY,title="Transimage",pos=wx.DefaultPosition,size=wx.Size(1200,500),style=wx.DEFAULT_FRAME_STYLE)
@@ -323,7 +317,7 @@ class Transimage(wx.Frame):
         self.translatorText.SetForegroundColour(TEXT_COLOR)
         self.translatorText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
 
-        self.translatorCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Deepl","Bing"], style=wx.CB_DROPDOWN | wx.CB_SORT)
+        self.translatorCombo = wx.ComboBox(self, wx.ID_ANY, choices=["Deepl","Google"], style=wx.CB_DROPDOWN | wx.CB_SORT)
         self.translatorCombo.SetBackgroundColour(BACKGROUND_COLOR)
         self.translatorCombo.SetForegroundColour(TEXT_COLOR) #For text
         self.translatorCombo.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, ""))
@@ -389,26 +383,25 @@ class Transimage(wx.Frame):
 
     def open_file(self,event):
         event.Skip()
-        self.file_dict['path']=None
         self.img_file.path=None
-        wildcard = "Open Image/Project Files (*.jpg;*jpeg;*.png,*.json)|*.jpeg;*.jpg;*.png;*.json|"\
+        wildcard = "Open Image/Project Files (*.jpg;*jpeg;*.png,*.transimg)|*.jpeg;*.jpg;*.png;*.transimg|"\
                     "PNG file (*.png)|*.png|"\
                     "JPG file (*.jpg;*.jpeg)|*.jpg;*.jpeg|"\
-                    "JSON file (*.json)|*.json"
+                    "Transimg file (*.transimg)|*.transimg"
         with wx.FileDialog(self, "Open File", wildcard=wildcard,
         style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
-            self.img.file_path = fileDialog.GetPath()
+            file_path = fileDialog.GetPath()
          
-            if self.file_path.endswith('transimg'):
-                with open(self.file_path,'r') as file:
+            if file_path.endswith('transimg'):
+                with open(file_path,'rb') as file:
                         self.img_file=pickle.load(file)
 
                 if self.img_file.ocr is not None:
                     item=self.ocrCombo.FindString(self.img_file.ocr)
                     self.ocrCombo.SetSelection(item)
-                if self.img.translator is not None:
+                if self.img_file.translator is not None:
                     item=self.translatorCombo.FindString(self.img_file.translator)
                     self.translatorCombo.SetSelection(item)
                 if self.img_file.src_lang is not None:
@@ -428,9 +421,15 @@ class Transimage(wx.Frame):
                 self.imageCanvas.clear()
                 self.imageCanvas.set_image(self.img_file.img)
                 self.imageCanvas.add_text_from_list(self.img_file.text_list)
-                
+
+                self.image_translator = ImageTranslator(self.img_file.img,self.img_file.ocr,self.img_file.translator,
+                                                        self.img_file.src_lang,self.img_file.dest_lang)
+                self.image_translator.img_process = self.img_file.img
+                self.image_translator.text = self.img_file.text_list
+
             else:          
-                self.img_file.img = cv2.imread(self.file_path)
+                self.img_file.img = cv2.imread(file_path)
+                self.img_file.path = file_path
                 self.imageCanvas.clear()
                 self.imageCanvas.set_image(self.img_file.img)
 
@@ -449,24 +448,23 @@ class Transimage(wx.Frame):
                 with open(self.img_file.path,'w') as file:
                         pickle.dump(self.img_file,file)
         else:#Save as   
-           self.save_file_dialog()
+           self.save_as_file_dialog()
 
-    def save_file_dialog(self):          
-        wildcard = "JSON File (*.json)|*.json"
-        with wx.FileDialog(self, "Save Json File", wildcard=wildcard,
+    def save_as_file_dialog(self):          
+        wildcard = "Transimg File (*.transimg)|*.transimg"
+        with wx.FileDialog(self, "Save Transimg File", wildcard=wildcard,
             style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
                 if fileDialog.ShowModal() == wx.ID_CANCEL:
                     return 
                 self.img_file.name=fileDialog.GetFilename()
                 self.img_file.path=fileDialog.GetPath()
-                with open(fileDialog.GetPath(),'w') as file:
+                with open(fileDialog.GetPath(),'wb') as file:
                     pickle.dump(self.img_file,file)
 
     def save_image_file(self,event):
         event.Skip()
         #Translate the image
-        log.debug('Start the tranlsation of image')
-        self.image_translator.text.clear()
+        log.debug('Start the translation of image')
         self.image_translator.text=self.imageCanvas.text[0]
        
         self.processImage=ImageProcess(self,self.img_file)
@@ -502,7 +500,7 @@ class Transimage(wx.Frame):
         
     def update_translator(self,event):
         string=event.String.lower()
-        self.img.translator=string
+        self.img_file.translator=string
 
     def update_ocr(self,event):
         string=event.String.lower()
@@ -510,11 +508,11 @@ class Transimage(wx.Frame):
 
     def update_src_lang(self,event):
         string=event.String.lower()
-        self.src_lang=TO_LANG_CODE[string]
+        self.img_file.src_lang=TO_LANG_CODE[string]
 
     def update_dest_lang(self,event):
         string=event.String.lower()
-        self.dest_lang=TO_LANG_CODE[string]
+        self.img_file.dest_lang=TO_LANG_CODE[string]
 
     def callback_image_process(self,event):
         self.progressDialog.Close()
@@ -558,11 +556,11 @@ class Transimage(wx.Frame):
                 download(model_url['detector'][0],'easyocr/model/',progress_dialog,DETECTOR_FILENAME)
                 progress_dialog.Destroy()
 
-            if self.src_lang ==self.img_file.dest_lang:
+            if self.img_file.src_lang ==self.img_file.dest_lang:
                 wx.MessageDialog(None, 'The source and destination lang cannot be the same', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
-            elif self.src_lang == '' or self.img_file.dest_lang=='' or self.img_file.translator=='' or self.img_file.ocr=='':
+            elif self.img_file.src_lang == '' or self.img_file.dest_lang=='' or self.img_file.translator=='' or self.img_file.ocr=='':
                 wx.MessageDialog(None, 'One on the combox are empty', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
-            elif self.img.file_path=='':
+            elif self.img_file.path=='':
                 wx.MessageDialog(None, 'Any image or file are open', 'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
             else:
                 self.processImage=ImageProcess(self,self.img_file)
