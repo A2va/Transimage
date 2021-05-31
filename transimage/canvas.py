@@ -449,7 +449,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             Rot = Rot / abs(Rot) * 0.1
             self.MoveImage((Rot, 0), "Panel")
         else:  # move up-down
-            Rot = wheel.GetWheelRotation()
+            Rot = - wheel.GetWheelRotation()
             Rot = Rot / abs(Rot) * 0.1
             self.MoveImage((0, Rot), "Panel")
 
