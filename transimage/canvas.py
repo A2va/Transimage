@@ -148,10 +148,10 @@ class EditDialog (wx.Dialog):
 
 class ContextMenu(wx.Menu):
 
-    def __init__(self, parent, pos, type=0, text=None):
+    def __init__(self, canvas, pos, type=0, text=None):
         super(ContextMenu, self).__init__()
 
-        self.parent = parent
+        self.canvas = canvas
         self.font: wx.Font = wx.Font(30, wx.FONTFAMILY_DEFAULT,
                                      wx.FONTSTYLE_NORMAL,
                                      wx.FONTWEIGHT_NORMAL,
@@ -173,7 +173,7 @@ class ContextMenu(wx.Menu):
             self.Bind(wx.EVT_MENU, self.delete_text, delete_text)
 
     def add_text(self, event):
-        dlg: EditDialog = EditDialog(self.parent, self.font)
+        dlg: EditDialog = EditDialog(self.canvas, self.font)
         dlg.SetTitle('Add')
         dlg.sizeSpinCtrl.SetValue(30)
         dlg.widthSpinCtrl.SetValue(50)
@@ -188,21 +188,21 @@ class ContextMenu(wx.Menu):
                     'pos': self.pos
                 }
             })
-            wx.PostEvent(self.parent, evt)
+            wx.PostEvent(self.canvas, evt)
 
     def edit_text(self, event):
         evt = EvtCanvasContextMenu(data={
             'event_type': 'edit_text',
             'event_data': self.text
         })
-        wx.PostEvent(self.parent, evt)
+        wx.PostEvent(self.canvas, evt)
 
     def delete_text(self, event):
         evt = EvtCanvasContextMenu(data={
             'event_type': 'delete_text',
             'event_data': self.text
         })
-        wx.PostEvent(self.parent, evt)
+        wx.PostEvent(self.canvas, evt)
 
 
 class DisplayCanvas(FloatCanvas.FloatCanvas):
@@ -294,7 +294,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
         self.delete_img()
         self.bmp: wx.Bitmap = wx.Bitmap.FromBuffer(width, height, image)
-        self.bmp_object: ScaledBitmap = ScaledBitmap(self.bmp, (0, 0),height,'tl')
+        self.bmp_object: ScaledBitmap = ScaledBitmap(self.bmp, (0, 0), height, 'tl')
         self.AddObject(self.bmp_object)
 
         self.Draw(True)
@@ -318,8 +318,10 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         #     'max_width': None,
         #     'font_size': None
         #     }
+        y: int = text['y']
         if invert:
-            y: int = -text['y']
+            y = -y
+
         text_box = self.AddScaledTextBox(
             String=text['string'],
             Point=(text['x'], y),
