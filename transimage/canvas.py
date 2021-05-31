@@ -148,7 +148,7 @@ class EditDialog (wx.Dialog):
 
 class ContextMenu(wx.Menu):
 
-    def __init__(self, canvas, pos, type=0, text=None):
+    def __init__(self, canvas, pos, type=0, text_object=None):
         super(ContextMenu, self).__init__()
 
         self.canvas = canvas
@@ -157,7 +157,7 @@ class ContextMenu(wx.Menu):
                                      wx.FONTWEIGHT_NORMAL,
                                      False, "Cantarell")
         self.pos = pos
-        self.text = text
+        self.text_object = text_object
 
         add_text: wx.MenuItem = wx.MenuItem(self, wx.NewIdRef(), 'Add Text')
         self.Append(add_text)
@@ -179,30 +179,36 @@ class ContextMenu(wx.Menu):
         dlg.widthSpinCtrl.SetValue(50)
 
         if dlg.ShowModal() == wx.ID_OK:
-            evt = EvtCanvasContextMenu(data={
-                'event_type': 'add_text',
-                'event_data': {
-                    'width': dlg.widthSpinCtrl.GetValue(),
-                    'size': dlg.sizeSpinCtrl.GetValue(),
-                    'string': dlg.textTextCtrl.GetValue(),
-                    'pos': self.pos
-                }
+            self.canvas.add_text({
+                'x': self.pos[0],
+                'y': self.pos[1],
+                'w': dlg.widthSpinCtrl.GetValue(),
+                'h': None,
+                'paragraph_w': None,
+                'paragraph_h': None,
+                'string': dlg.textTextCtrl.GetValue(),
+                'translated_string': '',
+                'image': None,
+                'max_width': dlg.widthSpinCtrl.GetValue(),
+                'font_size': dlg.sizeSpinCtrl.GetValue()
             })
-            wx.PostEvent(self.canvas, evt)
+
+            # evt = EvtCanvasContextMenu(data={
+            #     'event_type': 'add_text',
+            #     'event_data': {
+            #         'width': dlg.widthSpinCtrl.GetValue(),
+            #         'size': dlg.sizeSpinCtrl.GetValue(),
+            #         'string': dlg.textTextCtrl.GetValue(),
+            #         'pos': self.pos
+            #     }
+            # })
+            # wx.PostEvent(self.canvas, evt)
 
     def edit_text(self, event):
-        evt = EvtCanvasContextMenu(data={
-            'event_type': 'edit_text',
-            'event_data': self.text
-        })
-        wx.PostEvent(self.canvas, evt)
+        self.canvas.edit_text(self.text_object)
 
     def delete_text(self, event):
-        evt = EvtCanvasContextMenu(data={
-            'event_type': 'delete_text',
-            'event_data': self.text
-        })
-        wx.PostEvent(self.canvas, evt)
+        self.canvas.delete_text(self.text_object, Force=True)
 
 
 class DisplayCanvas(FloatCanvas.FloatCanvas):
@@ -306,6 +312,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             self.Draw(True)
 
     def add_text(self, text, invert=True, Force=True):
+        #   {
         #     'x': None,
         #     'y': None,
         #     'w': None,
@@ -396,27 +403,27 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             pass
             # string= self.translator.run_translator(text_object.String)
 
-    def edit_text(self, event):
-        string: str = event.String
-        font: wx.Font = event.Font
+    def edit_text(self, text_object):
+        string: str = text_object.String
+        font: wx.Font = text_object.Font
         # font.SetPointSize(event.Size)
         dlg: EditDialog = EditDialog(self, font)
 
         dlg.textTextCtrl.SetValue(string)
-        dlg.widthSpinCtrl.SetValue(event.Width)
-        dlg.sizeSpinCtrl.SetValue(event.Size)
+        dlg.widthSpinCtrl.SetValue(text_object.Width)
+        dlg.sizeSpinCtrl.SetValue(text_object.Size)
         if dlg.ShowModal() == wx.ID_OK:
-            event.SetText(dlg.textTextCtrl.GetValue())
-            event.Size = dlg.sizeSpinCtrl.GetValue()
-            event.Width = dlg.widthSpinCtrl.GetValue()
+            text_object.SetText(dlg.textTextCtrl.GetValue())
+            text_object.Size = dlg.sizeSpinCtrl.GetValue()
+            text_object.Width = dlg.widthSpinCtrl.GetValue()
 
-            self.update_text_dict(event)  # Udate the text dict to actual value
+            self.update_text_dict(text_object)  # Udate the text dict to actual value
             self.Draw(True)
 
-    def delete_text(self, text, Force=True):
-        item = self.text[1].index(text)
+    def delete_text(self, text_object, Force=True):
+        item = self.text[1].index(text_object)
 
-        self.RemoveObject(text)
+        self.RemoveObject(text_object)
         self.text[0].pop(item)
         self.text[1].pop(item)
         self.text[2].pop(item)
