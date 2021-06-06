@@ -187,7 +187,7 @@ class ContextMenu(wx.Menu):
                 'image': None,
                 'max_width': dlg.widthSpinCtrl.GetValue(),
                 'font_size': dlg.sizeSpinCtrl.GetValue()
-            },invert=False)
+            }, invert=False)
 
     def edit_text(self, event):
         self.canvas.edit_text(self.text_object)

@@ -243,6 +243,16 @@ class Transimage(wx.Frame):
             self.img_file.src_lang = settings['default_src_lang']
             self.img_file.dest_lang = settings['default_dest_lang']
 
+        wx.CallAfter(self.download_detector)
+
+    def download_detector(self):
+        if not os.path.exists(f'easyocr/model/{DETECTOR_FILENAME}'):
+            progress_dialog = wx.ProgressDialog(
+            'Download', 'Detector model', maximum=100, parent=self)
+            download(model_url['detector'][0], 'easyocr/model/',
+                     progress_dialog, DETECTOR_FILENAME)
+            progress_dialog.Destroy()
+
     def init_ui(self, parent):
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title="Transimage",
                           pos=wx.DefaultPosition, size=wx.Size(1200, 500),
@@ -614,12 +624,6 @@ class Transimage(wx.Frame):
 
     def process_image(self, event):
         log.debug('Start the processing of image')
-        if not os.path.exists(f'easyocr/model/{DETECTOR_FILENAME}'):
-            progress_dialog = wx.ProgressDialog(
-                'Download', 'Detector model', maximum=100, parent=self)
-            download(model_url['detector'][0], 'easyocr/model/',
-                     progress_dialog, DETECTOR_FILENAME)
-            progress_dialog.Destroy()
 
         if self.img_file.src_lang == self.img_file.dest_lang:
             wx.MessageDialog(None, 'The source and destination lang cannot be the same',
