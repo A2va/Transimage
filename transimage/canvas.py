@@ -29,8 +29,6 @@ log = logging.getLogger('transimage')
 
 wx.Font.AddPrivateFont('font/Cantarell.ttf')
 
-EvtCanvasContextMenu, EVT_CANVAS_CONTEXT_MENU = wx.lib.newevent.NewEvent()
-
 
 class EditDialog (wx.Dialog):
 
@@ -180,29 +178,16 @@ class ContextMenu(wx.Menu):
 
         if dlg.ShowModal() == wx.ID_OK:
             self.canvas.add_text({
-                'x': self.pos[0],
-                'y': self.pos[1],
+                'x': int(self.pos[0]),
+                'y': int(self.pos[1]),
                 'w': dlg.widthSpinCtrl.GetValue(),
-                'h': None,
-                'paragraph_w': None,
-                'paragraph_h': None,
+                'h': int(dlg.sizeSpinCtrl.GetValue()/1.1),
                 'string': dlg.textTextCtrl.GetValue(),
                 'translated_string': '',
                 'image': None,
                 'max_width': dlg.widthSpinCtrl.GetValue(),
                 'font_size': dlg.sizeSpinCtrl.GetValue()
-            })
-
-            # evt = EvtCanvasContextMenu(data={
-            #     'event_type': 'add_text',
-            #     'event_data': {
-            #         'width': dlg.widthSpinCtrl.GetValue(),
-            #         'size': dlg.sizeSpinCtrl.GetValue(),
-            #         'string': dlg.textTextCtrl.GetValue(),
-            #         'pos': self.pos
-            #     }
-            # })
-            # wx.PostEvent(self.canvas, evt)
+            },invert=False)
 
     def edit_text(self, event):
         self.canvas.edit_text(self.text_object)
@@ -223,7 +208,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Bind(FloatCanvas.EVT_LEFT_UP, self.stop_move)
         self.Bind(FloatCanvas.EVT_MOTION, self.moving)
         self.Bind(FloatCanvas.EVT_RIGHT_DOWN, self.context_menu)
-        self.Bind(EVT_CANVAS_CONTEXT_MENU, self.callback_context_menu)
 
         self.Show()
         self.ZoomToBB()
@@ -242,42 +226,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         elif isinstance(event, ScaledTextBox):
             self.PopupMenu(ContextMenu(self, event.XY, 2, event), pos_menu)
 
-    def callback_context_menu(self, event):
-        if event.data['event_type'] == 'add_text':
-            data = event.data['event_data']
-            text_dict = {
-                'x': data['pos'][0],
-                'y': data['pos'][1],
-                'w': data['width'],
-                'h': None,
-                'paragraph_w': None,
-                'paragraph_h': None,
-                'string': data['string'],
-                'translated_string': '',
-                'image': None,
-                'max_width': None,
-                'font_size': data['size']
-
-            }
-            self.add_text(text_dict, False)
-        elif event.data['event_type'] == 'edit_text':
-            data = event.data['event_data']
-            font = data.Font
-            # font.SetPointSize(data.Size)
-            dlg = EditDialog(self, font)
-
-            dlg.textTextCtrl.SetValue(data.String)
-            dlg.widthSpinCtrl.SetValue(data.Width)
-            dlg.sizeSpinCtrl.SetValue(data.Size)
-            if dlg.ShowModal() == wx.ID_OK:
-                data.SetText(dlg.textTextCtrl.GetValue())
-                data.Size = dlg.sizeSpinCtrl.GetValue()
-                data.Width = dlg.widthSpinCtrl.GetValue()
-                self.Draw(True)
-        elif event.data['event_type'] == 'delete_text':
-            data = event.data['event_data']
-            self.delete_text(data)
-
     def clear(self):
         self.ClearAll()
         self.text[0].clear()
@@ -286,7 +234,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.bmp_object = None
         self.Draw(True)
 
-    def set_image(self, image):
+    def set_image(self, image: np.ndarray):
         # For PIL Image
         # self.img=wx.EmptyImage(image.size[0],image.size[1])
         # self.img.setData(image.convert("RGB").tostring())
@@ -317,10 +265,8 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         #     'y': None,
         #     'w': None,
         #     'h': None,
-        #     'paragraph_w': None,
-        #     'paragraph_h': None,
         #     'string':None,
-        #     'translated_string': None,
+        #     'translated_text': None,
         #     'image': None,
         #     'max_width': None,
         #     'font_size': None
