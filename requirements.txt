@@ -1,4 +1,3 @@
 wxPython
 cx-Freeze
 git+git://github.com/A2va/ImageTranslator@master#egg=image_translator
-jsonpickle
