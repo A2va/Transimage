@@ -430,19 +430,10 @@ class Transimage(wx.Frame):
 
         buttonSizer.Add(self.processButton, 1, wx.ALL | wx.ALIGN_CENTER, 5)
 
-        self.textButton = wx.Button(
-            self, wx.ID_ANY, "Add text", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.textButton.Bind(wx.EVT_BUTTON, self.add_text)
-        self.textButton.SetForegroundColour(TEXT_COLOR)
-        self.textButton.SetBackgroundColour(BACKGROUND_COLOR)
-
-        buttonSizer.Add(self.textButton, 1, wx.ALL | wx.ALIGN_CENTER, 5)
-
         editSizer.Add(src_langSizer, 1, wx.ALL, 5)
         editSizer.Add(dest_langSizer, 1, wx.ALL, 5)
         editSizer.Add(translatorSizer, 1, wx.ALL, 5)
         editSizer.Add(ocrSizer, 1, wx.ALL, 5)
-        # editSizer.Add(self.processButton,1,wx.ALL | wx.ALIGN_CENTER,5)
         editSizer.Add(buttonSizer, 1, wx.ALL | wx.ALIGN_CENTER, 5)
 
         mainSizer.Add(editSizer, 1, 0, 5)
@@ -619,23 +610,6 @@ class Transimage(wx.Frame):
                     return
                 cv2.imwrite(fileDialog.GetPath(),
                             self.image_translator.img_out)
-
-    def add_text(self, event):
-        text = {
-            'x': 0,
-            'y': 0,
-            'w': 50,
-            'h': None,
-            'paragraph_w': None,
-            'paragraph_h': None,
-            'string': 'Text placeholder',
-            'translated_string': None,
-            'image': None,
-            'max_width': 50,
-            'font_size': 30
-        }
-
-        self.imageCanvas.add_text(text)
 
     def process_image(self, event):
         log.debug('Start the processing of image')
