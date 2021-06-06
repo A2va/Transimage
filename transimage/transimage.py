@@ -16,8 +16,8 @@
 import json
 import os
 import threading
-import time
 import logging
+import time
 
 import cv2
 import pickle
@@ -95,6 +95,7 @@ class ImageProcess(threading.Thread):
                                                 self.translator,
                                                 self.src_lang, self.dest_lang)
         self.process = p_multiprocessing.ProcessingPool()
+        self.stop = False
 
     def run(self):
         try:
@@ -107,7 +108,7 @@ class ImageProcess(threading.Thread):
                                             [self.image_translator])
             while not results.ready() and self.stop:
                 time.sleep(2)
-            if self.stop:
+            if not self.stop:
                 self.image_translator = results.get()
                 # self.process.close()
                 evt = EvtImageProcess(data=self.image_translator)
