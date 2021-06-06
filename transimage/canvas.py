@@ -276,7 +276,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             y = -y
 
         text_box = self.AddScaledTextBox(
-            String=text['string'],
+            String=text['text'],
             Point=(text['x'], y),
             Size=text['font_size'],
             Color="Black",
@@ -298,8 +298,8 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.text[0].append(text)
         self.text[1].append(text_box)
         self.text[2].append({
-            'original_text': text['string'],
-            'original_translated': text['translated_string'],
+            'original_text': text['text'],
+            'original_translated': text['translated_text'],
         })
 
         self.Draw(Force)
@@ -335,7 +335,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.text[0][item]['y'] = y
         self.text[0][item]['w'] = text_object.BoxWidth
         self.text[0][item]['h'] = text_object.BoxHeight
-        self.text[0][item]['string'] = text_object.String
+        self.text[0][item]['text'] = text_object.String
         self.text[0][item]['font_size'] = text_object.Size
 
         if self.text[2][item]['original_translated'] != '':
