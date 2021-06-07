@@ -13,6 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from typing import List, Optional, Union
+from image_translator.type import Paragraph
+
 import json
 import os
 import threading
@@ -20,6 +23,7 @@ import logging
 import time
 
 import cv2
+import numpy as np
 import pickle
 import pathos.multiprocessing as p_multiprocessing
 import wx
@@ -71,31 +75,31 @@ def create_settings_file():
 
 class ImageFile():
     def __init__(self):
-        self.path = None
-        self.translator = None
-        self.ocr = None
-        self.src_lang = None
-        self.dest_lang = None
-        self.img = None
-        self.name = None
-        self.text_list = None
+        self.path: Optional[str] = None
+        self.translator: Optional[str] = None
+        self.ocr: Optional[str] = None
+        self.src_lang: Optional[str] = None
+        self.dest_lang: Optional[str] = None
+        self.img: Optional[np.ndarray] = None
+        self.name: Optional[str] = None
+        self.text_list: Optional[List[Paragraph]] = None
 
 
 class ImageProcess(threading.Thread):
-    def __init__(self, notify_window, img_file, mode_process=True):
+    def __init__(self, notify_window: wx.Frame, img_file: ImageFile, mode_process=True):
         super(ImageProcess, self).__init__()
-        self.notify_window = notify_window
-        self.mode_process = mode_process
-        self.img = img_file.img
-        self.ocr = img_file.ocr
-        self.translator = img_file.translator
-        self.src_lang = img_file.src_lang
+        self.notify_window: wx.Frame = notify_window
+        self.mode_process: bool = mode_process
+        self.img: np.ndarray = img_file.img
+        self.ocr: str = img_file.ocr
+        self.translator: str = img_file.translator
+        self.src_lang: str = img_file.src_lang
         self.dest_lang = img_file.dest_lang
         self.image_translator = ImageTranslator(self.img, self.ocr,
                                                 self.translator,
                                                 self.src_lang, self.dest_lang)
-        self.process = p_multiprocessing.ProcessingPool()
-        self.stop = False
+        self.process: p_multiprocessing.ProcessingPool = p_multiprocessing.ProcessingPool()
+        self.stop: bool = False
 
     def run(self):
         try:
@@ -109,7 +113,7 @@ class ImageProcess(threading.Thread):
             while not results.ready() and self.stop:
                 time.sleep(2)
             if not self.stop:
-                self.image_translator = results.get()
+                self.image_translator: ImageTranslator = results.get()
                 # self.process.close()
                 evt = EvtImageProcess(data=self.image_translator)
                 wx.PostEvent(self.notify_window, evt)
@@ -197,7 +201,7 @@ class Transimage(wx.Frame):
 
         log.debug('Init the main frame (Transimage)')
 
-        self.image_translator = None
+        self.image_translator: Optional[ImageTranslator] = None
 
         self.img_file = ImageFile()
         self.img_file.dest_lang = ''
@@ -462,7 +466,7 @@ class Transimage(wx.Frame):
     def open_file(self, event):
         event.Skip()
         self.img_file.path = None
-        wildcard = """Open Image/Project Files (*.jpg;*jpeg;*.png,*.transimg)
+        wildcard: str = """Open Image/Project Files (*.jpg;*jpeg;*.png,*.transimg)
         |*.jpeg;*.jpg;*.png;*.transimg|"""\
             "PNG file (*.png)|*.png|"\
             "JPG file (*.jpg;*.jpeg)|*.jpg;*.jpeg|"\
@@ -539,7 +543,7 @@ class Transimage(wx.Frame):
             self.save_as_file_dialog()
 
     def save_as_file_dialog(self):
-        wildcard = "Transimg File (*.transimg)|*.transimg"
+        wildcard: str = "Transimg File (*.transimg)|*.transimg"
         with wx.FileDialog(self, "Save Transimg File", wildcard=wildcard,
                            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
@@ -587,19 +591,19 @@ class Transimage(wx.Frame):
                 json.dump(dlg.settings, settings_file)
 
     def update_translator(self, event):
-        string = event.String.lower()
+        string: str = event.String.lower()
         self.img_file.translator = string
 
     def update_ocr(self, event):
-        string = event.String.lower()
+        string: str = event.String.lower()
         self.img_file.ocr = string
 
     def update_src_lang(self, event):
-        string = event.String.lower()
+        string: str = event.String.lower()
         self.img_file.src_lang = TO_LANG_CODE[string]
 
     def update_dest_lang(self, event):
-        string = event.String.lower()
+        string: str = event.String.lower()
         self.img_file.dest_lang = TO_LANG_CODE[string]
 
     def callback_image_process(self, event):
@@ -612,7 +616,7 @@ class Transimage(wx.Frame):
             self.imageCanvas.add_text_from_list(self.image_translator.text)
         else:  # Saving image
             log.debug('Saving the image')
-            wildcard = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
+            wildcard: str = "JPG Files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
             with wx.FileDialog(self, "Save Image File", wildcard=wildcard,
                                style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT,
                                defaultFile=self.img_file.name) as fileDialog:
