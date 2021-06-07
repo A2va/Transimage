@@ -14,6 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from typing import List, Tuple
+from image_translator.type import Paragraph
 
 import logging
 
@@ -146,10 +147,10 @@ class EditDialog (wx.Dialog):
 
 class ContextMenu(wx.Menu):
 
-    def __init__(self, canvas, pos, type=0, text_object=None):
+    def __init__(self, canvas: FloatCanvas.FloatCanvas, pos, type=0, text_object=None):
         super(ContextMenu, self).__init__()
 
-        self.canvas = canvas
+        self.canvas: FloatCanvas.FloatCanvas = canvas
         self.font: wx.Font = wx.Font(30, wx.FONTFAMILY_DEFAULT,
                                      wx.FONTSTYLE_NORMAL,
                                      wx.FONTWEIGHT_NORMAL,
@@ -161,6 +162,10 @@ class ContextMenu(wx.Menu):
         self.Append(add_text)
         self.Bind(wx.EVT_MENU, self.add_text, add_text)
 
+        center_view: wx.MenuItem = wx.MenuItem(self, wx.NewIdRef(), 'Center View')
+        self.Append(center_view)
+        self.Bind(wx.EVT_MENU, self.center_view, center_view)
+
         if type >= 1:
             edit_text: wx.MenuItem = wx.MenuItem(self, wx.NewIdRef(), 'Edit Text')
             self.Append(edit_text)
@@ -169,6 +174,9 @@ class ContextMenu(wx.Menu):
             delete_text: wx.MenuItem = wx.MenuItem(self, wx.NewIdRef(), 'Delete Text')
             self.Append(delete_text)
             self.Bind(wx.EVT_MENU, self.delete_text, delete_text)
+
+    def center_view(self, event):
+        self.canvas.ZoomToBB()
 
     def add_text(self, event):
         dlg: EditDialog = EditDialog(self.canvas, self.font)
@@ -259,7 +267,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             self.RemoveObject(self.bmp_object)
             self.Draw(True)
 
-    def add_text(self, text, invert=True, Force=True):
+    def add_text(self, text: Paragraph, invert=True, Force=True):
         #   {
         #     'x': None,
         #     'y': None,
@@ -304,7 +312,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
         self.Draw(Force)
 
-    def add_text_from_list(self, texts):
+    def add_text_from_list(self, texts: List[Paragraph]):
         # text: [
         #     'x': None,
         #     'y': None,
