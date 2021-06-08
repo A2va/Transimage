@@ -16,23 +16,24 @@
 import wx
 
 SETTINGS_FILE = 'settings.json'
-LABEL_SIZE=12
+LABEL_SIZE = 12
+
 
 def convert_hexa(value):
     value = value.lstrip('#')
     lv = len(value)
     return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
 
+
 BACKGROUND_COLOR_HEX = '#303030'
 HIGHLIGHT_COLOR_HEX = '#558de8'
 CANVAS_COLOR_HEX = '#404040'
-CANVAS_COLOR_HIGHLIGHT_HEX= '#353535'
+CANVAS_COLOR_HIGHLIGHT_HEX = '#353535'
 TEXT_COLOR_HEX = '#ffffff'
 
-# Reminder: The stars (*) unpack the tuple into tree arguments 
+# Reminder: The stars (*) unpack the tuple into tree arguments
 BACKGROUND_COLOR = wx.Colour(*convert_hexa(BACKGROUND_COLOR_HEX))
 HIGHLIGHT_COLOR = wx.Colour(*convert_hexa(HIGHLIGHT_COLOR_HEX))
 CANVAS_COLOR = wx.Colour(*convert_hexa(CANVAS_COLOR_HEX))
 CANVAS_COLOR_HIGHLIGHT = wx.Colour(*convert_hexa(CANVAS_COLOR_HIGHLIGHT_HEX))
 TEXT_COLOR = wx.Colour(*convert_hexa(TEXT_COLOR_HEX))
-

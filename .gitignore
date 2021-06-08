@@ -5,6 +5,7 @@
 #OCR
 /tesseract-ocr
 /easyocr
+/chromium
 #Build
 /build
 /build_nuitka

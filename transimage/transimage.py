@@ -38,6 +38,8 @@ from transimage.config import (BACKGROUND_COLOR, CANVAS_COLOR, SETTINGS_FILE,
 from transimage.lang import TO_LANG_CODE, TO_LANG_NAME
 from transimage.settings import SettingsDialog, download
 
+import pyppeteer.chromium_downloader as chromium
+
 logFormatter = logging.Formatter(
     "[%(asctime)s] "
     "[%(levelname)-5.5s]: "
@@ -254,7 +256,18 @@ class Transimage(wx.Frame):
             progress_dialog = wx.ProgressDialog(
             'Download', 'Detector model', maximum=100, parent=self)
             download(model_url['detector'][0], 'easyocr/model/',
-                     progress_dialog, DETECTOR_FILENAME)
+                     progress_dialog,True,DETECTOR_FILENAME)
+            progress_dialog.Destroy()
+
+        chromium_path: str = f'./chromium/{chromium.REVISION}'
+
+        if not os.path.exists('./chromium'):
+            os.makedirs(chromium_path)
+
+            progress_dialog = wx.ProgressDialog(
+            'Download', 'Chromium', maximum=100, parent=self)
+            download(chromium.get_url(), chromium_path,
+                     progress_dialog,True)
             progress_dialog.Destroy()
 
     def init_ui(self, parent):

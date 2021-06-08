@@ -363,17 +363,20 @@ def download_lang(lang, parent):
             progress_dialog = wx.ProgressDialog(
                 'Language pack', f'{TO_LANG_NAME[lang].capitalize()}: EasyOCR model',
                 maximum=100, parent=parent)
-            download(url, 'easyocr/model', progress_dialog, file)
+            download(url, 'easyocr/model', progress_dialog, True, file)
             progress_dialog.Destroy()
 
 
-def download(url, path, progress_dialog, filename=None):
+def download(url, path, progress_dialog, zip=False, filename=''):
 
-    if filename is not None:
+    if zip:
         file = os.path.join(path, 'temp.zip')
         urlretrieve(url, file, reporthook=progress_bar(progress_dialog))
         with ZipFile(file, 'r') as zipObj:
-            zipObj.extract(filename, path)
+            if filename == '':
+                zipObj.extractall(path)
+            else:
+                zipObj.extract(filename, path)
         os.remove(file)
     else:
         file = os.path.join(path, url.split('/')[-1])
