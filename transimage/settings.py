@@ -231,9 +231,11 @@ class SettingsDialog(wx.Dialog):
 
         self.Centre(wx.BOTH)
 
+        # Add language to the checklist
         for lang in TO_LANG_NAME:
             self.lang_CheckList.Append(TO_LANG_NAME[lang].capitalize())
 
+        # Retrieve the setting file
         with open(SETTINGS_FILE, 'r') as settings_file:
             self.settings = json.load(settings_file)
 
@@ -246,7 +248,8 @@ class SettingsDialog(wx.Dialog):
             self.lang_CheckList.SetItemBackgroundColour(item, BACKGROUND_COLOR)
             self.lang_CheckList.SetItemForegroundColour(item, TEXT_COLOR)
 
-        # Load the language for the default selection (only the intsalled language)
+        # Load the language for the default selection
+        # (only the installed languages)
         for lang in self.settings['language_pack']:
             if self.settings['language_pack'][lang]:
                 self.defaultDestlangCombo.Append(
@@ -254,6 +257,7 @@ class SettingsDialog(wx.Dialog):
                 self.defaultSrclangCombo.Append(
                     TO_LANG_NAME[lang].capitalize())
 
+        # Set default settings (src,dest,ocr, translator)
         item = self.defaultSrclangCombo.FindString(
             TO_LANG_NAME[self.settings['default_src_lang']])
         if item != -1:
@@ -274,18 +278,24 @@ class SettingsDialog(wx.Dialog):
             self.defaultTranslatorCombo.SetSelection(item)
 
     def update_default_ocr(self, event):
+        """Update default ocr"""
         self.settings['default_ocr'] = event.String.lower()
 
     def update_default_translator(self, event):
+        """Update default translator"""
         self.settings['default_translator'] = event.String.lower()
 
     def update_default_src_lang(self, event):
+        """Update default source language"""
         self.settings['default_src_lang'] = TO_LANG_CODE[event.String.lower()]
 
     def update_default_dest_lang(self, event):
+        """Update default destination language"""
         self.settings['default_dest_lang'] = TO_LANG_CODE[event.String.lower()]
 
     def apply(self, event):
+        """Apply the selected language pack and download
+        the newest"""
         # Format the CheckListBox to a dict
         checked_lang = {}
         for item in range(self.lang_CheckList.GetCount()):

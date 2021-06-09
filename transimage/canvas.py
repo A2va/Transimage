@@ -176,9 +176,11 @@ class ContextMenu(wx.Menu):
             self.Bind(wx.EVT_MENU, self.delete_text, delete_text)
 
     def center_view(self, event):
+        """Center the canvas"""
         self.canvas.ZoomToBB()
 
     def add_text(self, event):
+        """Add text to canvas"""
         dlg: EditDialog = EditDialog(self.canvas, self.font)
         dlg.SetTitle('Add')
         dlg.sizeSpinCtrl.SetValue(30)
@@ -198,9 +200,11 @@ class ContextMenu(wx.Menu):
             }, invert=False)
 
     def edit_text(self, event):
+        """Edit an existing text"""
         self.canvas.edit_text(self.text_object)
 
     def delete_text(self, event):
+        """Delete an existing text"""
         self.canvas.delete_text(self.text_object, Force=True)
 
 
@@ -228,6 +232,8 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.MaxScale: float = 1.3396
 
     def context_menu(self, event):
+        """Display context menu"""
+        # Calulate the context menu position
         pos_menu: wx.Point = wx.GetMousePosition() - self.GetScreenPosition()
         if isinstance(event, wx.PyCommandEvent):
             self.PopupMenu(ContextMenu(self, event.Coords), pos_menu)
@@ -235,6 +241,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             self.PopupMenu(ContextMenu(self, event.XY, 2, event), pos_menu)
 
     def clear(self):
+        """Clear all the canvas and text cache"""
         self.ClearAll()
         self.text[0].clear()
         self.text[1].clear()
@@ -243,6 +250,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Draw(True)
 
     def set_image(self, image: np.ndarray):
+        """Set the canvas image"""
         # For PIL Image
         # self.img=wx.EmptyImage(image.size[0],image.size[1])
         # self.img.setData(image.convert("RGB").tostring())
@@ -263,22 +271,14 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.ZoomToBB()
 
     def delete_img(self):
+        """Delete image on canvas"""
         if self.bmp_object is not None:
             self.RemoveObject(self.bmp_object)
             self.Draw(True)
 
     def add_text(self, text: Paragraph, invert=True, Force=True):
-        #   {
-        #     'x': None,
-        #     'y': None,
-        #     'w': None,
-        #     'h': None,
-        #     'string':None,
-        #     'translated_text': None,
-        #     'image': None,
-        #     'max_width': None,
-        #     'font_size': None
-        #     }
+        """ Add text on canvas"""
+
         y: int = text['y']
         if invert:
             y = -y
@@ -313,25 +313,14 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Draw(Force)
 
     def add_text_from_list(self, texts: List[Paragraph]):
-        # text: [
-        #     'x': None,
-        #     'y': None,
-        #     'w': None,
-        #     'h': None,
-        #     'paragraph_w': None,
-        #     'paragraph_h': None,
-        #     'string':None,
-        #     'translated_string': None,
-        #     'image': None,
-        #     'max_width': None,
-        #     'font_size': None
-        #     }
-        # ]
+        """ Add text from text list"""
         for text in texts:
             self.add_text(text)
         self.Draw(True)
 
     def update_text_dict(self, text_object):
+        """When a text object is edited update the
+        dict in ImageTranslator format"""
         item = self.text[1].index(text_object)
 
         text_object.CalcBoundingBox()
@@ -358,6 +347,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             # string= self.translator.run_translator(text_object.String)
 
     def edit_text(self, text_object):
+        """Edit text object"""
         string: str = text_object.String
         font: wx.Font = text_object.Font
         # font.SetPointSize(event.Size)
@@ -375,6 +365,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             self.Draw(True)
 
     def delete_text(self, text_object, Force=True):
+        """Delete a text object"""
         item = self.text[1].index(text_object)
 
         self.RemoveObject(text_object)
@@ -384,12 +375,13 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.Draw(Force)
 
     def delete_all_text(self):
+        """Delete all text"""
         for text in self.text:
             self.delete_text(text, False)
         self.Draw(True)
 
     def zoom(self, wheel):
-        # http://wxpython-users.1045709.n5.nabble.com/Hold-shift-ctrl-mouse-click-td2363641.html
+        """Zoom, pan up-down and right-down method"""
         ctrl = wheel.ControlDown()
         shift = wheel.ShiftDown()
         if ctrl:
@@ -408,6 +400,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             self.MoveImage((0, Rot), "Panel")
 
     def start_move(self, object):
+        """Start moving text"""
         if not self.Moving:
             self.Moving = True
             self.StartPoint = object.HitCoordsPixel
@@ -438,6 +431,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             dc.DrawPolygon(self.MoveObject)
 
     def stop_move(self, event):
+        """Stop the move"""
         if self.Moving:
             self.Moving = False
             if self.MoveObject is not None:

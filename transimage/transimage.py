@@ -104,19 +104,26 @@ class ImageProcess(threading.Thread):
         self.stop: bool = False
 
     def run(self):
+        """Run the ImageTranslator object"""
         try:
             self.stop = False
+            # If mode_process true only process
             if self.mode_process:
                 results = self.process.amap(ImageProcess.worker_process,
                                             [self.image_translator])
-            else:
+            else:  # Else translate
                 results = self.process.amap(ImageProcess.worker_translate,
                                             [self.image_translator])
+            # Wait the results to be ready or
+            # stop by the user
             while not results.ready() and self.stop:
                 time.sleep(2)
+
+            # Skip this if user stopped
             if not self.stop:
                 self.image_translator: ImageTranslator = results.get()
                 # self.process.close()
+                # Post the event to run callback function
                 evt = EvtImageProcess(data=self.image_translator)
                 wx.PostEvent(self.notify_window, evt)
         except ImageProcessError:
@@ -126,6 +133,7 @@ class ImageProcess(threading.Thread):
                 f'ImageProcess got an error (mode_process:{self.mode_process}) look at log file')
 
     def abort(self):
+        """Stop the mutliprocessing and while loop"""
         if self.process is not None:
             self.stop = True
             self.process.terminate()
@@ -135,17 +143,19 @@ class ImageProcess(threading.Thread):
 
     @staticmethod
     def worker_process(image_translator):
+        """Processing worker"""
         image_translator.processing()
         return image_translator
 
     @staticmethod
     def worker_translate(image_translator):
+        """Translator worker"""
         image_translator.translate()
         return image_translator
 
 
 class ProgressingDialog(wx.Dialog):
-
+    """A class to show time elapsed"""
     def __init__(self, parent):
         wx.Dialog.__init__(self, parent, id=wx.ID_ANY, title="Progressing",
                            pos=wx.DefaultPosition, size=wx.Size(200, 120),
@@ -195,6 +205,7 @@ class ProgressingDialog(wx.Dialog):
         self.Centre(wx.BOTH)
 
     def update_label(self, event):
+        """Update text label"""
         self.timeText.SetLabel(str(int(self.timeText.Label)+1))
 
 
@@ -205,6 +216,7 @@ class Transimage(wx.Frame):
 
         self.image_translator: Optional[ImageTranslator] = None
 
+        # Create empty image file
         self.img_file = ImageFile()
         self.img_file.dest_lang = ''
         self.img_file.src_lang = ''
@@ -212,12 +224,15 @@ class Transimage(wx.Frame):
         self.img_file.ocr = ''
         self.img_file.path = ''
 
+        # Init the ui
         self.init_ui(parent)
 
+        # Create settings file if it's needed
         if not os.path.exists(SETTINGS_FILE):
             open(SETTINGS_FILE, 'w+').close()
             create_settings_file()
 
+        # Get settings file
         with open(SETTINGS_FILE, 'r') as settings_file:
             settings = json.load(settings_file)
             for lang in settings['language_pack']:
@@ -249,28 +264,30 @@ class Transimage(wx.Frame):
             self.img_file.src_lang = settings['default_src_lang']
             self.img_file.dest_lang = settings['default_dest_lang']
 
-        wx.CallAfter(self.download_detector)
+        wx.CallAfter(self.download_components)
 
-    def download_detector(self):
+    def download_components(self):
+        """Download CRAFT text detector model
+        and chromium for pyppeteer"""
         if not os.path.exists(f'easyocr/model/{DETECTOR_FILENAME}'):
             progress_dialog = wx.ProgressDialog(
             'Download', 'Detector model', maximum=100, parent=self)
             download(model_url['detector'][0], 'easyocr/model/',
-                     progress_dialog,True,DETECTOR_FILENAME)
+                     progress_dialog, True, DETECTOR_FILENAME)
             progress_dialog.Destroy()
 
         chromium_path: str = f'./chromium/{chromium.REVISION}'
-
         if not os.path.exists('./chromium'):
             os.makedirs(chromium_path)
 
             progress_dialog = wx.ProgressDialog(
             'Download', 'Chromium', maximum=100, parent=self)
             download(chromium.get_url(), chromium_path,
-                     progress_dialog,True)
+                     progress_dialog, True)
             progress_dialog.Destroy()
 
     def init_ui(self, parent):
+        """Init the ui"""
         wx.Frame.__init__(self, parent, id=wx.ID_ANY, title="Transimage",
                           pos=wx.DefaultPosition, size=wx.Size(1200, 500),
                           style=wx.DEFAULT_FRAME_STYLE)
@@ -474,9 +491,11 @@ class Transimage(wx.Frame):
         self.Centre(wx.BOTH)
 
     def context_menu(self, event):
+        """Event for display some context menu"""
         event.Skip()
 
     def open_file(self, event):
+        """Open a file (transimg,png or jpg)"""
         event.Skip()
         self.img_file.path = None
         wildcard: str = """Open Image/Project Files (*.jpg;*jpeg;*.png,*.transimg)
@@ -488,19 +507,24 @@ class Transimage(wx.Frame):
                            style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
+
             file_path = fileDialog.GetPath()
 
             if file_path.endswith('transimg'):
                 with open(file_path, 'rb') as file:
+                    # Deserialize the file
                     self.img_file = pickle.load(file)
 
+                # Check deserialization
                 if self.img_file.ocr is not None:
                     item = self.ocrCombo.FindString(self.img_file.ocr)
                     self.ocrCombo.SetSelection(item)
+
                 if self.img_file.translator is not None:
                     item = self.translatorCombo.FindString(
                         self.img_file.translator)
                     self.translatorCombo.SetSelection(item)
+
                 if self.img_file.src_lang is not None:
                     item = self.src_langCombo.FindString(
                         TO_LANG_NAME[self.img_file.src_lang])
@@ -520,42 +544,50 @@ class Transimage(wx.Frame):
                                           doesn't installed""",
                                          'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
 
+                # Clear canvas and display image and text
                 self.imageCanvas.clear()
                 self.imageCanvas.set_image(self.img_file.img)
                 self.imageCanvas.add_text_from_list(self.img_file.text_list)
 
+                # Create image_translator object
                 self.image_translator = ImageTranslator(self.img_file.img,
                                                         self.img_file.ocr,
                                                         self.img_file.translator,
                                                         self.img_file.src_lang,
                                                         self.img_file.dest_lang)
+                # Set the img of image translator
                 self.image_translator.img_process = self.img_file.img
+                self.image_translator.img_out = self.img_file.img
                 self.image_translator.text = self.img_file.text_list
 
             else:
+                # Read the img from file
                 self.img_file.img = cv2.imread(file_path)
                 self.img_file.path = file_path
+
+                # Clear canvas and set img
                 self.imageCanvas.clear()
                 self.imageCanvas.set_image(self.img_file.img)
 
     def save_file(self, event):
-
+        """ Save the file"""
         self.img_file.text_list = self.imageCanvas.text[0]
 
         if self.image_translator is not None:
             self.img_file.img = self.image_translator.img_process
 
         shift = wx.GetKeyState(wx.WXK_SHIFT)
-        if shift:  # normal save
-            if self.img_file.path is None:
+        if shift:  # Normal save
+            if self.img_file.path is None:  # Save
                 self.save_file_dialog()
-            else:
+            else:  # Write to the opened file
                 with open(self.img_file.path, 'w') as file:
                     pickle.dump(self.img_file, file)
         else:  # Save as
             self.save_as_file_dialog()
 
     def save_as_file_dialog(self):
+        """ Save as file"""
         wildcard: str = "Transimg File (*.transimg)|*.transimg"
         with wx.FileDialog(self, "Save Transimg File", wildcard=wildcard,
                            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
@@ -567,11 +599,14 @@ class Transimage(wx.Frame):
                 pickle.dump(self.img_file, file)
 
     def save_image_file(self, event):
+        """Save an image file"""
         event.Skip()
         # Translate the image
         log.debug('Start the translation of image')
+        # Set text from canvas to translator
         self.image_translator.text = self.imageCanvas.text[0]
 
+        # Process the translate
         self.processImage = ImageProcess(self, self.img_file)
         self.processImage.image_translator = self.image_translator
         self.processImage.mode_process = False
@@ -591,37 +626,50 @@ class Transimage(wx.Frame):
         print('help_menu')
 
     def settings_menu(self, event):
+        """ Open settings menu"""
         event.Skip()
         dlg = SettingsDialog(self)
         if dlg.ShowModal() == wx.ID_OK:
+            # Clear the combo box
             self.src_langCombo.Clear()
             self.dest_langCombo.Clear()
+            # Append the existing language to combo box
             for lang in dlg.settings['language_pack']:
                 if dlg.settings['language_pack'][lang]:
                     self.dest_langCombo.Append(TO_LANG_NAME[lang].capitalize())
                     self.src_langCombo.Append(TO_LANG_NAME[lang].capitalize())
+            # Write the settings file
             with open(SETTINGS_FILE, 'w') as settings_file:
                 json.dump(dlg.settings, settings_file)
 
     def update_translator(self, event):
+        """Update the translator into img file"""
         string: str = event.String.lower()
         self.img_file.translator = string
 
     def update_ocr(self, event):
+        """Update the ocr into img file"""
         string: str = event.String.lower()
         self.img_file.ocr = string
 
     def update_src_lang(self, event):
+        """Update the source language into img file"""
         string: str = event.String.lower()
         self.img_file.src_lang = TO_LANG_CODE[string]
 
     def update_dest_lang(self, event):
+        """Update the destimation language into img file"""
         string: str = event.String.lower()
         self.img_file.dest_lang = TO_LANG_CODE[string]
 
     def callback_image_process(self, event):
+        """Callback after image processing or translating"""
+        # Close the dialog
         self.progressDialog.Close()
+        # Get the image_translator
         self.image_translator = event.data[0]
+
+        # If it's a processing or translating
         if self.processImage.mode_process:
             log.debug('End of the processing')
             self.imageCanvas.clear()
@@ -640,8 +688,10 @@ class Transimage(wx.Frame):
                             self.image_translator.img_out)
 
     def process_image(self, event):
+        """Method to prepare the processing of image"""
         log.debug('Start the processing of image')
 
+        # Check some errors
         if self.img_file.src_lang == self.img_file.dest_lang:
             wx.MessageDialog(None, 'The source and destination lang cannot be the same',
                              'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
