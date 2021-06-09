@@ -577,11 +577,11 @@ class Transimage(wx.Frame):
             self.img_file.img = self.image_translator.img_process
 
         shift = wx.GetKeyState(wx.WXK_SHIFT)
-        if shift:  # Normal save
+        if not shift:  # Normal save
             if self.img_file.path is None:  # Save
                 self.save_file_dialog()
             else:  # Write to the opened file
-                with open(self.img_file.path, 'w') as file:
+                with open(self.img_file.path, 'wb') as file:
                     pickle.dump(self.img_file, file)
         else:  # Save as
             self.save_as_file_dialog()

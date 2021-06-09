@@ -213,7 +213,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
     def __init__(self, *args, **kwargs):
         FloatCanvas.FloatCanvas.__init__(self, *args, **kwargs)
         # ([Text dict],[text object (wxpython)],[some data])
-        self.text: Tuple(List, List, List) = ([], [], [])
+        self.text: Tuple(List[Paragraph], List[ScaledTextBox], List) = ([], [], [])
 
         # Canvas Event
         self.Bind(wx.EVT_MOUSEWHEEL, self.zoom)
@@ -331,6 +331,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.text[0][item]['x'] = x
         self.text[0][item]['y'] = y
         self.text[0][item]['w'] = text_object.BoxWidth
+        self.text[0][item]['max_width'] = text_object.BoxWidth
         self.text[0][item]['h'] = text_object.BoxHeight
         self.text[0][item]['text'] = text_object.String
         self.text[0][item]['font_size'] = text_object.Size
