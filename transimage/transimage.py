@@ -30,7 +30,7 @@ import wx
 import wx.lib.newevent
 from image_translator.image_translator import ImageTranslator
 
-from easyocr.config import DETECTOR_FILENAME, model_url
+from easyocr.config import detection_models, model_url
 
 from transimage.canvas import DisplayCanvas
 from transimage.config import (BACKGROUND_COLOR, CANVAS_COLOR, SETTINGS_FILE,
@@ -269,11 +269,11 @@ class Transimage(wx.Frame):
     def download_components(self):
         """Download CRAFT text detector model
         and chromium for pyppeteer"""
-        if not os.path.exists(f'easyocr/model/{DETECTOR_FILENAME}'):
+        if not os.path.exists(f'easyocr/model/{detection_models['craft']['filename']}'):
             progress_dialog = wx.ProgressDialog(
             'Download', 'Detector model', maximum=100, parent=self)
-            download(model_url['detector'][0], 'easyocr/model/',
-                     progress_dialog, True, DETECTOR_FILENAME)
+            download(detection_models['craft']['url'], 'easyocr/model/',
+                     progress_dialog, True, detection_models['craft']['filename'])
             progress_dialog.Destroy()
 
         chromium_path: str = f'./chromium/{chromium.REVISION}'
@@ -515,6 +515,7 @@ class Transimage(wx.Frame):
                     # Deserialize the file
                     self.img_file = pickle.load(file)
 
+                self.img_file.path = file_path
                 # Check deserialization
                 if self.img_file.ocr is not None:
                     item = self.ocrCombo.FindString(self.img_file.ocr)

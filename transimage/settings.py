@@ -342,34 +342,34 @@ def download_lang(lang, parent):
 
         file = ''
         if lang_code_easyocr in easyocr_lang.latin_lang_list:
-            file = 'latin.pth'
+            file = 'latin'
         elif lang_code_easyocr in easyocr_lang.arabic_lang_list:
-            file = 'arabic.pth'
+            file = 'arabic'
         elif lang_code_easyocr in easyocr_lang.bengali_lang_list:
-            file = 'bengali.pth'
+            file = 'bengali'
         elif lang_code_easyocr in easyocr_lang.cyrillic_lang_list:
-            file = 'cyrillic.pth'
+            file = 'cyrillic'
         elif lang_code_easyocr in easyocr_lang.devanagari_lang_list:
-            file = 'devanagari.pth'
+            file = 'devanagari'
         elif lang_code_easyocr == 'th':
-            file = 'thai.pth'
+            file = 'thai'
         elif lang_code_easyocr == 'ch_sim':
-            file = 'chinese_sim.pth'
+            file = 'zh_tra'
         elif lang_code_easyocr == 'ch_tra':
-            file = 'chinese.pth'
+            file = 'chinese'
         elif lang_code_easyocr == 'ja':
-            file = 'japanese.pth'
+            file = 'japanese'
         elif lang_code_easyocr == 'ko':
-            file = 'korean.pth'
+            file = 'korean'
         elif lang_code_easyocr == 'ta':
-            file = 'tamil.path'
+            file = 'tamil'
         elif lang_code_easyocr == 'te':
-            file = 'telegu.pth'
+            file = 'telegu'
         elif lang_code_easyocr == 'kn':
-            file = 'kannada.pth'
+            file = 'kannada'
 
         if file != '' and not os.path.exists(f'easyocr/model/{file}'):
-            url = easyocr_lang.model_url[file][0]
+            url = easyocr_lang.recognition_models['gen1'][f'{file}_g1.pth']['url']
             progress_dialog = wx.ProgressDialog(
                 'Language pack', f'{TO_LANG_NAME[lang].capitalize()}: EasyOCR model',
                 maximum=100, parent=parent)
