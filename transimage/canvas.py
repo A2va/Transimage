@@ -53,7 +53,7 @@ class EditDialog (wx.Dialog):
                                                      wx.ALIGN_LEFT)
         self.sizeText.SetForegroundColour(TEXT_COLOR)
         self.sizeText.Wrap(-1)
-
+        
         sizeSizer.Add(self.sizeText, 0, wx.ALL, 5)
 
         self.sizeSpinCtrl = wx.SpinCtrl(self, wx.ID_ANY, wx.EmptyString,
@@ -188,12 +188,13 @@ class ContextMenu(wx.Menu):
 
         if dlg.ShowModal() == wx.ID_OK:
             self.canvas.add_text({
+                'text': dlg.textTextCtrl.GetValue(),
                 'x': int(self.pos[0]),
                 'y': int(self.pos[1]),
                 'w': dlg.widthSpinCtrl.GetValue(),
                 'h': int(dlg.sizeSpinCtrl.GetValue()/1.1),
                 'string': dlg.textTextCtrl.GetValue(),
-                'translated_string': '',
+                'translated_text': '',
                 'image': None,
                 'max_width': dlg.widthSpinCtrl.GetValue(),
                 'font_size': dlg.sizeSpinCtrl.GetValue()
@@ -347,7 +348,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
             pass
             # string= self.translator.run_translator(text_object.String)
 
-    def edit_text(self, text_object):
+    def edit_text(self, text_object: ScaledTextBox):
         """Edit text object"""
         string: str = text_object.String
         font: wx.Font = text_object.Font
@@ -360,7 +361,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         if dlg.ShowModal() == wx.ID_OK:
             text_object.SetText(dlg.textTextCtrl.GetValue())
             text_object.Size = dlg.sizeSpinCtrl.GetValue()
-            text_object.Width = dlg.widthSpinCtrl.GetValue()
+            text_object.ReWrap(dlg.widthSpinCtrl.GetValue())
 
             self.update_text_dict(text_object)  # Udate the text dict to actual value
             self.Draw(True)
