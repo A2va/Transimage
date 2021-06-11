@@ -53,7 +53,7 @@ class EditDialog (wx.Dialog):
                                                      wx.ALIGN_LEFT)
         self.sizeText.SetForegroundColour(TEXT_COLOR)
         self.sizeText.Wrap(-1)
-        
+
         sizeSizer.Add(self.sizeText, 0, wx.ALL, 5)
 
         self.sizeSpinCtrl = wx.SpinCtrl(self, wx.ID_ANY, wx.EmptyString,
@@ -158,13 +158,15 @@ class ContextMenu(wx.Menu):
         self.pos = pos
         self.text_object = text_object
 
-        add_text: wx.MenuItem = wx.MenuItem(self, wx.NewIdRef(), 'Add Text')
-        self.Append(add_text)
-        self.Bind(wx.EVT_MENU, self.add_text, add_text)
-
         center_view: wx.MenuItem = wx.MenuItem(self, wx.NewIdRef(), 'Center View')
         self.Append(center_view)
         self.Bind(wx.EVT_MENU, self.center_view, center_view)
+
+        self.AppendSeparator()
+
+        add_text: wx.MenuItem = wx.MenuItem(self, wx.NewIdRef(), 'Add Text')
+        self.Append(add_text)
+        self.Bind(wx.EVT_MENU, self.add_text, add_text)
 
         if type >= 1:
             edit_text: wx.MenuItem = wx.MenuItem(self, wx.NewIdRef(), 'Edit Text')
