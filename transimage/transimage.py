@@ -30,7 +30,7 @@ import wx
 import wx.lib.newevent
 from image_translator.image_translator import ImageTranslator
 
-from easyocr.config import detection_models, model_url
+from easyocr.config import detection_models
 
 from transimage.canvas import DisplayCanvas
 from transimage.config import (BACKGROUND_COLOR, CANVAS_COLOR, SETTINGS_FILE,
@@ -269,7 +269,8 @@ class Transimage(wx.Frame):
     def download_components(self):
         """Download CRAFT text detector model
         and chromium for pyppeteer"""
-        if not os.path.exists(f'easyocr/model/{detection_models['craft']['filename']}'):
+        filename: str = detection_models['craft']['filename']
+        if not os.path.exists(f'easyocr/model/{filename}'):
             progress_dialog = wx.ProgressDialog(
             'Download', 'Detector model', maximum=100, parent=self)
             download(detection_models['craft']['url'], 'easyocr/model/',
