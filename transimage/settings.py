@@ -171,6 +171,23 @@ class SettingsDialog(wx.Dialog):
         defaultDestlangSizer.Add(
             self.defaultDestlangCombo, 0, wx.ALL | wx.EXPAND, 0)
 
+        gpuTextSizer = wx.BoxSizer(wx.HORIZONTAL)
+        gpuTextSizer.AddSpacer(10)
+
+        self.gpuText = wx.StaticText(
+            self.page_1, wx.ID_ANY, "GPU Support (only EasyOCR)")
+        self.gpuText.SetForegroundColour(TEXT_COLOR)
+        self.gpuText.SetFont(wx.Font(LABEL_SIZE, wx.FONTFAMILY_DEFAULT,
+                                                 wx.FONTSTYLE_NORMAL,
+                                                 wx.FONTWEIGHT_NORMAL, 0, ""))
+        gpuTextSizer.Add(
+            self.gpuText, 0, wx.ALL | wx.EXPAND, 0)
+        gpuTextSizer.AddSpacer(10)
+
+        self.gpuCheckbox = wx.CheckBox(self.page_1)
+        gpuTextSizer.Add(
+            self.gpuCheckbox, 0, wx.ALL | wx.EXPAND, 0)
+
         page1Sizer.Add(defaultTranslatorSizer, 0, wx.ALL, 0)
         page1Sizer.AddSpacer(10)
         page1Sizer.Add(defaultOcrSizer, 0, wx.ALL, 0)
@@ -178,6 +195,8 @@ class SettingsDialog(wx.Dialog):
         page1Sizer.Add(defaultSrclangSizer, 0, wx.ALL, 0)
         page1Sizer.AddSpacer(10)
         page1Sizer.Add(defaultDestlangSizer, 0, wx.ALL, 0)
+        page1Sizer.AddSpacer(10)
+        page1Sizer.Add(gpuTextSizer, 0, wx.ALL, 0)
 
         self.page_1.SetSizer(page1Sizer)
 
