@@ -65,7 +65,9 @@ class SettingsDialog(wx.Dialog):
             BACKGROUND_COLOR, BACKGROUND_COLOR, BACKGROUND_COLOR)
         mainSizer.Add(self.notebook, 1, wx.EXPAND, 0)
 
+        ##################
         # Page 1: General
+        ##################
 
         page1Sizer = wx.BoxSizer(wx.VERTICAL)
         page1Sizer.AddSpacer(10)
@@ -74,6 +76,8 @@ class SettingsDialog(wx.Dialog):
         self.page_1.SetForegroundColour(BACKGROUND_COLOR)
         self.page_1.SetBackgroundColour(BACKGROUND_COLOR)
         self.notebook.AddPage(self.page_1, "General")
+
+        # Default translator sizer
 
         defaultTranslatorSizer = wx.BoxSizer(wx.HORIZONTAL)
         defaultTranslatorSizer.AddSpacer(10)
@@ -100,6 +104,8 @@ class SettingsDialog(wx.Dialog):
         defaultTranslatorSizer.Add(
             self.defaultTranslatorCombo, 0, wx.ALL | wx.EXPAND, 0)
 
+        # Default ocr sizer
+
         defaultOcrSizer = wx.BoxSizer(wx.HORIZONTAL)
         defaultOcrSizer.AddSpacer(10)
 
@@ -122,6 +128,8 @@ class SettingsDialog(wx.Dialog):
                                              wx.FONTWEIGHT_NORMAL, 0, ""))
         self.defaultOcrCombo.Bind(wx.EVT_COMBOBOX, self.update_default_ocr)
         defaultOcrSizer.Add(self.defaultOcrCombo, 0, wx.ALL | wx.EXPAND, 0)
+
+        # Default source language sizer
 
         defaultSrclangSizer = wx.BoxSizer(wx.HORIZONTAL)
         defaultSrclangSizer.AddSpacer(10)
@@ -147,6 +155,8 @@ class SettingsDialog(wx.Dialog):
         defaultSrclangSizer.Add(self.defaultSrclangCombo,
                                 0, wx.ALL | wx.EXPAND, 0)
 
+        # Default destination language sizer
+
         defaultDestlangSizer = wx.BoxSizer(wx.HORIZONTAL)
         defaultDestlangSizer.AddSpacer(10)
 
@@ -171,6 +181,8 @@ class SettingsDialog(wx.Dialog):
         defaultDestlangSizer.Add(
             self.defaultDestlangCombo, 0, wx.ALL | wx.EXPAND, 0)
 
+        # Default gpu sizer
+
         gpuTextSizer = wx.BoxSizer(wx.HORIZONTAL)
         gpuTextSizer.AddSpacer(10)
 
@@ -188,6 +200,8 @@ class SettingsDialog(wx.Dialog):
         gpuTextSizer.Add(
             self.gpuCheckbox, 0, wx.ALL | wx.EXPAND, 0)
 
+        # Add all to sizer to main size in page 1
+
         page1Sizer.Add(defaultTranslatorSizer, 0, wx.ALL, 0)
         page1Sizer.AddSpacer(10)
         page1Sizer.Add(defaultOcrSizer, 0, wx.ALL, 0)
@@ -200,7 +214,9 @@ class SettingsDialog(wx.Dialog):
 
         self.page_1.SetSizer(page1Sizer)
 
+        #######################
         # Page 2: Language Pack
+        #######################
 
         page2Sizer = wx.BoxSizer(wx.VERTICAL)
         page2Sizer.AddSpacer(10)
@@ -210,6 +226,7 @@ class SettingsDialog(wx.Dialog):
         self.page_2.SetBackgroundColour(BACKGROUND_COLOR)
         self.notebook.AddPage(self.page_2, "Language Pack")
 
+        # Checklist language
         self.lang_CheckList = wx.CheckListBox(
             self.page_2, wx.ID_ANY, style=wx.LB_SORT)
         self.lang_CheckList.SetBackgroundColour(BACKGROUND_COLOR)
@@ -217,6 +234,7 @@ class SettingsDialog(wx.Dialog):
 
         page2Sizer.Add(self.lang_CheckList, 1, wx.ALL | wx.EXPAND, 5)
 
+        #Apply button
         self.applyButton = wx.Button(
             self.page_2, wx.ID_ANY, "Apply", wx.DefaultPosition, wx.DefaultSize, 0)
         self.applyButton.SetForegroundColour(TEXT_COLOR)
