@@ -64,7 +64,8 @@ def create_settings_file():
         'default_src_lang': 'eng',
         'default_dest_lang': 'fra',
         'default_ocr': 'tesseract',
-        'default_translator': 'bing'
+        'default_translator': 'bing',
+        'gpu': False
     }
 
     for lang in setting_dict['language_pack']:
@@ -88,7 +89,7 @@ class ImageFile():
 
 
 class ImageProcess(threading.Thread):
-    def __init__(self, notify_window: wx.Frame, img_file: ImageFile, mode_process=True):
+    def __init__(self, notify_window: wx.Frame, img_file: ImageFile,gpu: bool, mode_process=True):
         super(ImageProcess, self).__init__()
         self.notify_window: wx.Frame = notify_window
         self.mode_process: bool = mode_process
@@ -97,9 +98,10 @@ class ImageProcess(threading.Thread):
         self.translator: str = img_file.translator
         self.src_lang: str = img_file.src_lang
         self.dest_lang = img_file.dest_lang
+        self.gpu: bool = gpu
         self.image_translator = ImageTranslator(self.img, self.ocr,
                                                 self.translator,
-                                                self.src_lang, self.dest_lang)
+                                                self.src_lang, self.dest_lang, self.gpu)
         self.process: p_multiprocessing.ProcessingPool = p_multiprocessing.ProcessingPool()
         self.stop: bool = False
 
@@ -234,35 +236,35 @@ class Transimage(wx.Frame):
 
         # Get settings file
         with open(SETTINGS_FILE, 'r') as settings_file:
-            settings = json.load(settings_file)
-            for lang in settings['language_pack']:
-                if settings['language_pack'][lang]:
+            self.settings = json.load(settings_file)
+            for lang in self.settings['language_pack']:
+                if self.settings['language_pack'][lang]:
                     self.dest_langCombo.Append(TO_LANG_NAME[lang].capitalize())
                     self.src_langCombo.Append(TO_LANG_NAME[lang].capitalize())
 
             item = self.src_langCombo.FindString(
-                TO_LANG_NAME[settings['default_src_lang']])
+                TO_LANG_NAME[self.settings['default_src_lang']])
             if item != -1:
                 self.src_langCombo.SetSelection(item)
 
             item = self.dest_langCombo.FindString(
-                TO_LANG_NAME[settings['default_dest_lang']])
+                TO_LANG_NAME[self.settings['default_dest_lang']])
             if item != -1:
                 self.dest_langCombo.SetSelection(item)
 
-            item = self.ocrCombo.FindString(settings['default_ocr'])
+            item = self.ocrCombo.FindString(self.settings['default_ocr'])
             if item != -1:
                 self.ocrCombo.SetSelection(item)
 
             item = self.translatorCombo.FindString(
-                settings['default_translator'])
+                self.settings['default_translator'])
             if item != -1:
                 self.translatorCombo.SetSelection(item)
 
-            self.img_file.translator = settings['default_translator']
-            self.img_file.ocr = settings['default_ocr']
-            self.img_file.src_lang = settings['default_src_lang']
-            self.img_file.dest_lang = settings['default_dest_lang']
+            self.img_file.translator = self.settings['default_translator']
+            self.img_file.ocr = self.settings['default_ocr']
+            self.img_file.src_lang = self.settings['default_src_lang']
+            self.img_file.dest_lang = self.settings['default_dest_lang']
 
         wx.CallAfter(self.download_components)
 
@@ -609,8 +611,9 @@ class Transimage(wx.Frame):
         self.image_translator.text = self.imageCanvas.text[0]
 
         # Process the translate
-        self.processImage = ImageProcess(self, self.img_file)
+        self.processImage = ImageProcess(self, self.img_file, self.settings['gpu'])
         self.processImage.image_translator = self.image_translator
+        self.process_image.image_translator.gpu = self.settings['gpu']
         self.processImage.mode_process = False
         self.processImage.start()
 
@@ -705,7 +708,7 @@ class Transimage(wx.Frame):
             wx.MessageDialog(None, 'Any image or file are open',
                              'Error', wx.OK | wx.ICON_EXCLAMATION).ShowModal()
         else:
-            self.processImage = ImageProcess(self, self.img_file)
+            self.processImage = ImageProcess(self, self.img_file, self.settings['gpu'])
             self.processImage.start()
 
             self.progressDialog = ProgressingDialog(self)
