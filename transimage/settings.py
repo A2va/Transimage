@@ -234,7 +234,7 @@ class SettingsDialog(wx.Dialog):
 
         page2Sizer.Add(self.lang_CheckList, 1, wx.ALL | wx.EXPAND, 5)
 
-        #Apply button
+        # Apply button
         self.applyButton = wx.Button(
             self.page_2, wx.ID_ANY, "Apply", wx.DefaultPosition, wx.DefaultSize, 0)
         self.applyButton.SetForegroundColour(TEXT_COLOR)
@@ -364,12 +364,8 @@ def download_lang(lang, parent):
     lang_code_tesseract = image_translator_lang.OCR_LANG[lang][0]
     if lang_code_tesseract != 'invalid':
         if not os.path.exists(f'tesseract-ocr/tessdata/{lang_code_tesseract}.traineddata'):
-            progress_dialog = wx.ProgressDialog(
-                'Language pack',
-                f'{TO_LANG_NAME[lang].capitalize()}: Tesseract Model',
-                maximum=100, parent=parent)
-            download(tesseract_url, 'tesseract-ocr/tessdata', progress_dialog)
-            progress_dialog.Destroy()
+            download_dialog(parent, tesseract_url, '', 'tesseract-ocr/tessdata', 'Language pack',
+                            f'{TO_LANG_NAME[lang].capitalize()}: Tesseract Model',False)
 
     lang_code_easyocr = image_translator_lang.OCR_LANG[lang][1]
     if lang_code_easyocr != 'invalid':
@@ -405,13 +401,35 @@ def download_lang(lang, parent):
         elif lang_code_easyocr == 'kn':
             file = 'kannada'
 
-        if file != '' and not os.path.exists(f'easyocr/model/{file}'):
-            url = easyocr_lang.recognition_models['gen1'][f'{file}_g1.pth']['url']
-            progress_dialog = wx.ProgressDialog(
-                'Language pack', f'{TO_LANG_NAME[lang].capitalize()}: EasyOCR model',
+        gen_dict = None
+        gen: int = 0
+        if f'{file}_g1' in easyocr_lang.recognition_models['gen1']:
+            gen = 1
+            gen_dict = easyocr_lang.recognition_models['gen1']
+        if f'{file}_g2' in easyocr_lang.recognition_models['gen2']:
+            gen = 2
+            gen_dict = easyocr_lang.recognition_models['gen2']
+
+        if file == '' or gen == 0:
+            log.error('This language does not exist')
+            return
+
+        key: str = f'{file}_g{gen}'
+        filename: str = gen_dict[key]['filename']
+        if not os.path.exists(f'easyocr/model/{filename}'):
+            url: str = gen_dict[key]['url']
+            download_dialog(parent, url, filename,
+                            'easyocr/model', 'Language pack',
+                            f'{TO_LANG_NAME[lang].capitalize()}: EasyOCR Model')
+
+
+
+def download_dialog(parent, url: str, file: str, path: str, title: str = '', description: str = '',zip: bool = True):
+    progress_dialog = wx.ProgressDialog(
+                title, description,
                 maximum=100, parent=parent)
-            download(url, 'easyocr/model', progress_dialog, True, file)
-            progress_dialog.Destroy()
+    download(url, path, progress_dialog, zip, file)
+    progress_dialog.Destroy()
 
 
 def download(url, path, progress_dialog, zip=False, filename=''):
