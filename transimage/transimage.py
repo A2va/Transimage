@@ -636,6 +636,9 @@ class Transimage(wx.Frame):
         dlg = SettingsDialog(self)
         if dlg.ShowModal() == wx.ID_OK:
             # Clear the combo box
+            # Save current language selection before clear
+            src_lang: str = self.src_langCombo.GetStringSelection()
+            dest_lang: str =  self.dest_langCombo.GetStringSelection() 
             self.src_langCombo.Clear()
             self.dest_langCombo.Clear()
             # Append the existing language to combo box
@@ -646,6 +649,15 @@ class Transimage(wx.Frame):
             # Write the settings file
             with open(SETTINGS_FILE, 'w') as settings_file:
                 json.dump(dlg.settings, settings_file)
+
+            item = self.src_langCombo.FindString(src_lang)
+            if item != -1:
+                self.src_langCombo.SetSelection(item)
+
+            item = self.dest_langCombo.FindString(dest_lang)
+            if item != -1:
+                self.dest_langCombo.SetSelection(item)
+
 
     def update_translator(self, event):
         """Update the translator into img file"""
