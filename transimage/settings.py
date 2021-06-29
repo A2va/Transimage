@@ -197,6 +197,7 @@ class SettingsDialog(wx.Dialog):
         gpuTextSizer.AddSpacer(10)
 
         self.gpuCheckbox = wx.CheckBox(self.page_1)
+        self.gpuCheckbox.Bind(wx.EVT_CHECKBOX, self.update_gpu)
         gpuTextSizer.Add(
             self.gpuCheckbox, 0, wx.ALL | wx.EXPAND, 0)
 
@@ -313,6 +314,11 @@ class SettingsDialog(wx.Dialog):
             self.settings['default_translator'])
         if item != -1:
             self.defaultTranslatorCombo.SetSelection(item)
+
+        self.gpuCheckbox.SetValue(self.settings['gpu'])
+
+    def update_gpu(self, event):
+        self.settings['gpu'] = self.gpuCheckbox.GetValue()
 
     def update_default_ocr(self, event):
         """Update default ocr"""
