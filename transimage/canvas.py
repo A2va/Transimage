@@ -216,7 +216,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
     def __init__(self, *args, **kwargs):
         FloatCanvas.FloatCanvas.__init__(self, *args, **kwargs)
         # ([Text dict],[text object (wxpython)],[some data])
-        self.text: Tuple(List[Paragraph], List[ScaledTextBox], List) = ([], [], [])
+        self.text: Tuple(List[Paragraph], List[ScaledTextBox]) = ([], [])
 
         # Canvas Event
         self.Bind(wx.EVT_MOUSEWHEEL, self.zoom)
@@ -248,7 +248,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.ClearAll()
         self.text[0].clear()
         self.text[1].clear()
-        self.text[2].clear()
         self.bmp_object = None
         self.Draw(True)
 
@@ -308,11 +307,7 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
 
         self.text[0].append(text)
         self.text[1].append(text_box)
-        self.text[2].append({
-            'original_text': text['text'],
-            'original_translated': text['translated_text'],
-        })
-
+    
         self.Draw(Force)
 
     def add_text_from_list(self, texts: List[Paragraph]):
@@ -338,17 +333,6 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         self.text[0][item]['h'] = text_object.BoxHeight
         self.text[0][item]['text'] = text_object.String
         self.text[0][item]['font_size'] = text_object.Size
-
-        if self.text[2][item]['original_translated'] != '':
-            string: str = self.text[2][item]['original_text']
-            if text_object.String != string:
-                pass
-                # string=self.translator.run_translator(text_object.String)
-            else:
-                string = self.text[2][item]['original_translated']
-        else:
-            pass
-            # string= self.translator.run_translator(text_object.String)
 
     def edit_text(self, text_object: ScaledTextBox):
         """Edit text object"""
