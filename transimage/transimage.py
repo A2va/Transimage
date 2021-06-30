@@ -582,16 +582,16 @@ class Transimage(wx.Frame):
 
         shift = wx.GetKeyState(wx.WXK_SHIFT)
         if not shift:  # Normal save
-            if self.img_file.path is None:  # Save
+            if os.path.splitext(self.img_file.path)[1] != '.transimg':
                 self.save_file_dialog()
             else:  # Write to the opened file
                 with open(self.img_file.path, 'wb') as file:
                     pickle.dump(self.img_file, file)
         else:  # Save as
-            self.save_as_file_dialog()
+            self.save_file_dialog()
 
-    def save_as_file_dialog(self):
-        """ Save as file"""
+    def save_file_dialog(self):
+        """ Save file"""
         wildcard: str = "Transimg File (*.transimg)|*.transimg"
         with wx.FileDialog(self, "Save Transimg File", wildcard=wildcard,
                            style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
@@ -613,7 +613,7 @@ class Transimage(wx.Frame):
         # Process the translate
         self.processImage = ImageProcess(self, self.img_file, self.settings['gpu'])
         self.processImage.image_translator = self.image_translator
-        self.process_image.image_translator.gpu = self.settings['gpu']
+        self.processImage.image_translator.gpu = self.settings['gpu']
         self.processImage.mode_process = False
         self.processImage.start()
 
