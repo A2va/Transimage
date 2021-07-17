@@ -42,7 +42,6 @@ If I have time I will implement this
 git clone https://github.com/A2va/Transimage.git
 python -m pip install torch==1.7.0+cpu torchvision==0.8.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
 python -m pip install easyocr
-python -m pip install craft-text-detector
 python -m pip install -r requirements.txt
 ```
 ### Build
