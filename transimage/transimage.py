@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from typing import List, Optional
-from image_translator.type import Paragraph
+from image_translator.types import Paragraph
 
 import json
 import os

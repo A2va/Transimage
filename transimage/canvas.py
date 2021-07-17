@@ -14,7 +14,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from typing import List, Tuple
-from image_translator.type import Paragraph
+from image_translator.types import Paragraph
 
 import logging
 
