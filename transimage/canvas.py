@@ -326,11 +326,11 @@ class DisplayCanvas(FloatCanvas.FloatCanvas):
         x: int = pos[0]
         y: int = abs(pos[1])
 
-        self.text[0][item]['x'] = x
-        self.text[0][item]['y'] = y
-        self.text[0][item]['w'] = text_object.BoxWidth
-        self.text[0][item]['max_width'] = text_object.BoxWidth
-        self.text[0][item]['h'] = text_object.BoxHeight
+        self.text[0][item]['x'] = int(x)
+        self.text[0][item]['y'] = int(y)
+        self.text[0][item]['w'] = int(text_object.BoxWidth)
+        self.text[0][item]['max_width'] = int(text_object.BoxWidth)
+        self.text[0][item]['h'] = int(text_object.BoxHeight)
         self.text[0][item]['text'] = text_object.String
         self.text[0][item]['font_size'] = text_object.Size
 

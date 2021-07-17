@@ -89,7 +89,7 @@ class ImageFile():
 
 
 class ImageProcess(threading.Thread):
-    def __init__(self, notify_window: wx.Frame, img_file: ImageFile,gpu: bool, mode_process=True):
+    def __init__(self, notify_window: wx.Frame, img_file: ImageFile, gpu: bool, mode_process=True):
         super(ImageProcess, self).__init__()
         self.notify_window: wx.Frame = notify_window
         self.mode_process: bool = mode_process
@@ -430,7 +430,7 @@ class Transimage(wx.Frame):
                                             wx.FONTWEIGHT_NORMAL, 0, ""))
 
         self.translatorCombo = wx.ComboBox(self, wx.ID_ANY,
-                                           choices=["Deepl", "Google"],
+                                           choices=["Deepl", "Google", "Bing"],
                                            style=wx.CB_DROPDOWN | wx.CB_SORT)
         self.translatorCombo.SetBackgroundColour(BACKGROUND_COLOR)
         self.translatorCombo.SetForegroundColour(TEXT_COLOR)  # For text
@@ -638,7 +638,7 @@ class Transimage(wx.Frame):
             # Clear the combo box
             # Save current language selection before clear
             src_lang: str = self.src_langCombo.GetStringSelection()
-            dest_lang: str =  self.dest_langCombo.GetStringSelection() 
+            dest_lang: str = self.dest_langCombo.GetStringSelection()
             self.src_langCombo.Clear()
             self.dest_langCombo.Clear()
             # Append the existing language to combo box
@@ -657,7 +657,6 @@ class Transimage(wx.Frame):
             item = self.dest_langCombo.FindString(dest_lang)
             if item != -1:
                 self.dest_langCombo.SetSelection(item)
-
 
     def update_translator(self, event):
         """Update the translator into img file"""
